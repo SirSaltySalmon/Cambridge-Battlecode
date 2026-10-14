@@ -10,6 +10,27 @@ ROSTER = (Draft.CASSI_AND_ISSAC, Draft.VENDETTA, Draft.VARG, Draft.WILLOW, Draft
 # Groups made only of these kinds can join the pocket.
 POCKET_CAMP_KINDS = (Camp.WOLF, Camp.GEM_CLUSTER, Camp.GOLD_CLUSTER, Camp.ELK, Camp.MONOLITH)
 DENSITY_RADIUS = 8
+# Groups this close to the pocket anchor are farmed while the pocket respawns.
+ROAM_RADIUS = 60
+
+# Group value, in gems.
+GOLD_WEIGHT = 0.2
+# Gems lost per point of health the team takes while clearing.
+DAMAGE_COST = 0.01
+# Rough team basic-attack damage per round, used to estimate clear time.
+TEAM_DAMAGE = 200
+# Walking distance to the nearest altar at which a pocket is worth half.
+ALTAR_FALLOFF = 20
+UNREACHABLE_GAP = 255
+
+# Health and strength per kind, from the rules; camps outside vision hide them.
+CAMP_STATS = {
+    Camp.WOLF: (1350, 20),
+    Camp.ELK: (2400, 60),
+    Camp.GEM_CLUSTER: (500, 0),
+    Camp.GOLD_CLUSTER: (500, 0),
+    Camp.MONOLITH: (20000, 200),
+}
 
 _memory = None
 
@@ -19,8 +40,37 @@ def group_center(group):
     return cambc.Vec2(sum(t.x for t in tiles) // len(tiles), sum(t.y for t in tiles) // len(tiles))
 
 
+def clear_rounds(group):
+    return sum(CAMP_STATS.get(camp.kind(), (0, 0))[0] for camp in group.camps()) / TEAM_DAMAGE
+
+
+def group_value(group):
+    # Reward minus the health the team trades for it; never negative.
+    damage_taken = sum(CAMP_STATS.get(camp.kind(), (0, 0))[1] for camp in group.camps()) * clear_rounds(group)
+    reward = group.gem_value() + GOLD_WEIGHT * group.gold_value()
+    return max(0.0, reward - DAMAGE_COST * damage_taken)
+
+
+def group_income(group):
+    # Value per round when the group is farmed every time it returns.
+    cycle = group.max_respawn_timer() + clear_rounds(group) + cambc.constants.CAPTURE_TIME
+    return group_value(group) / max(1, cycle)
+
+
+def altar_gaps(groups, indexes):
+    # Walking distance from each group to its nearest altar.
+    field = cambc.DistanceField()
+    reached = cambc.Bitboard()
+    field.compute(game_map.walls() | game_map.holes(), game_map.altars(), reached)
+    gaps = {}
+    for index in indexes:
+        steps = [field.get(t) for t in groups[index].spawn_tiles().positions() if reached.is_set(t)]
+        gaps[index] = min(steps) if steps else UNREACHABLE_GAP
+    return gaps
+
+
 def compute_pocket():
-    # Returns the anchor tile and pocket group indexes, nearest to the anchor first.
+    # Returns the anchor tile and route group indexes, nearest to the anchor first.
     groups = game_map.camp_groups()
     centers = {}
     for index, group in enumerate(groups):
@@ -29,38 +79,34 @@ def compute_pocket():
     if not centers:
         return None, []
 
-    # Count neighbours with native bitboard ops; Python pair loops are too costly in fuel.
+    incomes = {index: group_income(groups[index]) for index in centers}
+    gaps = altar_gaps(groups, centers)
+
+    # Find neighbours with native bitboard ops; Python pair loops are too costly in fuel.
     board = cambc.Bitboard()
-    for center in centers.values():
+    at_tile = {}
+    for index, center in centers.items():
         board.set(center)
-    counts = {index: (board & disk(center)).count() for index, center in centers.items()}
-    top = max(counts.values())
+        at_tile.setdefault(center, []).append(index)
 
-    map_center = cambc.Vec2(game_map.width() // 2, game_map.height() // 2)
     best = None
-    for index in (i for i, count in counts.items() if count == top):
-        members = pocket_members(centers, centers[index])
-        middle = cambc.Vec2(sum(centers[m].x for m in members) // len(members),
-                            sum(centers[m].y for m in members) // len(members))
-        key = middle.chebyshev_distance(map_center)
-        if best is None or key < best[0]:
-            best = (key, index, members)
+    for index, center in centers.items():
+        members = [m for tile in (board & disk(center, DENSITY_RADIUS)).positions() for m in at_tile[tile]]
+        gap = sum(gaps[m] for m in members) / len(members)
+        score = sum(incomes[m] for m in members) * ALTAR_FALLOFF / (ALTAR_FALLOFF + gap)
+        if best is None or score > best[0]:
+            best = (score, index)
 
-    _, anchor_index, members = best
-    anchor = centers[anchor_index]
-    members.sort(key=lambda m: (anchor.chebyshev_distance(centers[m]), m))
-    return anchor, members[:255]
+    anchor = centers[best[1]]
+    route = [m for tile in (board & disk(anchor, ROAM_RADIUS)).positions() for m in at_tile[tile]]
+    route.sort(key=lambda m: (anchor.chebyshev_distance(centers[m]), m))
+    return anchor, route[:255]
 
 
-def disk(center):
+def disk(center, radius):
     tiles = cambc.Bitboard()
-    tiles.draw_chebyshev(center, DENSITY_RADIUS)
+    tiles.draw_chebyshev(center, radius)
     return tiles
-
-
-def pocket_members(centers, anchor):
-    return [index for index, spot in centers.items()
-            if anchor.chebyshev_distance(spot) <= DENSITY_RADIUS]
 
 
 def encode_pocket(anchor, members):
@@ -76,15 +122,15 @@ def decode_pocket(data):
 
 
 def play():
-    # Pick first so a long pocket search can never cost us the pick.
-    chosen = cambc.draft.current_draft(cambc.Team.ALLY)
-    for pick in ROSTER:
-        if pick not in chosen:
-            cambc.draft.pick(pick)
-            break
-
+    # Submit before picking: the pick ends our input for the turn and later memory access is rejected.
     global _memory
     if _memory is None:
         anchor, members = compute_pocket()
         _memory = encode_pocket(anchor, members) if anchor is not None else b""
     cambc.draft_memory.submit(_memory)
+
+    chosen = cambc.draft.current_draft(cambc.Team.ALLY)
+    for pick in ROSTER:
+        if pick not in chosen:
+            cambc.draft.pick(pick)
+            break

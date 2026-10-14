@@ -12,6 +12,17 @@ Team, Champ, Kind, Item = cambc.Team, cambc.ChampionType, cambc.AbilityKind, cam
 RECALL_HEALTH = 0.35
 GEM_BANK = 40
 THREAT_RANGE = 4
+# While the target is still respawning, bank any bag at least this big.
+IDLE_BANK = 10
+# Recall to shop after a tribute when carrying this much gold.
+RECALL_GOLD = 150
+
+# Route targeting: a new target must beat the current one by this factor.
+SWITCH_MARGIN = 1.25
+# Wait this far from a respawning group; standing on its spawn tiles delays it.
+WAIT_RANGE = 2
+# A capture claim is dropped after this many rounds so a dead or lost collector gets replaced.
+CAPTURE_TIMEOUT = 15
 
 # Fight score.
 FIGHT_THRESHOLD = 1
@@ -61,8 +72,11 @@ SHOP_FALLBACK = {
 FARM, FIGHT, RETREAT = 0, 1, 2
 MODE_NAMES = ("farm", "fight", "retreat")
 
-# Shared memory: mode, pocket slot, unused, round stamp. The stamp is round + 1 so zeroed memory reads as unwritten.
-SHARED_LAYOUT = "<BBHI"
+# Shared memory: mode, target slot, capture slot, collector champion + 1, round stamp, capture claim round.
+# The stamp is round + 1 so zeroed memory reads as unwritten; capture slot NO_CAPTURE means nobody is collecting.
+SHARED_LAYOUT = "<BBBBHH"
+NO_CAPTURE = 255
+CAPTURE_SLOT_BYTE = 2
 
 EMBLEMS = tuple(i for i in range(Item.COUNT) if "EMBLEM" in Item(i).name)
 
@@ -222,25 +236,18 @@ def under_threat(me):
     return False
 
 
-def is_respawning(group):
-    # Group state is only known in vision.
-    if (cambc.vision.visible_tiles() & group.spawn_tiles()).is_empty():
-        return False
-    try:
-        return isinstance(group.state(), game_map.CampGroupRespawning)
-    except cambc.Error:
-        return False
-
-
 def read_shared():
     data = bytearray(struct.calcsize(SHARED_LAYOUT))
     cambc.shared_memory.read(0, data)
-    mode, slot, _, stamp = struct.unpack(SHARED_LAYOUT, data)
-    return mode, slot, stamp
+    mode, slot, capture_slot, collector, stamp, claimed = struct.unpack(SHARED_LAYOUT, data)
+    if stamp == 0:
+        capture_slot = NO_CAPTURE
+    return mode, slot, capture_slot, collector, stamp, claimed
 
 
-def write_shared(mode, slot):
-    cambc.shared_memory.write(0, struct.pack(SHARED_LAYOUT, mode, slot, 0, cambc.round_number() + 1))
+def write_shared(mode, slot, capture_slot, collector, claimed):
+    cambc.shared_memory.write(0, struct.pack(SHARED_LAYOUT, mode, slot, capture_slot, collector,
+                                             cambc.round_number() + 1, claimed))
 
 
 def buy(me, item, count):
@@ -276,42 +283,130 @@ class Bot:
     def __init__(self):
         self.ready = False
         self.priority_set = False
-        self.pocket = []
+        self.route = []
         self.centers = []
+        self.values = []
+        self.clears = []
+        # Round each route group is next expected up; 0 means up or never seen.
+        self.ready_at = []
+        # Route groups last seen cleared with their reward still uncollected.
+        self.rewards = set()
         self.mode = FARM
         self.slot = 0
+        self.capture_slot = NO_CAPTURE
+        self.collector = 0
+        self.claimed = 0
+        self.tributed = False
 
     def setup(self):
         groups = game_map.camp_groups()
         _, members = draft.decode_pocket(bytes(cambc.DraftMemoryBuffer()))
         if not members or any(index >= len(groups) for index in members):
             _, members = draft.compute_pocket()
-        self.pocket = [groups[index] for index in members] or list(groups)
-        self.centers = [draft.group_center(group) for group in self.pocket]
+        self.route = [groups[index] for index in members] or list(groups)[:255]
+        self.centers = [draft.group_center(group) for group in self.route]
+        self.values = [draft.group_value(group) for group in self.route]
+        self.clears = [draft.clear_rounds(group) for group in self.route]
+        self.ready_at = [0] * len(self.route)
         self.ready = True
 
     def current_group(self):
-        return self.pocket[self.slot % len(self.pocket)] if self.pocket else None
+        return self.route[self.slot % len(self.route)] if self.route else None
+
+    # Route memory
+
+    def observe(self):
+        # Vision is not shared, so each champion keeps its own respawn record.
+        seen = cambc.vision.visible_tiles()
+        now = cambc.round_number()
+        for index, group in enumerate(self.route):
+            if (seen & group.spawn_tiles()).is_empty():
+                continue
+            try:
+                state = group.state()
+            except cambc.Error:
+                continue
+            self.ready_at[index] = now + state.timer if isinstance(state, game_map.CampGroupRespawning) else 0
+            if isinstance(state, game_map.CampGroupRewardAvailable):
+                self.rewards.add(index)
+            else:
+                self.rewards.discard(index)
+
+    def wait_at(self, slot, origin):
+        # Rounds left to wait on arrival at a route group.
+        travel = distance(origin, self.centers[slot])
+        return max(0, self.ready_at[slot] - cambc.round_number() - travel)
+
+    def route_rate(self, slot, origin):
+        travel = distance(origin, self.centers[slot])
+        cycle = travel + self.wait_at(slot, origin) + self.clears[slot] + cambc.constants.CAPTURE_TIME
+        return self.values[slot] / max(1, cycle)
+
+    def pick_target(self, slot, origin, skip):
+        # The group being collected is skipped so everyone else moves on.
+        options = [s for s in range(len(self.route)) if s != skip] or [slot]
+        best = max(options, key=lambda s: self.route_rate(s, origin))
+        if slot == skip or self.route_rate(best, origin) > SWITCH_MARGIN * self.route_rate(slot, origin):
+            return best
+        return slot
+
+    def update_capture(self, me, capture_slot, collector, claimed):
+        # Returns the capture claim after dropping finished or stale ones and claiming a fresh reward.
+        now = cambc.round_number()
+        if capture_slot != NO_CAPTURE and (capture_slot >= len(self.route) or self.ready_at[capture_slot] > now
+                                           or now - claimed > CAPTURE_TIMEOUT):
+            capture_slot = NO_CAPTURE
+        if capture_slot != NO_CAPTURE or not self.rewards:
+            return capture_slot, collector, claimed
+
+        slot = min(self.rewards, key=lambda s: distance(me.position(), self.centers[s]))
+        # Only a fresh sighting can claim this group again, so a stale record can't re-send a collector.
+        self.rewards.discard(slot)
+        spawns = self.route[slot].spawn_tiles()
+        allies = [a for a in alive(cambc.vision.champions(Team.ALLY)) if not channelling(a)]
+        if me not in allies:
+            allies.append(me)
+        nearest = min(allies, key=lambda a: min(distance(a.position(), t) for t in spawns.positions()))
+        print(f"round {now}: champion {int(nearest.champion_name())} collects route slot {slot}")
+        return slot, int(nearest.champion_name()) + 1, now
 
     # Shared decision
 
     def sync_decision(self, me):
-        mode, slot, stamp = read_shared()
+        mode, slot, capture_slot, collector, stamp, claimed = read_shared()
         if stamp == cambc.round_number() + 1 or not me.is_alive():
             self.mode, self.slot = mode, slot
+            self.capture_slot, self.collector, self.claimed = capture_slot, collector, claimed
             return
 
-        # First living champion this round: advance past visibly respawning groups, then score.
-        slot = slot % len(self.pocket) if self.pocket else 0
-        for _ in range(len(self.pocket)):
-            if not is_respawning(self.pocket[slot]):
-                break
-            slot = (slot + 1) % len(self.pocket)
+        # First living champion this round settles the capture, picks the target from its own respawn
+        # record, then scores.
+        slot = slot % len(self.route) if self.route else 0
+        if self.route:
+            capture_slot, collector, claimed = self.update_capture(me, capture_slot, collector, claimed)
+            slot = self.pick_target(slot, me.position(), capture_slot)
         new_mode = self.score_mode(slot)
         if (new_mode, slot) != (self.mode, self.slot):
-            print(f"round {cambc.round_number()}: {MODE_NAMES[new_mode]}, pocket slot {slot}")
+            print(f"round {cambc.round_number()}: {MODE_NAMES[new_mode]}, route slot {slot}")
         self.mode, self.slot = new_mode, slot
-        write_shared(self.mode, self.slot)
+        self.capture_slot, self.collector, self.claimed = capture_slot, collector, claimed
+        write_shared(self.mode, self.slot, capture_slot, collector, claimed)
+
+    def is_collector(self, me):
+        return self.capture_slot != NO_CAPTURE and self.collector == int(me.champion_name()) + 1
+
+    def collect(self, me):
+        # Stand on the cleared group until its reward lands, then release the claim for everyone.
+        index = self.capture_slot
+        group = self.route[index]
+        if self.ready_at[index] > cambc.round_number():
+            cambc.shared_memory[CAPTURE_SLOT_BYTE] = NO_CAPTURE
+            self.capture_slot = NO_CAPTURE
+            return False
+        if self.group_camps_of(group):
+            return False
+        move_towards_closest(group.spawn_tiles())
+        return True
 
     def score_mode(self, slot):
         enemies = alive(cambc.vision.champions(Team.ENEMY))
@@ -346,6 +441,8 @@ class Bot:
         if not self.priority_set:
             me.set_priority(PRIORITY.get(me.champion_name(), 0))
             self.priority_set = True
+        if me.is_alive():
+            self.observe()
         self.sync_decision(me)
 
         # Dead champions still get a turn to shop.
@@ -360,6 +457,7 @@ class Bot:
         # 2. On spawn: buy, stay until healed (spawn heals at turn end), then head out.
         position = me.position()
         if game_map.spawn_region(Team.ALLY).is_set(position):
+            self.tributed = False
             self.buy_items(me)
             if me.health() < me.max_health():
                 return
@@ -380,11 +478,23 @@ class Bot:
             move_towards_closest(~zone)
             return
 
-        # 4. Bank a full bag.
-        if me.gem_count() >= GEM_BANK and self.bank_gems(me):
+        # 4. The one champion collecting a cleared group stays on it unless something can hit it.
+        if self.is_collector(me) and not under_threat(me) and self.collect(me):
             return
 
-        # 5-7. Follow the shared mode.
+        # 5. Bank a full bag, or a smaller one while the target is still respawning.
+        gems = me.gem_count()
+        if gems > 0:
+            self.tributed = False
+        idle = bool(self.route) and self.wait_at(self.slot % len(self.route), position) > 0
+        if (gems >= GEM_BANK or (idle and gems >= IDLE_BANK)) and self.bank_gems(me):
+            return
+
+        # 6. Just tributed with a heavy purse: go shop if the walk home is longer than the recall.
+        if self.tributed and gems == 0 and me.gold_count() >= RECALL_GOLD and self.recall_to_shop(me):
+            return
+
+        # 7-9. Follow the shared mode.
         if self.mode == FIGHT and self.fight(me):
             return
         if self.mode == RETREAT and self.retreat(me):
@@ -399,11 +509,25 @@ class Bot:
             if distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
                 try:
                     me.submit_gems(altar)
+                    self.tributed = True
                     return True
                 except cambc.Error:
                     continue
             goals |= tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE)
         return move_towards_closest(goals)
+
+    def recall_to_shop(self, me):
+        position = me.position()
+        home = min(distance(position, tile) for tile in game_map.spawn_region(Team.ALLY).positions())
+        if home <= cambc.constants.RECALL_TIME:
+            return move_towards_closest(game_map.spawn_region(Team.ALLY))
+        if threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True).is_set(position):
+            return False
+        try:
+            me.recall()
+            return True
+        except cambc.Error:
+            return False
 
     def fight(self, me):
         enemies = alive(cambc.vision.champions(Team.ENEMY))
@@ -434,8 +558,9 @@ class Bot:
 
     def group_camps(self):
         group = self.current_group()
-        if group is None:
-            return []
+        return [] if group is None else self.group_camps_of(group)
+
+    def group_camps_of(self, group):
         spawns = group.spawn_tiles()
         return [camp for camp in alive(cambc.vision.camps()) if spawns.is_set(camp.spawn_position())]
 
@@ -445,7 +570,14 @@ class Bot:
             return
         camps = self.group_camps()
         if not camps:
-            move_towards_closest(group.spawn_tiles(), avoid)
+            spawns = group.spawn_tiles()
+            if self.ready_at[self.slot % len(self.route)] > cambc.round_number():
+                ring = cambc.Bitboard()
+                for tile in spawns.positions():
+                    ring.draw_chebyshev(tile, WAIT_RANGE)
+                move_towards_closest(ring & ~spawns, avoid)
+            else:
+                move_towards_closest(spawns, avoid)
             return
         in_reach = [c for c in camps if within(me, c, me.attack_range())]
         target = lowest(in_reach) or min(camps, key=lambda c: distance(me.position(), c.position()))
@@ -480,7 +612,7 @@ class Bot:
             move_towards_closest(tiles_around(target.position(), reach), avoid)
 
         if attack_if_in_range(target) and kind in (Champ.ISSAC, Champ.VENDETTA):
-            if target.health() > 0 and cast_self(ability_of(me, Kind.ATTACK_RESET)):
+            if alive([target]) and cast_self(ability_of(me, Kind.ATTACK_RESET)):
                 attack_if_in_range(target)
 
     def engage_ranged(self, me, target, enemies, is_camp, avoid):
@@ -496,6 +628,8 @@ class Bot:
             damage = ability_of(me, Kind.DAMAGE)
             if damage is not None and gap <= damage.info().range:
                 cast(damage, target)
+            if not alive([target]):
+                return
 
         # Hold just outside camp range while no allied melee is closer to absorb the camp's attacks.
         if is_camp and self.should_hold_back(me, target):
