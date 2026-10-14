@@ -1,37 +1,35 @@
 """Champion decisions. main.py dispatches here after the draft."""
 import struct
-
 import cambc
-from cambc import game_map
+
+# ---------------------------------------------------------------------------
+# Lazy Game Map Proxy
+# Prevents eager evaluation of cambc.game_map during module preloading.
+# ---------------------------------------------------------------------------
+class _LazyGameMap:
+    def __getattr__(self, name):
+        return getattr(cambc.game_map, name)
+
+game_map = _LazyGameMap()
+
 from vesper_tributinglogic import play_vesper_tribute_and_combat  
 from vendetta_buyer import vendetta_buy_items 
-
 import draft
 
-Team, Champ, Kind, Item = cambc.Team, cambc.ChampionType, cambc.AbilityKind, cambc.ItemType
-
-# Turn thresholds.
+# Safe numeric constants (evaluated cleanly at module load time)
 RECALL_HEALTH = 0.35
 GEM_BANK = 40
 THREAT_RANGE = 4
-# While the target is still respawning, bank any bag at least this big.
 IDLE_BANK = 10
-# Recall to shop after a tribute when carrying this much gold.
 RECALL_GOLD = 150
 
-# Route targeting: a new target must beat the current one by this factor.
 SWITCH_MARGIN = 1.25
-# Wait this far from a respawning group; standing on its spawn tiles delays it.
 WAIT_RANGE = 2
-# A capture claim is dropped after this many rounds so a dead or lost collector gets replaced.
 CAPTURE_TIMEOUT = 15
-# Vesper Vale earns bonus gold, so she collects loot first until she owns this many emblems.
 VESPER_EMBLEM_CAP = 5
-# Vesper takes over a capture claim herself when the cleared group is this close to her.
 VESPER_CLAIM_RANGE = 8
 CLAIM_ROUND_OFFSET = 6
 
-# Fight score.
 FIGHT_THRESHOLD = 1
 OUTNUMBER_BONUS = 10
 MISSING_BODY_PENALTY = 5
@@ -40,59 +38,106 @@ POWER_EDGE = 5
 GEM_WEIGHT = 0.04
 EMBLEM_BONUS = 1
 DISTANCE_PENALTY = 0.5
-
-# Highest acts first, from the round after it is set.
-PRIORITY = {
-    Champ.CASSI: 6,
-    Champ.ISSAC: 5,
-    Champ.VENDETTA: 4,
-    Champ.VARG: 3,
-    Champ.VESPER_VALE: 2,
-    Champ.REN: 1,
-}
-
-# Ranged bodies hold this far from a camp while they are the nearest champion to it.
 RANGED_CAMP_STANDOFF = 4
-
-# One family at a time until its emblem is done; the fallback shard is bought without limit.
-_MELEE_STRENGTH = (Item.JUNGLE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH,
-                   Item.BRUISER_SHARD_OF_STRENGTH)
-_MELEE_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.BRUISER_SHARD_OF_FOCUS,
-                Item.DURABILITY_SHARD_OF_FOCUS)
-_RANGED_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.MONSTER_SHARD_OF_FOCUS,
-                 Item.DURABILITY_SHARD_OF_FOCUS)
-# Vesper Vale's kit is all basic attacks, so she builds Strength; Treasure first stacks her gold bonus to 40%.
-_VESPER_STRENGTH = (
-    Item.MONSTER_SHARD_OF_STRENGTH, Item.POWER_SHARD_OF_STRENGTH,
-    Item.POWER_SHARD_OF_STRENGTH, Item.DURABILITY_SHARD_OF_HEALTH, Item.POWER_SHARD_OF_STRENGTH)
-SHOP_ORDER = {
-    Champ.VENDETTA: _MELEE_STRENGTH,
-    Champ.VARG: _MELEE_STRENGTH,
-    Champ.ISSAC: _MELEE_STRENGTH,
-    Champ.REN: _MELEE_FOCUS,
-    Champ.CASSI: _RANGED_FOCUS,
-    Champ.VESPER_VALE: _VESPER_STRENGTH,
-}
-SHOP_FALLBACK = {
-    Champ.VENDETTA: Item.POWER_SHARD_OF_STRENGTH,
-    Champ.VARG: Item.POWER_SHARD_OF_STRENGTH,
-    Champ.ISSAC: Item.POWER_SHARD_OF_STRENGTH,
-    Champ.REN: Item.DURABILITY_SHARD_OF_FOCUS,
-    Champ.CASSI: Item.POWER_SHARD_OF_FOCUS,
-    Champ.VESPER_VALE: Item.POWER_SHARD_OF_STRENGTH,
-}
 
 FARM, FIGHT, RETREAT = 0, 1, 2
 MODE_NAMES = ("farm", "fight", "retreat")
 
-# Shared memory: mode, target slot, capture slot, collector champion + 1, round stamp, capture claim round.
-# The stamp is round + 1 so zeroed memory reads as unwritten; capture slot NO_CAPTURE means nobody is collecting.
 SHARED_LAYOUT = "<BBBBHH"
 NO_CAPTURE = 255
 CAPTURE_SLOT_BYTE = 2
 
-EMBLEMS = tuple(i for i in range(Item.COUNT) if "EMBLEM" in Item(i).name)
+# ---------------------------------------------------------------------------
+# Lazy Containers for SDK Enums and Tables
+# Prevents triggering env::bc_metadata during import/preloading
+# ---------------------------------------------------------------------------
+Team = None
+Champ = None
+Kind = None
+Item = None
 
+PRIORITY = None
+SHOP_ORDER = None
+SHOP_FALLBACK = None
+EMBLEMS = None
+
+
+def _init_sdk_globals():
+    global Team, Champ, Kind, Item, PRIORITY, SHOP_ORDER, SHOP_FALLBACK, EMBLEMS
+    if Team is not None:
+        return
+
+    Team, Champ, Kind, Item = cambc.Team, cambc.ChampionType, cambc.AbilityKind, cambc.ItemType
+
+    PRIORITY = {
+        Champ.CASSI: 6,
+        Champ.ISSAC: 5,
+        Champ.VENDETTA: 4,
+        Champ.VARG: 3,
+        Champ.VESPER_VALE: 2,
+        Champ.REN: 1,
+    }
+
+    melee_strength = (Item.JUNGLE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH, Item.BRUISER_SHARD_OF_STRENGTH)
+    melee_focus = (Item.JUNGLE_SHARD_OF_FOCUS, Item.BRUISER_SHARD_OF_FOCUS, Item.DURABILITY_SHARD_OF_FOCUS)
+    ranged_focus = (Item.JUNGLE_SHARD_OF_FOCUS, Item.MONSTER_SHARD_OF_FOCUS, Item.DURABILITY_SHARD_OF_FOCUS)
+    vesper_strength = (
+        Item.MONSTER_SHARD_OF_STRENGTH, Item.POWER_SHARD_OF_STRENGTH,
+        Item.POWER_SHARD_OF_STRENGTH, Item.DURABILITY_SHARD_OF_HEALTH, Item.POWER_SHARD_OF_STRENGTH
+    )
+
+    SHOP_ORDER = {
+        Champ.VENDETTA: melee_strength,
+        Champ.VARG: melee_strength,
+        Champ.ISSAC: melee_strength,
+        Champ.REN: melee_focus,
+        Champ.CASSI: ranged_focus,
+        Champ.VESPER_VALE: vesper_strength,
+    }
+
+    SHOP_FALLBACK = {
+        Champ.VENDETTA: Item.POWER_SHARD_OF_STRENGTH,
+        Champ.VARG: Item.POWER_SHARD_OF_STRENGTH,
+        Champ.ISSAC: Item.POWER_SHARD_OF_STRENGTH,
+        Champ.REN: Item.DURABILITY_SHARD_OF_FOCUS,
+        Champ.CASSI: Item.POWER_SHARD_OF_FOCUS,
+        Champ.VESPER_VALE: Item.POWER_SHARD_OF_STRENGTH,
+    }
+
+    EMBLEMS = tuple(i for i in range(Item.COUNT) if "EMBLEM" in Item(i).name)
+
+
+# ---------------------------------------------------------------------------
+# Lightweight Navigator Wrapper for Vesper Logic
+# ---------------------------------------------------------------------------
+class _SimpleNavigator:
+    """Provides pathing steps towards bitboard goals for play_vesper_tribute_and_combat."""
+    @staticmethod
+    def step_towards_goals(goals):
+        me = cambc.me()
+        origin = me.position()
+        if not me.can_move() or goals.is_set(origin):
+            return None
+
+        blocked = blocked_tiles()
+        goals = goals & (~blocked | cambc.vision.camp_tiles())
+        if goals.is_empty():
+            return None
+        try:
+            field = cambc.DistanceField()
+            field.compute_to(blocked & ~goals, goals, tiles_around(origin, 0), cambc.Bitboard())
+            reachable = blocked.reachable_tiles(origin, me.base_stats().base_move_speed)
+            step = min([origin, *reachable.positions()], key=field.get)
+            if step != origin:
+                return step - origin
+        except cambc.Error:
+            pass
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Spatial & Bitboard Helpers
+# ---------------------------------------------------------------------------
 
 def distance(a, b):
     return a.chebyshev_distance(b)
@@ -105,7 +150,6 @@ def tiles_around(position, radius):
 
 
 def blocked_tiles():
-    # Combine terrain and visible occupants using native bitboard operations.
     blocked = (game_map.walls() | game_map.holes() | game_map.altars()
                | game_map.spawn_region(Team.ENEMY) | cambc.vision.champion_tiles()
                | cambc.vision.camp_tiles() | cambc.vision.teleport_tiles())
@@ -119,7 +163,6 @@ def move_towards_closest(goals, avoid=None):
     if not me.can_move() or goals.is_set(origin):
         return False
 
-    # Only free goals or occupied camp tiles can seed the field. Never mutate the caller's board.
     blocked = blocked_tiles()
     if avoid is not None:
         blocked |= avoid
@@ -131,11 +174,9 @@ def move_towards_closest(goals, avoid=None):
         if avoid is None and goals.count() == 1 and not blocked.is_set(goals.positions()[0]):
             return me.move_towards(goals.positions()[0])
 
-        # Expand from the goals until our current tile is reached.
         field = cambc.DistanceField()
         field.compute_to(blocked & ~goals, goals, tiles_around(origin, 0), cambc.Bitboard())
 
-        # Choose a reachable step with a smaller distance to the goal.
         reachable = blocked.reachable_tiles(origin, me.base_stats().base_move_speed)
         step = min([origin, *reachable.positions()], key=field.get)
         return step != origin and me.move_absolute(step)
@@ -144,7 +185,6 @@ def move_towards_closest(goals, avoid=None):
 
 
 def attack_if_in_range(target):
-    # Make one basic attack if the target is already in attack range.
     me = cambc.me()
     try:
         if (not me.can_attack() or not target.is_visible() or target.health() <= 0
@@ -192,7 +232,6 @@ def cast(ability, target=None):
 
 
 def cast_self(ability):
-    # Self-cast is untargeted in the SDK; fall back to targeting ourselves.
     if ability is None or not ability.is_ready():
         return False
     for target in (None, cambc.me()):
@@ -215,7 +254,7 @@ def emblem_count(champion):
         counts = champion.item_count()
     except cambc.Error:
         return 0
-    return sum(counts[i] for i in EMBLEMS)
+    return sum(counts[i] for i in EMBLEMS) if EMBLEMS else 0
 
 
 def gems_carried(champion):
@@ -237,7 +276,6 @@ def threat_zone(enemies, include_camps):
 
 
 def under_threat(me):
-    # An enemy that can already hit us, or a damaged (awake) camp in its own range.
     position = me.position()
     for enemy in alive(cambc.vision.champions(Team.ENEMY)):
         if distance(position, enemy.position()) <= enemy.attack_range():
@@ -276,7 +314,6 @@ def buy(me, item, count):
 
 
 def dash_towards(me, target_position, reach):
-    # Dash to the free tile closest to the target, if it leaves at most one walk to reach it.
     dash = ability_of(me, Kind.DASH)
     if dash is None or not dash.is_ready():
         return False
@@ -292,6 +329,10 @@ def dash_towards(me, target_position, reach):
     return False
 
 
+# ---------------------------------------------------------------------------
+# Bot Implementation
+# ---------------------------------------------------------------------------
+
 class Bot:
     def __init__(self):
         self.ready = False
@@ -300,9 +341,7 @@ class Bot:
         self.centers = []
         self.values = []
         self.clears = []
-        # Round each route group is next expected up; 0 means up or never seen.
         self.ready_at = []
-        # Route groups last seen cleared with their reward still uncollected.
         self.rewards = set()
         self.mode = FARM
         self.slot = 0
@@ -310,8 +349,10 @@ class Bot:
         self.collector = 0
         self.claimed = 0
         self.tributed = False
+        self.navigator = _SimpleNavigator()
 
     def setup(self):
+        _init_sdk_globals()
         groups = game_map.camp_groups()
         _, members = draft.decode_pocket(bytes(cambc.DraftMemoryBuffer()))
         if not members or any(index >= len(groups) for index in members):
@@ -326,10 +367,7 @@ class Bot:
     def current_group(self):
         return self.route[self.slot % len(self.route)] if self.route else None
 
-    # Route memory
-
     def observe(self):
-        # Vision is not shared, so each champion keeps its own respawn record.
         seen = cambc.vision.visible_tiles()
         now = cambc.round_number()
         for index, group in enumerate(self.route):
@@ -346,7 +384,6 @@ class Bot:
                 self.rewards.discard(index)
 
     def wait_at(self, slot, origin):
-        # Rounds left to wait on arrival at a route group.
         travel = distance(origin, self.centers[slot])
         return max(0, self.ready_at[slot] - cambc.round_number() - travel)
 
@@ -356,7 +393,6 @@ class Bot:
         return self.values[slot] / max(1, cycle)
 
     def pick_target(self, slot, origin, skip):
-        # The group being collected is skipped so everyone else moves on.
         options = [s for s in range(len(self.route)) if s != skip] or [slot]
         best = max(options, key=lambda s: self.route_rate(s, origin))
         if slot == skip or self.route_rate(best, origin) > SWITCH_MARGIN * self.route_rate(slot, origin):
@@ -364,7 +400,6 @@ class Bot:
         return slot
 
     def update_capture(self, me, capture_slot, collector, claimed):
-        # Returns the capture claim after dropping finished or stale ones and claiming a fresh reward.
         now = cambc.round_number()
         if capture_slot != NO_CAPTURE and (capture_slot >= len(self.route) or self.ready_at[capture_slot] > now
                                            or now - claimed > CAPTURE_TIMEOUT):
@@ -373,17 +408,13 @@ class Bot:
             return capture_slot, collector, claimed
 
         slot = min(self.rewards, key=lambda s: distance(me.position(), self.centers[s]))
-        # Only a fresh sighting can claim this group again, so a stale record can't re-send a collector.
         self.rewards.discard(slot)
         spawns = self.route[slot].spawn_tiles()
         allies = [a for a in alive(cambc.vision.champions(Team.ALLY)) if not channelling(a)]
         if me not in allies:
             allies.append(me)
         nearest = min(allies, key=lambda a: min(distance(a.position(), t) for t in spawns.positions()))
-        print(f"round {now}: champion {int(nearest.champion_name())} collects route slot {slot}")
         return slot, int(nearest.champion_name()) + 1, now
-
-    # Shared decision
 
     def sync_decision(self, me):
         mode, slot, capture_slot, collector, stamp, claimed = read_shared()
@@ -392,15 +423,11 @@ class Bot:
             self.capture_slot, self.collector, self.claimed = capture_slot, collector, claimed
             return
 
-        # First living champion this round settles the capture, picks the target from its own respawn
-        # record, then scores.
         slot = slot % len(self.route) if self.route else 0
         if self.route:
             capture_slot, collector, claimed = self.update_capture(me, capture_slot, collector, claimed)
             slot = self.pick_target(slot, me.position(), capture_slot)
         new_mode = self.score_mode(slot)
-        if (new_mode, slot) != (self.mode, self.slot):
-            print(f"round {cambc.round_number()}: {MODE_NAMES[new_mode]}, route slot {slot}")
         self.mode, self.slot = new_mode, slot
         self.capture_slot, self.collector, self.claimed = capture_slot, collector, claimed
         write_shared(self.mode, self.slot, capture_slot, collector, claimed)
@@ -409,7 +436,6 @@ class Bot:
         return self.capture_slot != NO_CAPTURE and self.collector == int(me.champion_name()) + 1
 
     def vesper_claim(self, me):
-        # The leader may not see Vesper, so she claims nearby loot herself; the old collector moves on.
         if (me.champion_name() != Champ.VESPER_VALE or emblem_count(me) >= VESPER_EMBLEM_CAP
                 or self.is_collector(me) or under_threat(me) or not self.route):
             return
@@ -424,10 +450,8 @@ class Bot:
         self.capture_slot, self.collector, self.claimed = slot, int(Champ.VESPER_VALE) + 1, now
         cambc.shared_memory.write(CAPTURE_SLOT_BYTE, bytes([slot, self.collector]))
         cambc.shared_memory.write(CLAIM_ROUND_OFFSET, struct.pack("<H", now))
-        print(f"round {now}: vesper takes route slot {slot}")
 
     def collect(self, me):
-        # Stand on the cleared group until its reward lands, then release the claim for everyone.
         index = self.capture_slot
         group = self.route[index]
         if self.ready_at[index] > cambc.round_number():
@@ -463,10 +487,11 @@ class Bot:
             score -= DISTANCE_PENALTY * min(distance(e.position(), camp) for e in enemies)
         return FIGHT if score >= FIGHT_THRESHOLD else RETREAT
 
-    # Turn
-
     def play_turn(self):
+        _init_sdk_globals()
         me = cambc.me()
+        champ_name = str(me.champion_name()).lower()
+
         if not self.ready:
             self.setup()
         if not self.priority_set:
@@ -476,17 +501,19 @@ class Bot:
             self.observe()
         self.sync_decision(me)
 
-        vendetta_buy_items() # Hook for Vendetta's shopping logic 
+        # 1. Vendetta shopping hook (runs while dead or on spawn)
+        vendetta_buy_items()
+
         # Dead champions still get a turn to shop.
         if not me.is_alive():
             self.buy_items(me)
             return
 
-        # 1. Leave running channels alone.
+        # 2. Leave running channels alone.
         if me.is_recalling() or me.is_submitting_gems() or me.is_teleporting():
             return
 
-        # 2. On spawn: buy, stay until healed (spawn heals at turn end), then head out.
+        # 3. On spawn: buy, stay until healed, then head out.
         position = me.position()
         if game_map.spawn_region(Team.ALLY).is_set(position):
             self.tributed = False
@@ -498,13 +525,12 @@ class Bot:
                 move_towards_closest(group.spawn_tiles())
             return
         
-        #  Vesper Vale trigger here:
+        # 4. Vesper Vale Combat & Danger reflex override
         if "vesper" in champ_name:
-            navigator = getattr(self, "navigator", None)
-            if play_vesper_tribute_and_combat(navigator):
+            if play_vesper_tribute_and_combat(self.navigator):
                 return
 
-        # 3. Recall when hurt and nothing can interrupt it; otherwise step out of reach first.
+        # 5. Recall when hurt and nothing can interrupt it
         if me.health() < me.max_health() * RECALL_HEALTH:
             zone = threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True)
             if not zone.is_set(position):
@@ -516,12 +542,12 @@ class Bot:
             move_towards_closest(~zone)
             return
 
-        # 4. The one champion collecting a cleared group stays on it unless something can hit it.
+        # 6. The one champion collecting a cleared group stays on it unless something can hit it.
         self.vesper_claim(me)
         if self.is_collector(me) and not under_threat(me) and self.collect(me):
             return
 
-        # 5. Bank a full bag, or a smaller one while the target is still respawning.
+        # 7. Bank a full bag, or a smaller one while the target is still respawning.
         gems = me.gem_count()
         if gems > 0:
             self.tributed = False
@@ -529,11 +555,11 @@ class Bot:
         if (gems >= GEM_BANK or (idle and gems >= IDLE_BANK)) and self.bank_gems(me):
             return
 
-        # 6. Just tributed with a heavy purse: go shop if the walk home is longer than the recall.
+        # 8. Just tributed with a heavy purse: go shop if the walk home is longer than the recall.
         if self.tributed and gems == 0 and me.gold_count() >= RECALL_GOLD and self.recall_to_shop(me):
             return
 
-        # 7-9. Follow the shared mode.
+        # 9. Follow the shared mode.
         if self.mode == FIGHT and self.fight(me):
             return
         if self.mode == RETREAT and self.retreat(me):
@@ -541,7 +567,6 @@ class Bot:
         self.farm(me)
 
     def bank_gems(self, me):
-        # A locked altar is still tried: the engine turns the tribute into an attack on the lock.
         origin = me.position()
         goals = cambc.Bitboard()
         for altar in game_map.altars().positions():
@@ -584,7 +609,6 @@ class Bot:
             self.farm(me, avoid=zone)
             return True
 
-        # Melee may swing at something already in range before stepping out; nobody dashes in.
         if me.attack_range() <= 1:
             for target in [*sorted(enemies, key=lambda e: e.health()), *self.group_camps()]:
                 if attack_if_in_range(target):
@@ -622,8 +646,6 @@ class Bot:
         target = lowest(in_reach) or min(camps, key=lambda c: distance(me.position(), c.position()))
         self.engage(me, target, [], is_camp=True, avoid=avoid)
 
-    # Kits
-
     def engage(self, me, target, enemies, is_camp, avoid=None):
         if me.attack_range() > 1:
             self.engage_ranged(me, target, enemies, is_camp, avoid)
@@ -637,7 +659,6 @@ class Bot:
         if kind == Champ.VARG and under_threat(me):
             cast_self(ability_of(me, Kind.SHIELD))
 
-        # Ren's stun excludes walking, so it is cast before any step and only on champions.
         if kind == Champ.REN and not is_camp:
             stun = ability_of(me, Kind.CC)
             if stun is not None and within(me, target, stun.info().range):
@@ -670,7 +691,6 @@ class Bot:
             if not alive([target]):
                 return
 
-        # Hold just outside camp range while no allied melee is closer to absorb the camp's attacks.
         if is_camp and self.should_hold_back(me, target):
             ring = tiles_around(target.position(), RANGED_CAMP_STANDOFF)
             ring &= ~tiles_around(target.position(), RANGED_CAMP_STANDOFF - 1)
@@ -697,52 +717,10 @@ class Bot:
         target = lowest([e for e in near if channelling(e)]) or lowest(near)
         return target is not None and cast(stun, target)
 
-    def engage_vesper(self, me, target, enemies, is_camp, avoid):
-        # One ability per turn: attack reset doubles a hit; otherwise the dash closes in or kites out.
-        reach = me.attack_range()
-        if is_camp and self.should_hold_back(me, target):
-            ring = tiles_around(target.position(), RANGED_CAMP_STANDOFF)
-            ring &= ~tiles_around(target.position(), RANGED_CAMP_STANDOFF - 1)
-            move_towards_closest(ring, avoid)
-            return
-
-        # Ranged walking uses up the attack, so dash straight into range when it is close enough.
-        if not within(me, target, reach):
-            dash_towards(me, target.position(), reach - 1)
-        if not within(me, target, reach):
-            move_towards_closest(tiles_around(target.position(), reach), avoid)
-            return
-
-        if not attack_if_in_range(target):
-            return
-        if alive([target]) and cast_self(ability_of(me, Kind.ATTACK_RESET)):
-            attack_if_in_range(target)
-        elif not is_camp:
-            self.vesper_kite(me, enemies, target, reach)
-
-    def vesper_kite(self, me, enemies, target, reach):
-        # After firing, dash to the tile furthest outside enemy reach, preferring ones still in range.
-        dash = ability_of(me, Kind.DASH)
-        threats = [(e.position(), e.attack_range()) for e in alive(enemies)]
-        if dash is None or not dash.is_ready() or not threats:
-            return False
-        aim = target.position() if alive([target]) else None
-
-        def margin(tile):
-            return min(distance(tile, spot) - reach_of for spot, reach_of in threats)
-
-        position = me.position()
-        if margin(position) > 0:
-            return False
-        free = tiles_around(position, int(dash.info().range)) & ~blocked_tiles()
-        best = max(free.positions(), default=None,
-                   key=lambda t: (margin(t) > 0, aim is not None and distance(t, aim) <= reach, margin(t)))
-        return best is not None and margin(best) > margin(position) and cast(dash, best)
-
-    # Shopping
-
     def buy_items(self, me):
         kind = me.champion_name()
+        if SHOP_ORDER is None:
+            return
         for shard in SHOP_ORDER.get(kind, ()):
             try:
                 counts = me.item_count()

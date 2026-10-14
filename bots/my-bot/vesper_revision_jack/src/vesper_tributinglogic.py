@@ -3,12 +3,21 @@ from typing import Optional
 import cambc as bc
 
 # Reusable bitboards: zero per-turn heap allocation & no GC pressure
-_ENEMY_MASK = bc.Bitboard()
-_ATTACK_RANGE_MASK = bc.Bitboard()
-_DASH_RANGE_MASK = bc.Bitboard()
-_SCRATCH_MASK = bc.Bitboard()
-_SURROUND_MASK = bc.Bitboard()
+_ENEMY_MASK = None
+_ATTACK_RANGE_MASK = None
+_DASH_RANGE_MASK = None
+_SCRATCH_MASK = None
+_SURROUND_MASK = None
 
+def _init_masks():
+    """Lazily allocates bitboard instances once inside turn execution."""
+    global _ENEMY_MASK, _ATTACK_RANGE_MASK, _DASH_RANGE_MASK, _SCRATCH_MASK, _SURROUND_MASK
+    if _ENEMY_MASK is None:
+        _ENEMY_MASK = bc.Bitboard()
+        _ATTACK_RANGE_MASK = bc.Bitboard()
+        _DASH_RANGE_MASK = bc.Bitboard()
+        _SCRATCH_MASK = bc.Bitboard()
+        _SURROUND_MASK = bc.Bitboard()
 
 def _is_adjacent_to_altar(pos: bc.Vec2) -> Optional[bc.Vec2]:
     """Returns adjacent altar tile if within Chebyshev distance 1."""
@@ -70,7 +79,6 @@ def _execute_defensive_dash(me: bc.Champion, my_pos: bc.Vec2, slot1: bc.Ability)
         except Exception:
             return False
     return False
-
 
 def play_vesper_tribute_and_combat(navigator=None) -> bool:
     """Evaluates danger, combat retaliation, and gem tributing for Vesper Vale.
