@@ -26,7 +26,7 @@ WAIT_RANGE = 2
 # Escorts guarding a channelling carrier only farm groups of these kinds.
 FREE_KINDS = (cambc.CampType.WOLF, cambc.CampType.GEM_CLUSTER, cambc.CampType.GOLD_CLUSTER)
 # Every group is a possible stop on the way, except monoliths until the team owns this many emblems.
-MONOLITH_EMBLEMS = 99
+MONOLITH_EMBLEMS = 10
 # Visible loot this close is taken even if it is slightly off the path to the planned goal.
 NEAR_LOOT = 8
 # Extra walking tiles allowed for a stop to still count as being on the way.
@@ -42,7 +42,7 @@ VESPER_CLAIM_RANGE = 8
 CLAIM_ROUND_OFFSET = 6
 
 # Escorted tributes: a bag this big is only carried to an altar with the team around it.
-ESCORT_GEMS = 150
+ESCORT_GEMS = 100
 # Escorts within this range of the carrier count; this many (or every living ally if fewer) must be there.
 ESCORT_RANGE = 3
 ESCORT_MIN = 2
@@ -104,14 +104,14 @@ RANGED_CAMP_STANDOFF = 4
 # One family at a time until its emblem is done; the fallback shard is bought without limit.
 _MELEE_STRENGTH = (Item.JUNGLE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH,
                    Item.BRUISER_SHARD_OF_STRENGTH)
-_VENDETTA_STRENGTH = (Item.JUNGLE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH,
+_VENDETTA_STRENGTH = (Item.MONSTER_SHARD_OF_STRENGTH, Item.DURABILITY_SHARD_OF_STRENGTH,
                    Item.POWER_SHARD_OF_STRENGTH)
 _MELEE_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.BRUISER_SHARD_OF_FOCUS,
                 Item.DURABILITY_SHARD_OF_FOCUS)
 _RANGED_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.MONSTER_SHARD_OF_FOCUS,
                  Item.DURABILITY_SHARD_OF_FOCUS)
 # Vesper Vale's kit is all basic attacks, so she builds Strength only
-_VESPER_STRENGTH = (Item.TREASURE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH, Item.DURABILITY_SHARD_OF_STRENGTH, Item.POWER_SHARD_OF_STRENGTH,)
+_VESPER_STRENGTH = (Item.TREASURE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH, Item.DURABILITY_SHARD_OF_HEALTH, Item.POWER_SHARD_OF_STRENGTH,)
 SHOP_ORDER = {
     Champ.VENDETTA: _VENDETTA_STRENGTH,
     Champ.VARG: _MELEE_STRENGTH,
@@ -137,10 +137,18 @@ MODE_NAMES = ("farm", "fight", "retreat", "tribute")
 # Shared memory: mode, target slot, capture slot, collector champion + 1, round stamp, capture claim round
 # (low byte only; it is just aged against CAPTURE_TIMEOUT), then the ward byte the leader never rewrites.
 # The stamp is round + 1 so zeroed memory reads as unwritten; capture slot NO_CAPTURE means nobody is collecting.
+# The match ends at round 2000, so the stamp's low 11 bits hold that round. Its high bits remember which
+# allies died in a wipe and have not yet rejoined the shared target.
 # The mode byte's top bit records that Vesper has finished her build; only she can see her own items.
 # The next bit records whether the leader put the team on the aggressive route this round.
 # Bits 2-5 hold the escorted carrier's champion + 1 (0 for none); the carrier sets and clears it itself.
 SHARED_LAYOUT = "<BBBBHB"
+# Round + 1 fits in 11 bits through the round-2000 limit. The other five bits are one per ally.
+STAMP_ROUND_MASK = 0x07FF
+REGROUP_SHIFT = 11
+STAMP_OFFSET = 4
+# Aggressive farming stands down when this many allies are dead, or when Vesper herself is dead.
+WIPE_DEATHS = 2
 # Bit i is set once ward spot i is covered, so nobody else spends a ward inside its anti-ward radius.
 WARD_MASK_BYTE = 7
 NO_CAPTURE = 255
@@ -161,6 +169,26 @@ EMBLEM_WORTH = 150
 
 def distance(a, b):
     return a.chebyshev_distance(b)
+
+
+def at(position):
+    return f"@({position.x},{position.y})"
+
+
+_CAMP = ("wolf", "elk", "gem", "gold", "mono")
+
+
+def camp_at(camp):
+    kind = int(camp.kind())
+    name = _CAMP[kind] if kind < len(_CAMP) else str(kind)
+    return f"{name} {at(camp.position())}"
+
+
+def unit_at(unit):
+    try:
+        return f"c{int(unit.champion_name())} {at(unit.position())}"
+    except AttributeError:
+        return camp_at(unit)
 
 
 def tiles_around(position, radius):
@@ -192,7 +220,7 @@ def blocked_tiles():
     return blocked
 
 
-def move_towards_closest(goals, avoid=None):
+def move_towards_closest(goals, avoid=None, only_full=False):
     me = cambc.me()
     origin = me.position()
     if not me.can_move() or goals.is_set(origin):
@@ -219,7 +247,7 @@ def move_towards_closest(goals, avoid=None):
         field.compute_to(blocked & ~goals, goals, tiles_around(origin, 0), reached)
 
         # Dash whenever it is ready (it leaves the walk free), then walk on from where it lands.
-        dashed = dash is not None and dash_along(dash, origin, field, reached & ~blocked)
+        dashed = dash is not None and dash_along(dash, origin, field, reached & ~blocked, only_full)
         if dashed:
             origin = me.position()
             blocked = blocked_tiles() if avoid is None else (blocked_tiles() | avoid)
@@ -235,10 +263,14 @@ def move_towards_closest(goals, avoid=None):
         return False
 
 
-def dash_along(dash, origin, field, landings):
+def dash_along(dash, origin, field, landings, only_full=False):
     # Land on the tile that gains the most ground towards the goal; any gain is worth the cooldown.
+    # only_full: a gap shorter than the dash would land past the tile we need, so walk instead.
     here = field.get(origin)
-    tiles = tiles_around(origin, int(dash.info().range)) & landings
+    span = int(dash.info().range)
+    if only_full and here < span:
+        return False
+    tiles = tiles_around(origin, span) & landings
     for tile in sorted(tiles.positions(), key=field.get):
         if field.get(tile) >= here:
             break
@@ -331,11 +363,6 @@ def item_worth(champion):
     return EMBLEM_WORTH * sum(counts[i] for i in EMBLEMS) + sum(counts[i] * Item(i).cost() for i in SHARDS)
 
 
-def team_alive():
-    # Every ally is listed even out of vision, and liveness is readable for all of them.
-    return all(ally.is_alive() for ally in cambc.champions(Team.ALLY))
-
-
 def gems_carried(champion):
     try:
         return champion.gem_count()
@@ -371,17 +398,29 @@ def read_shared():
     data = bytearray(struct.calcsize(SHARED_LAYOUT))
     cambc.shared_memory.read(0, data)
     flags, slot, capture_slot, collector, stamp, claimed = struct.unpack(SHARED_LAYOUT, data)
-    if stamp == 0:
+    round_stamp = stamp & STAMP_ROUND_MASK
+    if round_stamp == 0:
         capture_slot = NO_CAPTURE
-    return (flags & MODE_MASK, slot, capture_slot, collector, stamp, claimed,
-            bool(flags & VESPER_DONE_FLAG), bool(flags & AGGRESSIVE_FLAG))
+    return (flags & MODE_MASK, slot, capture_slot, collector, round_stamp, claimed,
+            bool(flags & VESPER_DONE_FLAG), bool(flags & AGGRESSIVE_FLAG), stamp >> REGROUP_SHIFT)
 
 
-def write_shared(mode, slot, capture_slot, collector, claimed, vesper_done, aggressive, carrier):
+def write_shared(mode, slot, capture_slot, collector, claimed, vesper_done, aggressive, carrier, regroup):
     flags = (mode | carrier << CARRIER_SHIFT | (VESPER_DONE_FLAG if vesper_done else 0)
              | (AGGRESSIVE_FLAG if aggressive else 0))
+    stamp = ((cambc.round_number() + 1) & STAMP_ROUND_MASK) | ((regroup & 0x1F) << REGROUP_SHIFT)
     cambc.shared_memory.write(0, struct.pack(SHARED_LAYOUT, flags, slot, capture_slot, collector,
-                                             cambc.round_number() + 1, claimed & 0xFF))
+                                             stamp, claimed & 0xFF))
+
+
+def read_stamp():
+    data = bytearray(2)
+    cambc.shared_memory.read(STAMP_OFFSET, data)
+    return struct.unpack("<H", data)[0]
+
+
+def write_stamp(stamp):
+    cambc.shared_memory.write(STAMP_OFFSET, struct.pack("<H", stamp & 0xFFFF))
 
 
 def mark_vesper_done():
@@ -434,13 +473,21 @@ def ward_spots():
     return spots[:8]
 
 
+def dash_span(me):
+    dash = ability_of(me, Kind.DASH)
+    return int(dash.info().range) if dash is not None else 0
+
+
 def dash_towards(me, target_position, reach):
     # Dash to the free tile closest to the target, if it leaves at most one walk to reach it.
+    # Skip when the remaining gap is shorter than the dash: the landing would pass the useful tile.
     dash = ability_of(me, Kind.DASH)
     if dash is None or not dash.is_ready():
         return False
     origin = me.position()
     gap = distance(origin, target_position)
+    if gap - reach < int(dash.info().range):
+        return False
     free = tiles_around(origin, int(dash.info().range)) & ~blocked_tiles()
     for tile in sorted(free.positions(), key=lambda t: distance(t, target_position)):
         landing_gap = distance(tile, target_position)
@@ -484,6 +531,8 @@ class Bot:
         self.tributed = False
         self.vesper_done = False
         self.aggressive = False
+        self.fight_score = None
+        self.regroup_mask = 0
         # Gold Vesper has spent toward the current VESPER_RECALL_GOLD batch.
         self.batch_spent = 0
         self.ward_spots = []
@@ -723,6 +772,92 @@ class Bot:
         cambc.shared_memory[SLOT_BYTE] = self.slot
         print(f"round {cambc.round_number()}: champion {int(me.champion_name())} spots loot at route slot {self.slot}")
 
+    def death_survey(self):
+        # Every ally is listed out of vision, and liveness is readable for all of them.
+        named = []
+        dead_count = 0
+        vesper_dead = False
+        for ally in cambc.champions(Team.ALLY):
+            living = ally.is_alive()
+            if not living:
+                dead_count += 1
+            try:
+                key = int(ally.champion_name())
+            except cambc.Error:
+                continue
+            if not living and key == int(Champ.VESPER_VALE):
+                vesper_dead = True
+            named.append((key, ally, living))
+        named.sort(key=lambda item: item[0])
+        dead_mask = 0
+        for index, (_, _, living) in enumerate(named):
+            if not living and index < 5:
+                dead_mask |= 1 << index
+        return named, dead_mask, dead_count, vesper_dead
+
+    def visible_regrouped(self, named, slot):
+        # Allies back within range of the shared target have regrouped. Spawn still counts as walking home.
+        if not self.route:
+            return 0
+        center = self.centers[slot % len(self.route)]
+        spawn = game_map.spawn_region(Team.ALLY)
+        mask = 0
+        for index, (_, ally, living) in enumerate(named):
+            if not living or index >= 5 or not ally.is_visible():
+                continue
+            try:
+                position = ally.position()
+            except cambc.Error:
+                continue
+            if not spawn.is_set(position) and distance(position, center) <= TEAM_RANGE:
+                mask |= 1 << index
+        return mask
+
+    def release_regroup(self, me):
+        # Each champion clears its own bit once it has rejoined, including when the leader cannot see it.
+        if not me.is_alive() or self.rejoining:
+            return
+        name = int(me.champion_name())
+        named, _, _, _ = self.death_survey()
+        for index, (key, _, _) in enumerate(named):
+            if key != name or index >= 5:
+                continue
+            bit = 1 << (REGROUP_SHIFT + index)
+            stamp = read_stamp()
+            if stamp & bit:
+                write_stamp(stamp & ~bit)
+            return
+
+    def route_after_wipe(self, was_aggressive, regroup, slot, me):
+        # Two deaths, or Vesper's death, leave the centre route until those allies respawn and rejoin.
+        # One other death does not. The hold is the regroup mask, so a new leader keeps waiting.
+        named, dead_mask, dead_count, vesper_dead = self.death_survey()
+        overwhelmed = dead_count >= WIPE_DEATHS or vesper_dead
+        mask = regroup
+        if (was_aggressive and overwhelmed) or mask:
+            back = self.visible_regrouped(named, slot)
+            if me.is_alive() and not self.rejoining:
+                name = int(me.champion_name())
+                for index, (key, _, living) in enumerate(named):
+                    if living and key == name and index < 5:
+                        back |= 1 << index
+                        break
+            mask = (mask & ~back & 0x1F) | dead_mask
+        if mask:
+            return False, mask
+        if was_aggressive:
+            return bool(self.vesper_done) and not overwhelmed, 0
+        return bool(self.vesper_done) and dead_count == 0, 0
+
+    def vesper_rebuilding(self, ally):
+        # A finished Vesper is not the collector again unless her bag is visibly short of emblems.
+        # An unreadable bag looks empty, so the done flag keeps her off collection through the wipe.
+        try:
+            counts = ally.item_count()
+        except cambc.Error:
+            return not self.vesper_done
+        return sum(counts[i] for i in EMBLEMS) < VESPER_EMBLEM_CAP
+
     def update_capture(self, me, capture_slot, collector, claimed):
         # Returns the capture claim after dropping finished or stale ones and claiming a fresh reward.
         now = cambc.round_number()
@@ -739,10 +874,13 @@ class Bot:
         allies = [a for a in alive(cambc.vision.champions(Team.ALLY)) if not channelling(a)]
         if me not in allies:
             allies.append(me)
-        builders = [a for a in allies if a.champion_name() == Champ.VESPER_VALE
-                    and emblem_count(a) < VESPER_EMBLEM_CAP]
-        # A building Vesper collects first; otherwise the poorest visible ally, so the team catches up evenly.
-        pool = builders or allies
+        builders = [a for a in allies if a.champion_name() == Champ.VESPER_VALE and self.vesper_rebuilding(a)]
+        # A building Vesper collects first. A finished one stays off that duty until she is short again,
+        # and only picks the reward up herself when nobody else can.
+        if builders:
+            pool = builders
+        else:
+            pool = [a for a in allies if a.champion_name() != Champ.VESPER_VALE or self.vesper_rebuilding(a)] or allies
         chosen = min(pool, key=lambda a: (item_worth(a),
                                           min(distance(a.position(), t) for t in spawns)))
         print(f"round {now}: champion {int(chosen.champion_name())} collects route slot {slot}")
@@ -751,7 +889,7 @@ class Bot:
     # Shared decision
 
     def sync_decision(self, me):
-        mode, slot, capture_slot, collector, stamp, claimed, vesper_done, aggressive = read_shared()
+        mode, slot, capture_slot, collector, stamp, claimed, vesper_done, aggressive, regroup = read_shared()
         if (not vesper_done and me.champion_name() == Champ.VESPER_VALE
                 and emblem_count(me) >= VESPER_EMBLEM_CAP):
             vesper_done = True
@@ -768,6 +906,8 @@ class Bot:
         if not self.led:
             self.mode, self.slot, self.aggressive = mode, slot, aggressive
             self.capture_slot, self.collector, self.claimed = capture_slot, collector, claimed
+            self.regroup_mask = regroup
+            self.release_regroup(me)
             return
 
         # First champion with the team this round settles the capture, picks the target from its own
@@ -775,7 +915,8 @@ class Bot:
         if self.carrier and (not self.carrier_alive() or now - self.carrier_since > ESCORT_TIMEOUT):
             print(f"round {now}: escort for champion {self.carrier - 1} called off")
             self.carrier = 0
-        aggressive = vesper_done and team_alive()
+        aggressive, regroup = self.route_after_wipe(aggressive, regroup, slot, me)
+        self.regroup_mask = regroup
         if aggressive != self.aggressive:
             print(f"round {cambc.round_number()}: aggressive mode {'on' if aggressive else 'off'}")
         self.aggressive = aggressive
@@ -789,19 +930,18 @@ class Bot:
         new_mode = self.score_mode(self.centers[slot] if self.route else None)
         if new_mode == FARM and self.carrier:
             new_mode = TRIBUTE
-        if (new_mode, slot) != (self.mode, self.slot):
-            print(f"round {cambc.round_number()}: {MODE_NAMES[new_mode]}, route slot {slot}")
         self.mode, self.slot = new_mode, slot
         self.capture_slot, self.collector, self.claimed = capture_slot, collector, claimed
         write_shared(self.mode, self.slot, capture_slot, collector, claimed, vesper_done, aggressive,
-                     self.carrier)
+                     self.carrier, regroup)
+        self.release_regroup(me)
 
     def is_collector(self, me):
         return self.capture_slot != NO_CAPTURE and self.collector == int(me.champion_name()) + 1
 
     def vesper_claim(self, me):
         # The leader may not see Vesper, so she claims nearby loot herself; the old collector moves on.
-        if (me.champion_name() != Champ.VESPER_VALE or emblem_count(me) >= VESPER_EMBLEM_CAP
+        if (me.champion_name() != Champ.VESPER_VALE or not self.vesper_rebuilding(me)
                 or self.is_collector(me) or under_threat(me) or not self.route):
             return
         position = me.position()
@@ -828,6 +968,8 @@ class Bot:
             return False
         if self.camps_at(index):
             return False
+        center = self.centers[index]
+        self.log_turn(me, f"collect s{index}{at(center)}")
         move_towards_closest(self.spawns[index])
         return True
 
@@ -856,7 +998,9 @@ class Bot:
             score -= OVEREXTEND_PENALTY
         if game_map.spawn_region(Team.ALLY).is_set(cambc.me().position()):
             score += SPAWN_BONUS
-        return FIGHT if score >= FIGHT_THRESHOLD else RETREAT
+        choice = FIGHT if score >= FIGHT_THRESHOLD else RETREAT
+        self.fight_score = (score, choice)
+        return choice
 
     def squishy_overextended(self, allies, enemies):
         # Melee allies are the tanks. A squishy with none of them closer to the nearest enemy is in front.
@@ -870,10 +1014,37 @@ class Bot:
                 return True
         return False
 
+    def wipe_wait(self):
+        named, _, _, _ = self.death_survey()
+        names = []
+        for index in range(5):
+            if self.regroup_mask >> index & 1:
+                names.append(str(named[index][0]) if index < len(named) else str(index))
+        return ",".join(names)
+
+    def log_turn(self, me, action):
+        # One line: this champion's action and goal, then the shared plan. Score only if this champion scored.
+        who = int(me.champion_name())
+        where = "dead" if not me.is_alive() else at(me.position())
+        team = MODE_NAMES[self.mode]
+        if self.route:
+            slot = self.slot % len(self.route)
+            team += f" s{slot}{at(self.centers[slot])}"
+        team += " aggr on" if self.aggressive else " aggr off"
+        if self.regroup_mask:
+            team += f" wait {self.wipe_wait()}"
+        line = f"r{cambc.round_number()} c{who} {where} {action} | {team}"
+        if self.fight_score is not None:
+            score, choice = self.fight_score
+            text = f"{score:.1f}".rstrip("0").rstrip(".")
+            line += f" | {text}/{FIGHT_THRESHOLD:g} {MODE_NAMES[choice]}"
+        print(line)
+
     # Turn
 
     def play_turn(self):
         me = cambc.me()
+        self.fight_score = None
         if not self.ready:
             self.setup()
         if not self.priority_set:
@@ -887,11 +1058,19 @@ class Bot:
         # Dead champions still get a turn to shop.
         if not me.is_alive():
             self.buy_items(me)
+            self.log_turn(me, "shop")
             return
         self.update_carrier(me)
 
         # 1. Leave running channels alone.
         if me.is_recalling() or me.is_submitting_gems() or me.is_teleporting():
+            if me.is_recalling():
+                action = "recall"
+            elif me.is_submitting_gems():
+                action = "tribute"
+            else:
+                action = "teleport"
+            self.log_turn(me, action)
             return
 
         # Placing a ward costs no move, attack or cast, so it is tried every turn.
@@ -903,9 +1082,13 @@ class Bot:
             self.tributed = False
             self.buy_items(me)
             if me.health() < me.max_health():
+                self.log_turn(me, "heal")
                 return
             if self.route:
+                self.log_turn(me, "walk out")
                 move_towards_closest(self.spawns[self.slot % len(self.route)])
+            else:
+                self.log_turn(me, "spawn")
             return
 
         # 3. Recall when hurt and nothing can interrupt it; otherwise step out of reach first.
@@ -914,9 +1097,11 @@ class Bot:
             if not zone.is_set(position):
                 try:
                     me.recall()
+                    self.log_turn(me, "recall")
                     return
                 except cambc.Error:
                     pass
+            self.log_turn(me, "dodge")
             move_towards_closest(~zone)
             return
 
@@ -1043,22 +1228,33 @@ class Bot:
         if not nearby:
             return False
         spot = min(nearby, key=lambda s: distance(position, s))
-        return move_towards_closest(tiles_around(spot, cambc.constants.WARD_PLACEMENT_RADIUS))
+        if not move_towards_closest(tiles_around(spot, cambc.constants.WARD_PLACEMENT_RADIUS)):
+            return False
+        self.log_turn(me, f"ward {at(spot)}")
+        return True
 
     def bank_gems(self, me, altars=None):
         # A locked altar is still tried: the engine turns the tribute into an attack on the lock.
         origin = me.position()
+        choices = list(altars or game_map.altars().positions())
         goals = cambc.Bitboard()
-        for altar in altars or game_map.altars().positions():
+        nearest = None
+        for altar in choices:
+            if nearest is None or distance(origin, altar) < distance(origin, nearest):
+                nearest = altar
             if distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
                 try:
                     me.submit_gems(altar)
                     self.tributed = True
+                    self.log_turn(me, f"tribute {at(altar)}")
                     return True
                 except cambc.Error:
                     continue
             goals |= tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE)
-        return move_towards_closest(goals)
+        if nearest is None or not move_towards_closest(goals):
+            return False
+        self.log_turn(me, f"bank {at(nearest)}")
+        return True
 
     # Escorted tribute
 
@@ -1111,8 +1307,10 @@ class Bot:
         self.escort_wait += 1
         if others:
             nearest = min(others, key=lambda a: distance(me.position(), a.position()))
+            self.log_turn(me, f"regroup {unit_at(nearest)}")
             move_towards_closest(tiles_around(nearest.position(), 1))
         else:
+            self.log_turn(me, f"stage {at(altar)}")
             move_towards_closest(tiles_around(altar, STAGING_RANGE))
         return True
 
@@ -1124,6 +1322,7 @@ class Bot:
         carrier = next((a for a in alive(cambc.vision.champions(Team.ALLY))
                         if int(a.champion_name()) + 1 == self.carrier), None)
         if carrier is not None and not carrier.is_submitting_gems():
+            self.log_turn(me, f"escort {unit_at(carrier)}")
             if not within(me, carrier, ESCORT_RANGE - 1):
                 move_towards_closest(tiles_around(carrier.position(), ESCORT_RANGE - 1))
             return True
@@ -1141,23 +1340,30 @@ class Bot:
         if camps:
             in_reach = [c for c in camps if within(me, c, me.attack_range())]
             target = lowest(in_reach) or min(camps, key=lambda c: distance(position, c.position()))
+            self.log_turn(me, f"guard {camp_at(target)}")
             self.engage(me, target, [], is_camp=True)
-        elif distance(position, altar) > STAGING_RANGE:
-            move_towards_closest(tiles_around(altar, STAGING_RANGE))
+        else:
+            self.log_turn(me, f"guard {at(altar)}")
+            if distance(position, altar) > STAGING_RANGE:
+                move_towards_closest(tiles_around(altar, STAGING_RANGE))
         return True
 
     def recall_to_shop(self, me):
         position = me.position()
         home = min(distance(position, tile) for tile in game_map.spawn_region(Team.ALLY).positions())
         if home <= cambc.constants.RECALL_TIME:
-            return move_towards_closest(game_map.spawn_region(Team.ALLY))
+            if not move_towards_closest(game_map.spawn_region(Team.ALLY)):
+                return False
+            self.log_turn(me, "shop walk")
+            return True
         if threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True).is_set(position):
             return False
         try:
             me.recall()
-            return True
         except cambc.Error:
             return False
+        self.log_turn(me, "shop recall")
+        return True
 
     def fight(self, me):
         enemies = alive(cambc.vision.champions(Team.ENEMY))
@@ -1168,12 +1374,14 @@ class Bot:
         if self.spawn_zone.is_set(me.position()):
             enemies = [e for e in enemies if within(me, e, me.attack_range()) or self.catchable(me, e)]
             if not enemies:
+                self.log_turn(me, "leave")
                 move_towards_closest(~self.spawn_zone)
                 return True
         # A tributing enemy is stuck in place with its bag, which the kill steals.
         in_reach = [e for e in enemies if within(me, e, me.attack_range())]
         target = (lowest([e for e in in_reach if channelling(e)]) or lowest(in_reach)
                   or lowest([e for e in enemies if channelling(e)]) or lowest(enemies))
+        self.log_turn(me, f"attack {unit_at(target)}")
         self.engage(me, target, enemies, is_camp=False)
         return True
 
@@ -1195,18 +1403,21 @@ class Bot:
         enemies = alive(cambc.vision.champions(Team.ENEMY))
         zone = threat_zone(enemies, include_camps=False)
         if not zone.is_set(me.position()):
-            self.farm(me, avoid=zone)
+            self.farm(me, avoid=zone, action="retreat")
             return True
 
         # Melee may swing at something already in range before stepping out; nobody dashes in.
+        hit = None
         if me.attack_range() <= 1:
             for target in [*sorted(enemies, key=lambda e: e.health()), *self.group_camps()]:
                 if attack_if_in_range(target):
+                    hit = target
                     break
         if not move_towards_closest(~zone):
             target = lowest([e for e in enemies if within(me, e, me.attack_range())])
-            if target is not None:
-                attack_if_in_range(target)
+            if target is not None and attack_if_in_range(target):
+                hit = target
+        self.log_turn(me, f"retreat {unit_at(hit)}" if hit is not None else "retreat")
         return True
 
     def group_camps(self):
@@ -1216,8 +1427,9 @@ class Bot:
         spawns = self.spawns[slot]
         return [camp for camp in alive(cambc.vision.camps()) if spawns.is_set(camp.spawn_position())]
 
-    def farm(self, me, avoid=None):
+    def farm(self, me, avoid=None, action="farm"):
         if not self.route:
+            self.log_turn(me, action)
             return
         slot = self.slot % len(self.route)
         camps = self.camps_at(slot)
@@ -1226,20 +1438,25 @@ class Bot:
         passing = [c for c in alive(cambc.vision.camps())
                    if c.strength() <= 0 and within(me, c, reach) and self.can_take_camp(c)]
         if passing and not any(within(me, c, reach) for c in camps):
-            self.engage(me, lowest(passing), [], is_camp=True, avoid=avoid)
+            target = lowest(passing)
+            self.log_turn(me, f"{action} pass {camp_at(target)}")
+            self.engage(me, target, [], is_camp=True, avoid=avoid)
             return
         if not camps:
             spawns = self.spawns[slot]
             if self.ready_at[slot] > cambc.round_number():
+                self.log_turn(me, f"{action} wait")
                 ring = cambc.Bitboard()
                 for tile in spawns.positions():
                     ring.draw_chebyshev(tile, WAIT_RANGE)
                 move_towards_closest(ring & ~spawns, avoid)
             else:
+                self.log_turn(me, f"{action} walk")
                 move_towards_closest(spawns, avoid)
             return
         in_reach = [c for c in camps if within(me, c, reach)]
         target = lowest(in_reach) or min(camps, key=lambda c: distance(me.position(), c.position()))
+        self.log_turn(me, f"{action} {camp_at(target)}")
         self.engage(me, target, [], is_camp=True, avoid=avoid)
 
     # Kits
@@ -1267,12 +1484,12 @@ class Bot:
             if not alive([target]):
                 return
 
-        if (not is_camp and kind in (Champ.ISSAC, Champ.VENDETTA, Champ.REN)
-                and distance(me.position(), target.position()) > reach + 1):
+        gap = distance(me.position(), target.position())
+        if not is_camp and kind in (Champ.ISSAC, Champ.VENDETTA, Champ.REN) and gap - reach >= dash_span(me):
             dash_towards(me, target.position(), reach)
 
         if not within(me, target, reach):
-            move_towards_closest(tiles_around(target.position(), reach), avoid)
+            move_towards_closest(tiles_around(target.position(), reach), avoid, only_full=not is_camp)
 
         if attack_if_in_range(target) and kind in (Champ.ISSAC, Champ.VENDETTA):
             if alive([target]) and cast_self(ability_of(me, Kind.ATTACK_RESET)):
@@ -1306,7 +1523,7 @@ class Bot:
                 if cast_self(ability_of(me, Kind.ATTACK_RESET)):
                     attack_if_in_range(target)
         else:
-            move_towards_closest(tiles_around(target.position(), reach), avoid)
+            move_towards_closest(tiles_around(target.position(), reach), avoid, only_full=not is_camp)
 
     def should_hold_back(self, me, camp):
         # Clusters have no strength, so there is nothing to absorb.
@@ -1344,11 +1561,13 @@ class Bot:
             move_towards_closest(ring, avoid)
             return
 
-        # Ranged walking uses up the attack, so dash straight into range when it is close enough.
-        dashed = not within(me, target, reach) and dash_towards(me, target.position(), reach - 1)
+        # Ranged walking uses up the attack, so dash straight into range when the gap is at least the dash.
+        gap = distance(me.position(), target.position())
+        dashed = (not within(me, target, reach) and not is_camp and gap - reach >= dash_span(me)
+                  and dash_towards(me, target.position(), reach - 1))
         if not within(me, target, reach):
             if not dashed:
-                move_towards_closest(tiles_around(target.position(), reach), avoid)
+                move_towards_closest(tiles_around(target.position(), reach), avoid, only_full=not is_camp)
             return
 
         if not attack_if_in_range(target) or dashed:
