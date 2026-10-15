@@ -17,7 +17,7 @@ IDLE_BANK = 10
 # Recall to shop after a tribute when carrying this much gold.
 RECALL_GOLD = 150
 # Vesper collects most loot, so her purse fills fast; a higher bar keeps her with the team.
-VESPER_RECALL_GOLD = 600
+VESPER_RECALL_GOLD = 450
 
 # Route targeting: a new planned goal must beat the current one by this factor.
 SWITCH_MARGIN = 1.25
@@ -233,8 +233,8 @@ def move_towards_closest(goals, avoid=None, only_full=False, swing=True):
     goals = goals & (~blocked | cambc.vision.camp_tiles())
     if goals.is_empty():
         return False
-    # Swing on the way. If that attack spends the move, the walk is already gone.
-    if swing:
+    # Melee can swing and still walk. A ranged basic spends the walk, so only melee swings on the way.
+    if swing and me.attack_range() <= 1:
         kite(me)
         if not me.can_move():
             return True
@@ -334,11 +334,16 @@ def dash_leaves_range(me, enemies):
 
 
 def step_out(me, goals, extra=()):
-    # Same order for every body: a dash that clears every attack range goes first, then the swing.
-    # Otherwise swing, then walk if that attack left the move.
+    # A dash that clears every attack range goes first; it leaves the basic free, so the swing can follow.
+    # Otherwise melee swings and still walks. A ranged basic spends the walk, so they step out and
+    # only swing when that step never happened.
     enemies = alive(cambc.vision.champions(Team.ENEMY))
     if dash_leaves_range(me, enemies):
         move_towards_closest(goals, swing=False)
+        return kite(me, extra)
+    if me.attack_range() > 1:
+        if move_towards_closest(goals, swing=False):
+            return None
         return kite(me, extra)
     hit = kite(me, extra)
     if me.can_move():
@@ -451,6 +456,43 @@ def under_threat(me):
                 and distance(position, camp.position()) <= camp.attack_range()):
             return True
     return False
+
+
+def enemy_closes_in(me, finishes_next_turn):
+    # A basic move is one tile. An enemy already in range is hitting now.
+    # One step out only matters when the stand outlasts next turn: a finish then
+    # is gone by the time they arrive.
+    origin = me.position()
+    for enemy in alive(cambc.vision.champions(Team.ENEMY)):
+        try:
+            gap = distance(origin, enemy.position()) - enemy.attack_range()
+        except cambc.Error:
+            continue
+        if gap <= 0 or (gap <= 1 and not finishes_next_turn):
+            return enemy
+    return None
+
+
+def enemy_reaches_channel(me):
+    try:
+        finishes_next_turn = me.remaining_channel_time() <= 1
+    except cambc.Error:
+        finishes_next_turn = False
+    return enemy_closes_in(me, finishes_next_turn)
+
+
+def stop_channel(me):
+    # Recall and tribute cancel. A teleport runs to the end; the engine rejects a cancel.
+    try:
+        if me.is_recalling():
+            me.cancel_recall()
+        elif me.is_submitting_gems():
+            me.cancel_submit_gems()
+        else:
+            return False
+    except (cambc.Error, ValueError):
+        return False
+    return True
 
 
 def read_shared():
@@ -575,6 +617,8 @@ class Bot:
         self.capture_slot = NO_CAPTURE
         self.collector = 0
         self.claimed = 0
+        # (route slot, first round we held a spawn tile) while a capture is ticking.
+        self.capture_on = (None, 0)
         self.tributed = False
         self.vesper_done = False
         self.aggressive = False
@@ -597,6 +641,8 @@ class Bot:
         # Altars a heavy bag may visit alone (far from the centre, on our side) and the escorted rest.
         self.solo_altars = []
         self.escort_altars = []
+        # Set for the rest of a turn after a channel is cancelled, so it is not started again.
+        self.channel_cut = False
 
     def setup(self):
         groups = game_map.camp_groups()
@@ -805,6 +851,10 @@ class Bot:
         # If nobody led last round the whole team is away, so anyone may re-pick from where they are.
         if not me.is_alive() or channelling(me) or me.is_teleporting():
             return False
+        # A heavy bag has to be published even if this champion has not rejoined the farm target.
+        # The route slot is held while a carrier is set, so leading here does not drag the team.
+        if self.carrier:
+            return True
         return stale or not self.rejoining
 
     def share_loot(self, me):
@@ -914,8 +964,26 @@ class Bot:
         cambc.shared_memory[CLAIM_ROUND_OFFSET] = now & 0xFF
         print(f"round {now}: vesper takes route slot {slot}")
 
+    def capture_rounds_left(self, me, index):
+        # Captures tick at round start, so standing on the tile now means this round already counted.
+        # An enemy on the region, or stepping off, resets it.
+        spawns = self.spawns[index]
+        occupied = spawns.is_set(me.position())
+        contested = any(spawns.is_set(enemy.position())
+                        for enemy in alive(cambc.vision.champions(Team.ENEMY)))
+        now = cambc.round_number()
+        if not occupied or contested:
+            self.capture_on = (None, 0)
+            return cambc.constants.CAPTURE_TIME
+        slot, since = self.capture_on
+        if slot != index:
+            self.capture_on = (index, now)
+            since = now
+        return max(0, cambc.constants.CAPTURE_TIME - (now - since + 1))
+
     def collect(self, me):
         # Stand on the cleared group until its reward lands, then release the claim for everyone.
+        # Leave early when an enemy is in range, or one step from it, unless the capture ends next turn.
         index = self.capture_slot
         if index >= len(self.route):
             return False
@@ -925,6 +993,17 @@ class Bot:
             return False
         if self.camps_at(index):
             return False
+        left = self.capture_rounds_left(me, index)
+        threat = enemy_closes_in(me, finishes_next_turn=left <= 1)
+        if threat is not None:
+            zone = cambc.Bitboard()
+            for enemy in alive(cambc.vision.champions(Team.ENEMY)):
+                zone.draw_chebyshev(enemy.position(), enemy.attack_range() + 1)
+            hit = step_out(me, ~zone)
+            self.log_turn(me, f"drop s{index} {unit_at(threat)}" if hit is None else f"drop s{index} {unit_at(hit)}")
+            print(f"round {cambc.round_number()}: champion {int(me.champion_name())} "
+                  f"drops capture s{index}, {unit_at(threat)} arrives before it finishes")
+            return True
         center = self.centers[index]
         self.log_turn(me, f"collect s{index}{at(center)}")
         move_towards_closest(self.spawns[index])
@@ -992,6 +1071,7 @@ class Bot:
     def play_turn(self):
         me = cambc.me()
         self.fight_score = None
+        self.channel_cut = False
         if not self.ready:
             self.setup()
         if not self.priority_set:
@@ -1009,7 +1089,7 @@ class Bot:
             return
         self.update_carrier(me)
 
-        # 1. Leave running channels alone.
+        # 1. Stay on a channel an enemy cannot hit. One step out is safe when it ends next turn.
         if me.is_recalling() or me.is_submitting_gems() or me.is_teleporting():
             if me.is_recalling():
                 action = "recall"
@@ -1017,8 +1097,13 @@ class Bot:
                 action = "tribute"
             else:
                 action = "teleport"
-            self.log_turn(me, action)
-            return
+            threat = None if action == "teleport" else enemy_reaches_channel(me)
+            if threat is None or not stop_channel(me):
+                self.log_turn(me, action)
+                return
+            self.channel_cut = True
+            print(f"round {cambc.round_number()}: champion {int(me.champion_name())} "
+                  f"aborts {action}, {unit_at(threat)} steps into range")
 
         # Placing a ward costs no move, attack or cast, so it is tried every turn.
         self.place_ward(me)
@@ -1042,7 +1127,7 @@ class Bot:
         # 3. Recall when hurt and nothing can interrupt it; otherwise step out of reach first.
         if me.health() < me.max_health() * RECALL_HEALTH:
             zone = threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True)
-            if not zone.is_set(position):
+            if not self.channel_cut and not zone.is_set(position):
                 try:
                     me.recall()
                     self.log_turn(me, "recall")
@@ -1053,10 +1138,10 @@ class Bot:
             self.log_turn(me, f"dodge {unit_at(hit)}" if hit is not None else "dodge")
             return
 
-        # 4. The one champion collecting a cleared group stays on it unless something can hit it.
+        # 4. The collector holds the cleared group, and steps off on the same threat as a channel.
         self.vesper_claim(me)
         self.share_loot(me)
-        if self.is_collector(me) and not under_threat(me) and self.collect(me):
+        if self.is_collector(me) and self.collect(me):
             return
 
         # A failed dive keeps walking out past the retreat line, and will not turn around to chase.
@@ -1183,16 +1268,57 @@ class Bot:
         self.log_turn(me, f"ward {at(spot)}")
         return True
 
+    def nearest_altar(self, origin, altars):
+        walk = walk_field(tiles_around(origin, 0))
+        reach = cambc.constants.SUBMIT_GEMS_RANGE
+        ranked = []
+        for altar in altars:
+            steps = steps_to(walk, tiles_around(altar, reach).positions())
+            ranked.append((steps is None, steps or 0, distance(origin, altar), altar.x, altar.y, altar))
+        if not ranked:
+            return None, walk
+        ranked.sort()
+        return ranked[0][-1], walk
+
+    def altar_walk(self, altar):
+        # Terrain does not change, so the walk from each altar is kept.
+        if not hasattr(self, "altar_fields"):
+            self.altar_fields = {}
+        key = (altar.x, altar.y)
+        if key not in self.altar_fields:
+            self.altar_fields[key] = walk_field(tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE))
+        return self.altar_fields[key]
+
+    def camp_on_way(self, origin, altar, walk):
+        # Same detour the route allows: a few extra steps, or a camp close enough to turn for.
+        if not self.route:
+            return None
+        to_altar = self.altar_walk(altar)
+        altar_steps = steps_to(to_altar, [origin])
+        if altar_steps is None:
+            return None
+        best = None
+        for slot in self.visible_loot(self.capture_slot):
+            if not self.allowed(slot) or not self.camps_at(slot):
+                continue
+            to_camp = steps_to(walk, self.spawn_lists[slot])
+            camp_to_altar = steps_to(to_altar, self.spawn_lists[slot])
+            if to_camp is None or camp_to_altar is None:
+                continue
+            extra = to_camp + camp_to_altar - altar_steps
+            if extra <= ON_WAY_SLACK or to_camp <= NEAR_LOOT:
+                rank = (to_camp, -self.values[self.aggressive][slot], slot)
+                if best is None or rank < best[0]:
+                    best = (rank, slot)
+        return None if best is None else best[1]
+
     def bank_gems(self, me, altars=None):
         # A locked altar is still tried: the engine turns the tribute into an attack on the lock.
+        # Camps on the walk are cleared the same way as camps on the way to the route.
         origin = me.position()
         choices = list(altars or game_map.altars().positions())
-        goals = cambc.Bitboard()
-        nearest = None
         for altar in choices:
-            if nearest is None or distance(origin, altar) < distance(origin, nearest):
-                nearest = altar
-            if distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
+            if not self.channel_cut and distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
                 try:
                     me.submit_gems(altar)
                     self.tributed = True
@@ -1200,8 +1326,23 @@ class Bot:
                     return True
                 except cambc.Error:
                     continue
-            goals |= tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE)
-        if nearest is None or not move_towards_closest(goals):
+        nearest, walk = self.nearest_altar(origin, choices)
+        if nearest is None:
+            return False
+        detour = self.camp_on_way(origin, nearest, walk)
+        if detour is not None:
+            self.farm(me, action="bank", slot=detour)
+            return True
+        reach = me.attack_range()
+        passing = [c for c in alive(cambc.vision.camps())
+                   if c.strength() <= 0 and within(me, c, reach) and self.can_take_camp(c)]
+        if passing:
+            target = lowest(passing)
+            self.log_turn(me, f"bank pass {camp_at(target)}")
+            self.engage(me, target, [], is_camp=True)
+            return True
+        goals = tiles_around(nearest, cambc.constants.SUBMIT_GEMS_RANGE)
+        if not move_towards_closest(goals):
             return False
         self.log_turn(me, f"bank {at(nearest)}")
         return True
@@ -1232,7 +1373,7 @@ class Bot:
             return
         building = me.champion_name() == Champ.VESPER_VALE and emblem_count(me) < VESPER_CORE_EMBLEMS
         if (not self.carrier and gems >= ESCORT_GEMS and not building and not home
-                and not self.rejoining and not me.is_recalling() and not self.solo_altars):
+                and not me.is_recalling() and not self.solo_altars):
             self.carrier, self.escort_wait = mine, 0
             write_carrier(mine)
             print(f"round {cambc.round_number()}: champion {mine - 1} asks for an escort with {gems} gems")
@@ -1245,7 +1386,7 @@ class Bot:
         return min(self.escort_altars, key=lambda a: (distance(a, spot), a.x, a.y))
 
     def carry(self, me):
-        # Regroup first: walk to the nearest ally, or wait beside the altar where escorts gather.
+        # Walk to the altar. Escorts come there; the bag does not detour to wherever the team is farming.
         altar = self.escort_altar()
         if altar is None:
             return False
@@ -1255,25 +1396,24 @@ class Bot:
         if escorts >= min(ESCORT_MIN, living) or self.escort_wait >= ESCORT_WAIT:
             return self.bank_gems(me, [altar])
         self.escort_wait += 1
-        if others:
-            nearest = min(others, key=lambda a: distance(me.position(), a.position()))
-            self.log_turn(me, f"regroup {unit_at(nearest)}")
-            move_towards_closest(tiles_around(nearest.position(), 1))
-        else:
-            self.log_turn(me, f"stage {at(altar)}")
-            move_towards_closest(tiles_around(altar, STAGING_RANGE))
+        self.log_turn(me, f"stage {at(altar)}")
+        move_towards_closest(tiles_around(altar, ESCORT_RANGE))
         return True
 
     def escort(self, me):
-        # Stay beside the walking carrier; once it channels (or is out of sight) hold the altar.
+        # Meet the carrier at the altar. Once they channel (or leave sight) hold it.
         altar = self.escort_altar()
         if altar is None:
             return False
         carrier = next((a for a in alive(cambc.vision.champions(Team.ALLY))
                         if int(a.champion_name()) + 1 == self.carrier), None)
         if carrier is not None and not carrier.is_submitting_gems():
-            self.log_turn(me, f"escort {unit_at(carrier)}")
-            if not within(me, carrier, ESCORT_RANGE - 1):
+            self.log_turn(me, f"escort {at(altar)}")
+            near_altar = distance(me.position(), altar) <= ESCORT_RANGE
+            carrier_there = distance(carrier.position(), altar) <= STAGING_RANGE
+            if not near_altar:
+                move_towards_closest(tiles_around(altar, ESCORT_RANGE))
+            elif carrier_there and not within(me, carrier, ESCORT_RANGE - 1):
                 move_towards_closest(tiles_around(carrier.position(), ESCORT_RANGE - 1))
             return True
         building = me.champion_name() == Champ.VESPER_VALE and emblem_count(me) < VESPER_CORE_EMBLEMS
@@ -1306,7 +1446,8 @@ class Bot:
                 return False
             self.log_turn(me, "shop walk")
             return True
-        if threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True).is_set(position):
+        if (self.channel_cut
+                or threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True).is_set(position)):
             return False
         try:
             me.recall()
@@ -1326,11 +1467,15 @@ class Bot:
         self.log_turn(me, f"bait {unit_at(hit)}" if hit is not None else "bait")
         return True
 
+    def home_steps(self, enemy):
+        # Walking steps from this enemy back to their spawn.
+        return self.spawn_steps.get(enemy.position())
+
     def chase_targets(self, me, enemies):
         # Outside the buffer, only an enemy who followed us out is worth turning around for.
         # Inside the pursue ring, only someone who dies before they reach spawn. The band between
         # the two is an exit: nobody is chased there.
-        baited = [e for e in enemies if not self.retreat_zone.is_set(e.position())]
+        baited = [e for e in enemies if self.home_steps(e) > SPAWN_RETREAT_RANGE]
         if not self.retreat_zone.is_set(me.position()):
             return baited
         if self.spawn_zone.is_set(me.position()):
@@ -1370,14 +1515,15 @@ class Bot:
         return rounds <= self.spawn_steps.get(position)
 
     def retreat(self, me):
+        # A camp is only taken from outside every enemy attack range. Inside one, just leave.
         enemies = alive(cambc.vision.champions(Team.ENEMY))
-        zone = threat_zone(enemies, include_camps=False)
+        zone = cambc.Bitboard()
+        for enemy in enemies:
+            zone.draw_chebyshev(enemy.position(), enemy.attack_range())
         if not zone.is_set(me.position()):
             self.farm(me, avoid=zone, action="retreat")
             return True
-
-        # Hit while leaving, unless the dash itself is what steps outside their attack range.
-        hit = step_out(me, ~zone, self.group_camps())
+        hit = step_out(me, ~zone)
         self.log_turn(me, f"retreat {unit_at(hit)}" if hit is not None else "retreat")
         return True
 
@@ -1388,16 +1534,21 @@ class Bot:
         spawns = self.spawns[slot]
         return [camp for camp in alive(cambc.vision.camps()) if spawns.is_set(camp.spawn_position())]
 
-    def farm(self, me, avoid=None, action="farm"):
+    def farm(self, me, avoid=None, action="farm", slot=None):
         if not self.route:
             self.log_turn(me, action)
             return
-        slot = self.slot % len(self.route)
+        if slot is None:
+            slot = self.slot % len(self.route)
         camps = self.camps_at(slot)
         reach = me.attack_range()
+        # Retreat keeps the capture outside the attack zone passed in as avoid.
+        if avoid is not None:
+            camps = [c for c in camps if not avoid.is_set(c.position())]
         # Clusters have no strength, so a passing hit is free and should not be walked past.
         passing = [c for c in alive(cambc.vision.camps())
-                   if c.strength() <= 0 and within(me, c, reach) and self.can_take_camp(c)]
+                   if c.strength() <= 0 and within(me, c, reach) and self.can_take_camp(c)
+                   and (avoid is None or not avoid.is_set(c.position()))]
         if passing and not any(within(me, c, reach) for c in camps):
             target = lowest(passing)
             self.log_turn(me, f"{action} pass {camp_at(target)}")
