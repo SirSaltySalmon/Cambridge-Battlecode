@@ -6,7 +6,7 @@ from cambc import game_map
 Draft, Camp = cambc.ChampionDraft, cambc.CampType
 
 # Picks in order, by the team size the map asks for (3 to 5).
-ROSTER_5 = (Draft.VARG, Draft.VENDETTA, Draft.REN, Draft.WILLOW, Draft.VESPER_VALE)
+ROSTER_5 = (Draft.CASSI_AND_ISSAC, Draft.VARG, Draft.VENDETTA, Draft.WILLOW, Draft.VESPER_VALE)
 ROSTER_4 = (Draft.CASSI_AND_ISSAC, Draft.VARG, Draft.VESPER_VALE, Draft.REN)
 ROSTER_3 = (Draft.CASSI_AND_ISSAC, Draft.VARG, Draft.VESPER_VALE)
 ROSTERS = {3: ROSTER_3, 4: ROSTER_4, 5: ROSTER_5}
@@ -18,7 +18,8 @@ DENSITY_RADIUS = 8
 # Groups this close to the pocket anchor are farmed while the pocket respawns.
 ROAM_RADIUS = 60
 
-# Group value, in gems.
+# Group value, in gems. Early farming rates gold above gems; the aggressive route keeps the lower weight.
+FARM_GOLD_WEIGHT = 1.5
 GOLD_WEIGHT = 0.6
 # Gems lost per point of health the team takes while clearing.
 DAMAGE_COST = 0.01
@@ -55,17 +56,17 @@ def clear_rounds(group):
     return sum(CAMP_STATS.get(camp.kind(), (0, 0))[0] for camp in group.camps()) / TEAM_DAMAGE
 
 
-def group_value(group):
+def group_value(group, gold_weight=GOLD_WEIGHT):
     # Reward minus the health the team trades for it; never negative.
     damage_taken = sum(CAMP_STATS.get(camp.kind(), (0, 0))[1] for camp in group.camps()) * clear_rounds(group)
-    reward = group.gem_value() + GOLD_WEIGHT * group.gold_value()
+    reward = group.gem_value() + gold_weight * group.gold_value()
     return max(0.0, reward - DAMAGE_COST * damage_taken)
 
 
-def group_income(group):
+def group_income(group, gold_weight=GOLD_WEIGHT):
     # Value per round when the group is farmed every time it returns.
     cycle = group.max_respawn_timer() + clear_rounds(group) + cambc.constants.CAPTURE_TIME
-    return group_value(group) / max(1, cycle)
+    return group_value(group, gold_weight) / max(1, cycle)
 
 
 def walking_gaps(groups, indexes, roots):
@@ -95,7 +96,8 @@ def compute_pocket(aggressive=False):
     if not centers:
         return None, []
 
-    incomes = {index: group_income(groups[index]) for index in centers}
+    weight = GOLD_WEIGHT if aggressive else FARM_GOLD_WEIGHT
+    incomes = {index: group_income(groups[index], weight) for index in centers}
     if aggressive:
         middle = cambc.Vec2(game_map.width() // 2, game_map.height() // 2)
         gaps = {index: center.chebyshev_distance(middle) for index, center in centers.items()}

@@ -438,7 +438,8 @@ class Bot:
         self.cores = ([], [])
         self.free_slots = []
         self.centers = []
-        self.values = []
+        # Per-slot value while farming (gold weighted above gems), then the original rating.
+        self.values = ([], [])
         self.clears = []
         # Round each route group is next expected up; 0 means up or never seen.
         self.ready_at = []
@@ -498,7 +499,10 @@ class Bot:
         self.free_slots = [slot for slot, group in enumerate(self.route) if group.camps()
                            and all(camp.kind() in FREE_KINDS for camp in group.camps())]
         self.centers = [draft.group_center(group) for group in self.route]
-        self.values = [draft.group_value(group) for group in self.route]
+        self.values = (
+            [draft.group_value(group, draft.FARM_GOLD_WEIGHT) for group in self.route],
+            [draft.group_value(group) for group in self.route],
+        )
         self.clears = [draft.clear_rounds(group) for group in self.route]
         self.ready_at = [0] * len(self.route)
         self.ward_spots = ward_spots()
@@ -553,7 +557,7 @@ class Bot:
     def route_rate(self, slot, origin):
         travel = distance(origin, self.centers[slot])
         cycle = travel + self.wait_at(slot, origin) + self.clears[slot] + cambc.constants.CAPTURE_TIME
-        return self.values[slot] / max(1, cycle)
+        return self.values[self.aggressive][slot] / max(1, cycle)
 
     def detours(self, origin, skip, current):
         # Free groups, on the route or not, that are visibly up (or holding loot) close to where we walk.
