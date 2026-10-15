@@ -74,9 +74,13 @@ MISSING_BODY_PENALTY = 5
 SPAWN_CHASE_RANGE = 8
 HEALTH_EDGE = 5
 POWER_EDGE = 5
-GEM_WEIGHT = 0.06
-EMBLEM_BONUS = 1
+EMBLEM_BONUS = 3
 DISTANCE_PENALTY = 0.5
+# A champion under this max health is squishy, and fights less while ahead of every melee ally.
+SQUISHY_HEALTH = 900
+OVEREXTEND_PENALTY = 10
+# Standing on our own spawn is safe: it heals us, so a fight scores higher.
+SPAWN_BONUS = 50
 
 # Highest acts first, from the round after it is set.
 PRIORITY = {
@@ -102,7 +106,7 @@ _MELEE_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.BRUISER_SHARD_OF_FOCUS,
 _RANGED_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.MONSTER_SHARD_OF_FOCUS,
                  Item.DURABILITY_SHARD_OF_FOCUS)
 # Vesper Vale's kit is all basic attacks, so she builds Strength only
-_VESPER_STRENGTH = (Item.POWER_SHARD_OF_STRENGTH,)
+_VESPER_STRENGTH = (Item.TREASURE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH, Item.DURABILITY_SHARD_OF_STRENGTH, Item.POWER_SHARD_OF_STRENGTH,)
 SHOP_ORDER = {
     Champ.VENDETTA: _VENDETTA_STRENGTH,
     Champ.VARG: _MELEE_STRENGTH,
@@ -763,11 +767,26 @@ class Bot:
         ally_power = sum(a.strength() + a.focus() for a in allies)
         enemy_power = sum(e.strength() + e.focus() for e in enemies)
         score += POWER_EDGE if ally_power > enemy_power else -POWER_EDGE
-        score += GEM_WEIGHT * sum(gems_carried(e) for e in enemies)
-        score += EMBLEM_BONUS * sum(emblem_count(a) for a in allies)
+        score += EMBLEM_BONUS * (sum(emblem_count(a) for a in allies) - sum(emblem_count(e) for e in enemies))
         if origin is not None:
             score -= DISTANCE_PENALTY * min(distance(e.position(), origin) for e in enemies)
+        if self.squishy_overextended(allies, enemies):
+            score -= OVEREXTEND_PENALTY
+        if game_map.spawn_region(Team.ALLY).is_set(cambc.me().position()):
+            score += SPAWN_BONUS
         return FIGHT if score >= FIGHT_THRESHOLD else RETREAT
+
+    def squishy_overextended(self, allies, enemies):
+        # Melee allies are the tanks. A squishy with none of them closer to the nearest enemy is in front.
+        tanks = [ally for ally in allies if ally.attack_range() <= 1]
+        for squishy in allies:
+            if squishy.max_health() > SQUISHY_HEALTH:
+                continue
+            nearest = min(enemies, key=lambda enemy: distance(squishy.position(), enemy.position()))
+            gap = distance(squishy.position(), nearest.position())
+            if not any(distance(tank.position(), nearest.position()) < gap for tank in tanks):
+                return True
+        return False
 
     # Turn
 
