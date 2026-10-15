@@ -67,7 +67,7 @@ WARD_DETOUR_RANGE = 6
 AGGRESSIVE_WARD_DETOUR_RANGE = 12
 
 # Fight score.
-FIGHT_THRESHOLD = 1
+FIGHT_THRESHOLD = 10
 OUTNUMBER_BONUS = 10
 MISSING_BODY_PENALTY = 5
 # Within this many tiles of the enemy spawn, only enemies that die before reaching it are chased.
@@ -767,7 +767,7 @@ class Bot:
         ally_power = sum(a.strength() + a.focus() for a in allies)
         enemy_power = sum(e.strength() + e.focus() for e in enemies)
         score += POWER_EDGE if ally_power > enemy_power else -POWER_EDGE
-        score += EMBLEM_BONUS * (sum(emblem_count(a) for a in allies) - sum(emblem_count(e) for e in enemies))
+        score += EMBLEM_BONUS * sum(emblem_count(a) for a in allies)
         if origin is not None:
             score -= DISTANCE_PENALTY * min(distance(e.position(), origin) for e in enemies)
         if self.squishy_overextended(allies, enemies):
