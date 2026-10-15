@@ -20,7 +20,7 @@ ROAM_RADIUS = 60
 
 # Group value, in gems. Early farming rates gold above gems; the aggressive route keeps the lower weight.
 FARM_GOLD_WEIGHT = 1.5
-GOLD_WEIGHT = 0.6
+GOLD_WEIGHT = 0.4
 # Gems lost per point of health the team takes while clearing.
 DAMAGE_COST = 0.01
 # Rough team basic-attack damage per round, used to estimate clear time.
