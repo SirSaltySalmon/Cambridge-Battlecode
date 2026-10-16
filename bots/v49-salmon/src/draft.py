@@ -6,7 +6,7 @@ from cambc import game_map
 Draft, Camp = cambc.ChampionDraft, cambc.CampType
 
 # Picks in order, by the team size the map asks for (3 to 5).
-ROSTER_5 = (Draft.STELLAR, Draft.VARG, Draft.RYTH, Draft.WILLOW, Draft.VESPER_VALE)
+ROSTER_5 = (Draft.CASSI_AND_ISSAC, Draft.VARG, Draft.RYTH, Draft.WILLOW, Draft.VESPER_VALE)
 ROSTER_4 = (Draft.CASSI_AND_ISSAC, Draft.VARG, Draft.VESPER_VALE, Draft.WILLOW)
 ROSTER_3 = (Draft.CASSI_AND_ISSAC, Draft.VARG, Draft.VESPER_VALE)
 ROSTERS = {3: ROSTER_3, 4: ROSTER_4, 5: ROSTER_5}
