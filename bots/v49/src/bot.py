@@ -1294,7 +1294,7 @@ class Bot:
         if not within(me, target, reach):
             move_towards_closest(tiles_around(target.position(), reach), avoid)
 
-        if attack_if_in_range(target) and kind in (Champ.ISSAC, Champ.VENDETTA):
+        if attack_if_in_range(target) and kind in (Champ.ISSAC, Champ.VENDETTA, Champ.VARG):
             if alive([target]) and cast_self(ability_of(me, Kind.ATTACK_RESET)):
                 attack_if_in_range(target)
 
