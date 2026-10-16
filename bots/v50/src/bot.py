@@ -48,7 +48,7 @@ ESCORT_RANGE = 3
 ESCORT_MIN = 2
 # Waiting carriers stand this far from the escort altar, and give up waiting after this many turns.
 STAGING_RANGE = 5
-ESCORT_WAIT = 15
+ESCORT_WAIT = 12
 # While the carrier channels, escorts farm free camps this close to the altar.
 PROTECT_RANGE = 6
 # A carrier below this health stays behind the team instead of fighting at the front.
