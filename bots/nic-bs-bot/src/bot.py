@@ -104,6 +104,8 @@ RANGED_CAMP_STANDOFF = 4
 # One family at a time until its emblem is done; the fallback shard is bought without limit.
 _MELEE_STRENGTH = (Item.JUNGLE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH,
                    Item.BRUISER_SHARD_OF_STRENGTH)
+_MELEE_TANK = (Item.JUNGLE_SHARD_OF_HEALTH, Item.DURABILITY_SHARD_OF_HEALTH,
+                   Item.BRUISER_SHARD_OF_HEALTH)
 _VENDETTA_STRENGTH = (Item.JUNGLE_SHARD_OF_STRENGTH, Item.MONSTER_SHARD_OF_STRENGTH,
                    Item.POWER_SHARD_OF_STRENGTH)
 _MELEE_FOCUS = (Item.JUNGLE_SHARD_OF_FOCUS, Item.BRUISER_SHARD_OF_FOCUS,
@@ -118,6 +120,8 @@ SHOP_ORDER = {
     Champ.VARG: _MELEE_STRENGTH,
     Champ.ISSAC: _MELEE_STRENGTH,
     Champ.REN: _MELEE_FOCUS,
+    Champ.RYTH: _MELEE_TANK,
+    Champ.STELLAR: _RANGED_FOCUS,
     Champ.CASSI: _RANGED_FOCUS,
     Champ.WILLOW: _RANGED_FOCUS,
     Champ.VESPER_VALE: _VESPER_STRENGTH,
@@ -1278,7 +1282,7 @@ class Bot:
         if not within(me, target, reach):
             move_towards_closest(tiles_around(target.position(), reach), avoid)
  
-        if attack_if_in_range(target) and kind in (Champ.ISSAC, Champ.VENDETTA):
+        if attack_if_in_range(target) and kind in (Champ.VARG, Champ.ISSAC, Champ.VENDETTA):
             if alive([target]) and cast_self(ability_of(me, Kind.ATTACK_RESET)):
                 attack_if_in_range(target)
  

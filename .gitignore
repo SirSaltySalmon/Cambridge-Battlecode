@@ -4,3 +4,9 @@ matches/
 replays/
 bots/*/build/
 bots/*/target/
+tuner/work/
+tuner/replays/
+tuner/*.sqlite
+tuner/*.sqlite-journal
+tuner/*.sqlite-wal
+tuner/*.sqlite-shm
