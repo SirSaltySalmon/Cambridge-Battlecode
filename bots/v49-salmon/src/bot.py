@@ -26,7 +26,7 @@ WAIT_RANGE = 2
 # Escorts guarding a channelling carrier only farm groups of these kinds.
 FREE_KINDS = (cambc.CampType.WOLF, cambc.CampType.GEM_CLUSTER, cambc.CampType.GOLD_CLUSTER)
 # Every group is a possible stop on the way, except monoliths until the team owns this many emblems.
-MONOLITH_EMBLEMS = 99
+MONOLITH_EMBLEMS = 12
 # Visible loot this close is taken even if it is slightly off the path to the planned goal.
 NEAR_LOOT = 8
 # Extra walking tiles allowed for a stop to still count as being on the way.
