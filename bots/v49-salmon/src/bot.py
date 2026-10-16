@@ -535,6 +535,72 @@ def channelling(champion):
         return False
 
 
+def channel_left(me):
+    try:
+        return f"left {me.remaining_channel_time()}"
+    except cambc.Error:
+        return "left unread"
+
+
+def _enemy_label(enemy):
+    try:
+        return f"c{int(enemy.champion_name())}{at(enemy.position())}"
+    except (cambc.Error, AttributeError):
+        try:
+            return at(enemy.position())
+        except (cambc.Error, AttributeError):
+            return "enemy"
+
+
+def channel_threat(me):
+    # A basic move is one tile. An enemy already in range is hitting now.
+    # One step out only matters when the stand outlasts next turn: a finish then
+    # is gone by the time they arrive. The text is the reason for staying or aborting.
+    try:
+        left = me.remaining_channel_time()
+        finishes_next_turn = left <= 1
+    except cambc.Error:
+        left = None
+        finishes_next_turn = False
+    left_text = "left unread" if left is None else f"left {left}"
+    origin = me.position()
+    nearest = None
+    for enemy in alive(cambc.vision.champions(Team.ENEMY)):
+        try:
+            reach = enemy.attack_range()
+            gap = distance(origin, enemy.position()) - reach
+        except cambc.Error:
+            continue
+        if nearest is None or gap < nearest[0]:
+            nearest = (gap, reach, enemy)
+        if gap <= 0 or (gap <= 1 and not finishes_next_turn):
+            who = _enemy_label(enemy)
+            if gap <= 0:
+                return enemy, f"{who} already in range, gap {gap} attack {reach}, {left_text}"
+            return enemy, f"{who} one step out, gap {gap} attack {reach}, {left_text}"
+    if nearest is None:
+        return None, f"no visible enemy, {left_text}"
+    gap, reach, enemy = nearest
+    who = _enemy_label(enemy)
+    if gap <= 1 and finishes_next_turn:
+        return None, f"{who} gap {gap} attack {reach} arrives after finish, {left_text}"
+    return None, f"nearest {who} gap {gap} attack {reach} needs more than a step, {left_text}"
+
+
+def stop_channel(me):
+    # Recall and tribute cancel. A teleport runs to the end; the engine rejects a cancel.
+    try:
+        if me.is_recalling():
+            me.cancel_recall()
+        elif me.is_submitting_gems():
+            me.cancel_submit_gems()
+        else:
+            return False
+    except (cambc.Error, ValueError):
+        return False
+    return True
+
+
 def emblem_count(champion):
     try:
         counts = champion.item_count()
@@ -725,6 +791,8 @@ class Bot:
         # Altars a heavy bag may visit alone (far from the centre, on our side) and the escorted rest.
         self.solo_altars = []
         self.escort_altars = []
+        # Set for the rest of a turn after a channel is cancelled, so it is not started again.
+        self.channel_cut = False
         # Decision log for this turn: the shared plan, the branch taken, and why.
         self.shared_why = ""
         self.local_why = ""
@@ -1293,6 +1361,7 @@ class Bot:
                 print(f"log error: {error}", flush=True)
 
     def _play(self, me):
+        self.channel_cut = False
         if not self.ready:
             self.setup()
         if not self.priority_set:
@@ -1310,7 +1379,7 @@ class Bot:
             return
         self.update_carrier(me)
 
-        # 1. Leave running channels alone.
+        # 1. Stay on a channel an enemy cannot hit. One step out is safe when it ends next turn.
         if me.is_recalling() or me.is_submitting_gems() or me.is_teleporting():
             if me.is_recalling():
                 kind = "recall"
@@ -1318,8 +1387,17 @@ class Bot:
                 kind = "tribute"
             else:
                 kind = "teleport"
-            self.branch(f"channel.{kind}", "channel already running, leave it")
-            return
+            if kind == "teleport":
+                self.branch("channel.teleport", f"teleport cannot be cancelled, {channel_left(me)}")
+                return
+            threat, why = channel_threat(me)
+            if threat is None or not stop_channel(me):
+                if threat is not None:
+                    why = f"cancel rejected; {why}"
+                self.branch(f"channel.{kind}", why)
+                return
+            self.channel_cut = True
+            self.note(f"aborts {kind}: {why}")
 
         # Placing a ward costs no move, attack or cast, so it is tried every turn.
         self.place_ward(me)
@@ -1343,7 +1421,7 @@ class Bot:
         if me.health() < me.max_health() * RECALL_HEALTH:
             zone = threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True)
             hurt = f"below {RECALL_HEALTH:.0%} health"
-            if not zone.is_set(position):
+            if not self.channel_cut and not zone.is_set(position):
                 try:
                     me.recall()
                     _act("recall")
@@ -1351,7 +1429,9 @@ class Bot:
                     return
                 except cambc.Error as error:
                     self.note(f"recall rejected ({error})")
-            self.branch("hurt.dodge", f"{hurt}, stepping out of threat")
+            why = ("channel just aborted, not recalling again this turn" if self.channel_cut
+                   else "stepping out of threat")
+            self.branch("hurt.dodge", f"{hurt}, {why}")
             move_towards_closest(~zone)
             return
 
@@ -1511,8 +1591,10 @@ class Bot:
         origin = me.position()
         goals = cambc.Bitboard()
         spots = list(altars or game_map.altars().positions())
+        held = None
         for altar in spots:
-            if distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
+            in_range = distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE
+            if not self.channel_cut and in_range:
                 try:
                     me.submit_gems(altar)
                     self.tributed = True
@@ -1521,10 +1603,17 @@ class Bot:
                     return True
                 except cambc.Error:
                     continue
+            if self.channel_cut and in_range and held is None:
+                held = altar
             goals |= tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE)
         nearest = min(spots, key=lambda altar: distance(origin, altar), default=None)
         where = at(nearest) if nearest is not None else "none"
-        self.branch(f"{stem}.walk", f"walk toward altar {where}")
+        if held is not None:
+            why = (f"tribute just aborted, altar {at(held)} in submit range, "
+                   f"walk instead of resubmitting")
+        else:
+            why = f"walk toward altar {where}"
+        self.branch(f"{stem}.walk", why)
         return move_towards_closest(goals)
 
     # Escorted tribute
@@ -1651,6 +1740,9 @@ class Bot:
             if not ok:
                 self.note(f"shop walk failed: {_trace_stall}")
             return ok
+        if self.channel_cut:
+            self.note(f"shop recall held, channel just aborted, spawn is {home} tiles away")
+            return False
         if threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True).is_set(position):
             return False
         try:
