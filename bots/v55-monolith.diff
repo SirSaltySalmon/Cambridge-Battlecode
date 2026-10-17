@@ -1,0 +1,62 @@
+--- orig/bot.py	2026-10-16 16:58:57.859285415 +0000
++++ bots/v55-monolith/src/bot.py	2026-10-16 16:59:57.993899818 +0000
+@@ -27,6 +27,12 @@
+ FREE_KINDS = (cambc.CampType.WOLF, cambc.CampType.GEM_CLUSTER, cambc.CampType.GOLD_CLUSTER)
+ # Every group is a possible stop on the way, except monoliths until the team owns this many emblems.
+ MONOLITH_EMBLEMS = 12
++# A monolith is started only with every living ally within this range of the leader, each at this share
++# of max health, and no enemy in sight. Once it is the target (or under attack) the team stays on it
++# while at least MONOLITH_KEEP allies (or every living one, if fewer) remain in range.
++MONOLITH_GROUP_RANGE = 6
++MONOLITH_START_HEALTH = 0.8
++MONOLITH_KEEP = 3
+ # Visible loot this close is taken even if it is slightly off the path to the planned goal.
+ NEAR_LOOT = 8
+ # Extra walking tiles allowed for a stop to still count as being on the way.
+@@ -915,7 +921,23 @@
+         return total
+ 
+     def allowed(self, slot):
+-        return slot not in self.monoliths or self.team_emblems() >= MONOLITH_EMBLEMS
++        if slot not in self.monoliths:
++            return True
++        return self.team_emblems() >= MONOLITH_EMBLEMS and self.monolith_grouped(slot)
++
++    def monolith_grouped(self, slot):
++        # Strict to start, looser to keep going, so one ally stepping away doesn't flip the team off it.
++        me = cambc.me()
++        living = sum(1 for ally in cambc.champions(Team.ALLY) if ally.is_alive())
++        near = [a for a in alive(cambc.vision.champions(Team.ALLY))
++                if within(me, a, MONOLITH_GROUP_RANGE) and not channelling(a)]
++        if me not in near:
++            near.append(me)
++        if self.mid_clear(slot) or self.slot == slot:
++            return len(near) >= min(MONOLITH_KEEP, living)
++        if alive(cambc.vision.champions(Team.ENEMY)) or len(near) < living:
++            return False
++        return all(a.health() >= a.max_health() * MONOLITH_START_HEALTH for a in near)
+ 
+     def can_take_camp(self, camp):
+         slot = self.slot_at.get(camp.spawn_position())
+@@ -958,7 +980,7 @@
+         # (or close enough that turning aside is cheap). A group already under attack is finished.
+         # The group being collected is skipped so everyone else moves on. Monoliths wait until
+         # the team is strong enough. With seen_only, only loot this champion can see is offered.
+-        if slot != skip and self.mid_clear(slot):
++        if slot != skip and self.mid_clear(slot) and self.allowed(slot):
+             return slot
+         walk = walk_field(tiles_around(origin, 0))
+         travel = {}
+@@ -970,6 +992,12 @@
+         if not travel:
+             return slot
+ 
++        # A monolith in travel already passed the emblem and grouping gate, so it goes first when up.
++        now = cambc.round_number()
++        monoliths = [s for s in travel if s in self.monoliths and self.ready_at[s] <= now]
++        if monoliths and not seen_only:
++            return min(monoliths, key=lambda s: travel[s])
++
+         dest = self.best_goal(travel)
+         loot = [s for s in self.visible_loot(skip) if s in travel]
+         if seen_only and not loot:

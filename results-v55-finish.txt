@@ -1,0 +1,137 @@
+﻿== ambush | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 916
+  A    v55-finish   428     2     14        2601        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55         1000    11      3        4786        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== ambush | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 958
+  A    v55          788     1      9        3679        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish  1082     8      2        4469        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== collision | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 1934
+  A    v55-finish  1004    53     14       12336        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55          110     9     74        2842        0  Cassi & Issac, Varg, Vesper Vale
+== collision | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 1269
+  A    v55         1010    31      8        8036        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55-finish    88     5     43        2273        0  Cassi & Issac, Varg, Vesper Vale
+== contest | v55-finish as side A ==
+Team A (v55-finish) wins: round limit (2000) reached; tied on gems, more gold earned
+  A    v55-finish     0    95      6       13987        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55            0     4    118        2607        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== contest | v55-finish as side B ==
+Team A (v55) wins: round limit (2000) reached with more gems
+  A    v55          200    99      6       14451        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish     0     3    121        2480        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== corners | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 710
+  A    v55-finish  1022    16      6        5098        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55          604     4     20        3724        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== corners | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 730
+  A    v55         1002    15      5        4816        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish   604     3     19        3736        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== eight | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 905
+  A    v55-finish   262    17     29        2894        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55         1056    22     25        5522        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== eight | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 905
+  A    v55          262    17     29        2894        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish  1056    22     25        5522        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== elkring | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 721
+  A    v55-finish  1026    19      8        6577        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55          468     5     25        4141        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== elkring | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 855
+  A    v55         1008    28     15        6501        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish   324     9     38        3551        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== expanse | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 873
+  A    v55-finish   440     5      7        3392        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55         1234     5      7        5016        0  Cassi & Issac, Varg, Vesper Vale
+== expanse | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 984
+  A    v55          782     4      8        4500        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55-finish  1110     5      5        4948        0  Cassi & Issac, Varg, Vesper Vale
+== fragment | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 751
+  A    v55-finish  1042    15      4        4790        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55           44     3     22        1910        0  Cassi & Issac, Varg, Vesper Vale
+== fragment | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 1338
+  A    v55         1020    23     31        6190        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55-finish   686    23     33        5540        0  Cassi & Issac, Varg, Vesper Vale
+== interlock | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 1298
+  A    v55-finish  1056    28     26        8074        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55          944    19     37        4562        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== interlock | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 1298
+  A    v55         1056    28     26        8074        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55-finish   944    19     37        4562        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== lanes | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 1139
+  A    v55-finish  1044    30     21        5992        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55          416    17     39        3396        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== lanes | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 1545
+  A    v55          460    26     56        3952        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish  1028    45     37        7046        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== monolith | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 780
+  A    v55-finish   614     2     14        4494        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55         1030    11      4        4844        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== monolith | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 929
+  A    v55         1000     7     13        5624        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish   950    10     10        5262        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== packs | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 499
+  A    v55-finish  1048     5      1        4366        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55          612     1      7        2903        0  Cassi & Issac, Varg, Vesper Vale
+== packs | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 499
+  A    v55         1048     5      1        4366        0  Cassi & Issac, Varg, Vesper Vale
+  B    v55-finish   612     1      7        2903        0  Cassi & Issac, Varg, Vesper Vale
+== pilgrimage | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 1162
+  A    v55-finish    68    10     18        4347        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55         1154    13     15        6088        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== pilgrimage | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 1096
+  A    v55          646    17     16        4057        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish  1064    10     21        6376        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== rows | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 743
+  A    v55-finish   726     8      7        2698        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55         1023     5     10        5599        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rows | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 831
+  A    v55          726     3     11        2988        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55-finish  1254     6      4        5848        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rushbait-v2 | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 1089
+  A    v55-finish  1030     6      9        5710        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55          716     6      9        3544        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rushbait-v2 | v55-finish as side B ==
+Team B (v55-finish) wins: reached 1000 gems in round 886
+  A    v55          624     1      7        3246        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55-finish  1052     5      1        5172        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== stampede | v55-finish as side A ==
+Team B (v55) wins: reached 1000 gems in round 1583
+  A    v55-finish   288    12     19        8037        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55         1512     9     18        5602        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== stampede | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 1771
+  A    v55         1080    14     18        7655        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v55-finish   720     9     22        7409        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== swirl | v55-finish as side A ==
+Team A (v55-finish) wins: reached 1000 gems in round 1025
+  A    v55-finish  1054    19     26        6481        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55          612    19     28        8041        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== swirl | v55-finish as side B ==
+Team A (v55) wins: reached 1000 gems in round 623
+  A    v55         1112    13      8        5031        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v55-finish   248     5     20        4302        0  Cassi & Issac, Varg, Vesper Vale, Willow
+TOTAL v55-finish vs v55: 17 wins, 17 losses
