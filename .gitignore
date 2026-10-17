@@ -10,3 +10,4 @@ tuner/*.sqlite
 tuner/*.sqlite-journal
 tuner/*.sqlite-wal
 tuner/*.sqlite-shm
+__pycache__/
