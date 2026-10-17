@@ -1,0 +1,73 @@
+--- orig/bot.py	2026-10-16 16:58:57.859285415 +0000
++++ bots/v55-finish/src/bot.py	2026-10-16 16:59:40.537898780 +0000
+@@ -10,6 +10,9 @@
+ 
+ # Turn thresholds.
+ RECALL_HEALTH = 0.35
++# Below RECALL_HEALTH, a champion keeps hitting a started group when it can still take the camps' full
++# strength for this many rounds past the estimated kill. Walking out of camp range takes hits too.
++FINISH_MARGIN = 2
+ GEM_BANK = 40
+ THREAT_RANGE = 4
+ # While the target is still respawning, bank any bag at least this big.
+@@ -1418,7 +1421,15 @@
+             return
+ 
+         # 3. Recall when hurt and nothing can interrupt it; otherwise step out of reach first.
++        # A started group that dies before we would is finished first.
+         if me.health() < me.max_health() * RECALL_HEALTH:
++            finish, why = self.finish_check(me)
++            if finish:
++                self.farm(me)
++                self._branch = "hurt.finish." + self._branch
++                self._why = f"{why}; {self._why}"
++                return
++            self.note(f"no finish: {why}")
+             zone = threat_zone(alive(cambc.vision.champions(Team.ENEMY)), include_camps=True)
+             hurt = f"below {RECALL_HEALTH:.0%} health"
+             if not self.channel_cut and not zone.is_set(position):
+@@ -1851,6 +1862,44 @@
+         self.branch("retreat.out", f"inside threat of {len(enemies)}, step out{swing}")
+         return True
+ 
++    def finish_check(self, me):
++        # Worst case: every camp of the target group in range hits us each round (a camp hits the
++        # nearest champion, so this overcounts). Only basic attacks from allies in reach count as damage.
++        if self.channel_cut:
++            return False, "channel just aborted"
++        if alive(cambc.vision.champions(Team.ENEMY)):
++            return False, "enemy in sight"
++        camps = self.group_camps()
++        if not camps:
++            return False, "no target camps in sight"
++        if all(camp.health() >= camp.max_health() for camp in camps):
++            return False, "target group not started"
++        position = me.position()
++        spawns = self.spawns[self.slot % len(self.route)]
++        for camp in alive(cambc.vision.camps()):
++            if (not spawns.is_set(camp.spawn_position()) and camp.strength() > 0
++                    and camp.health() < camp.max_health()
++                    and distance(position, camp.position()) <= camp.attack_range()):
++                return False, f"other awake camp {at(camp.position())} in range"
++        incoming = sum(camp.strength() for camp in camps
++                       if distance(position, camp.position()) <= camp.attack_range())
++        allies = alive(cambc.vision.champions(Team.ALLY))
++        if me not in allies:
++            allies.append(me)
++        damage = sum(a.strength() for a in allies
++                     if any(distance(a.position(), camp.position()) <= a.attack_range() for camp in camps))
++        if damage <= 0:
++            return False, "nobody in reach to finish"
++        left = sum(camp.health() for camp in camps)
++        kill = -(-left // damage)
++        if incoming <= 0:
++            # Out of camp range means out of our own basic reach too, so we add nothing by staying.
++            return False, "out of camp range"
++        last = me.health() / incoming
++        if kill + FINISH_MARGIN > last:
++            return False, f"kill {kill:.0f}r + {FINISH_MARGIN} > survive {last:.1f}r"
++        return True, f"finish: kill {kill:.0f}r + {FINISH_MARGIN} <= survive {last:.1f}r"
++
+     def group_camps(self):
+         return self.camps_at(self.slot % len(self.route)) if self.route else []
+ 
