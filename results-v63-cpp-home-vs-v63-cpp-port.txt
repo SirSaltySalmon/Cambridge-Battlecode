@@ -1,0 +1,137 @@
+﻿== ambush | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 1031
+  A    v63-cpp-home   356     0      0        1254        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port  1002     0      1        4256        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== ambush | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 857
+  A    v63-cpp-port   691     9      5        4010        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home  1015     3     14        4486        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== collision | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: round limit (2000) reached with more gems
+  A    v63-cpp-home   914    42     28        8027        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-port   652    19     59        4567        0  Cassi & Issac, Varg, Vesper Vale
+== collision | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 1327
+  A    v63-cpp-port  1024    21     17        5595        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-home   292    11     29        3809        0  Cassi & Issac, Varg, Vesper Vale
+== contest | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: round limit (2000) reached; tied on gems, more gold earned
+  A    v63-cpp-home     0    55     59        6185        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port     0    45     67        8269        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== contest | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: round limit (2000) reached with more gems
+  A    v63-cpp-port   200    71     26       10135        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home     0    18     89        4439        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== corners | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 709
+  A    v63-cpp-home   732     5     12        4026        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port  1010     9      7        4989        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== corners | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 764
+  A    v63-cpp-port  1008    12     10        4883        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home   800     8     15        5021        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== eight | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 1365
+  A    v63-cpp-home  1104    35     39        6451        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port   566    29     46        4331        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== eight | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 935
+  A    v63-cpp-port  1052    33     16        6780        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home   454    11     42        2516        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== elkring | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 498
+  A    v63-cpp-home  1008    14      6        3772        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port    72     5     17        3351        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== elkring | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 1156
+  A    v63-cpp-port  1080    37     23        7975        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home   756    17     45        5201        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== expanse | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 774
+  A    v63-cpp-home   168     4      6        2768        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-port  1110     4      6        3552        0  Cassi & Issac, Varg, Vesper Vale
+== expanse | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 774
+  A    v63-cpp-port   168     4      6        2768        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-home  1110     4      6        3552        0  Cassi & Issac, Varg, Vesper Vale
+== fragment | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 975
+  A    v63-cpp-home  1012    22     12        6250        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-port   496     8     31        3055        0  Cassi & Issac, Varg, Vesper Vale
+== fragment | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 806
+  A    v63-cpp-port  1048    20      6        5517        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-home   190     4     29        2430        0  Cassi & Issac, Varg, Vesper Vale
+== interlock | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 1052
+  A    v63-cpp-home   514    19     22        5274        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-port  1000    17     25        4502        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== interlock | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 817
+  A    v63-cpp-port   116    11     22        3414        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-home  1014    17     14        4424        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== lanes | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 1569
+  A    v63-cpp-home  1016    33     40        5026        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port   510    31     44        5526        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== lanes | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 1286
+  A    v63-cpp-port   314    24     42        3840        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home  1014    33     30        5390        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== monolith | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 622
+  A    v63-cpp-home   350     3     14        3729        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port  1002    10      4        3626        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== monolith | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 838
+  A    v63-cpp-port   476     8     20        4110        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home  1000    16     11        4598        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== packs | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 618
+  A    v63-cpp-home  1028     8      5        4582        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-port   640     2     11        2712        0  Cassi & Issac, Varg, Vesper Vale
+== packs | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 675
+  A    v63-cpp-port  1004    11      5        4926        0  Cassi & Issac, Varg, Vesper Vale
+  B    v63-cpp-home   704     2     15        2466        0  Cassi & Issac, Varg, Vesper Vale
+== pilgrimage | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 957
+  A    v63-cpp-home  1052    20      8        6824        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port   408     4     28        2801        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== pilgrimage | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 1312
+  A    v63-cpp-port   552    16     17        4105        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home  1044    12     25        5862        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== rows | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 489
+  A    v63-cpp-home   792     0      0        3888        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-port  1056     0      0        4500        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rows | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 825
+  A    v63-cpp-port   726     8      9        2988        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-home  1056     5     11        6122        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rushbait-v2 | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 1400
+  A    v63-cpp-home   468    14     25        3414        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-port  1006    18     24        5714        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rushbait-v2 | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 823
+  A    v63-cpp-port   498     5     11        3486        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-home  1020     8      7        4256        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== stampede | v63-cpp-home as side A ==
+Team B (v63-cpp-port) wins: reached 1000 gems in round 1637
+  A    v63-cpp-home   360    16     20        5446        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-port  1080    12     26        8261        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== stampede | v63-cpp-home as side B ==
+Team B (v63-cpp-home) wins: reached 1000 gems in round 1795
+  A    v63-cpp-port   360    15     38        6026        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v63-cpp-home  1080    27     28        8427        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== swirl | v63-cpp-home as side A ==
+Team A (v63-cpp-home) wins: reached 1000 gems in round 683
+  A    v63-cpp-home  1028    19     11        6652        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-port   284     7     27        3516        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== swirl | v63-cpp-home as side B ==
+Team A (v63-cpp-port) wins: reached 1000 gems in round 789
+  A    v63-cpp-port  1198    16     10        5394        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v63-cpp-home   844     8     25        7869        0  Cassi & Issac, Varg, Vesper Vale, Willow
+TOTAL v63-cpp-home vs v63-cpp-port: 17 wins, 17 losses
