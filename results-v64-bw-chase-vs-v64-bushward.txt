@@ -1,0 +1,137 @@
+== ambush | v64-bw-chase as side A ==
+Team B (v64-bushward) wins: reached 1000 gems in round 640
+  A    v64-bw-chase   394     1      7        2019        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward  1010     6      1        3951        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== ambush | v64-bw-chase as side B ==
+Team B (v64-bw-chase) wins: reached 1000 gems in round 640
+  A    v64-bushward   394     1      7        2019        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase  1010     6      1        3951        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== collision | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 1386
+  A    v64-bw-chase  1004    34      6        6488        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bushward     0     4     47        1386        0  Cassi & Issac, Varg, Vesper Vale
+== collision | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 963
+  A    v64-bushward  1010    20      5        5483        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bw-chase    88     3     29        1902        0  Cassi & Issac, Varg, Vesper Vale
+== contest | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: round limit (2000) reached; tied on gems, more gold earned
+  A    v64-bw-chase     0    88      3       13454        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward     0     2    109        1181        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== contest | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: round limit (2000) reached; tied on gems, more gold earned
+  A    v64-bushward     0    89      4       13530        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase     0     2    110        1359        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== corners | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 873
+  A    v64-bw-chase  1010    21      7        5666        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward   792     6     26        4368        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== corners | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 873
+  A    v64-bushward  1010    21      7        5666        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase   792     6     26        4368        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== eight | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 963
+  A    v64-bw-chase  1048    30     15        6086        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward   468    11     36        2721        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== eight | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 963
+  A    v64-bushward  1048    30     15        6086        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase   468    11     36        2721        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== elkring | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 652
+  A    v64-bw-chase  1008    20      4        5896        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward   324     3     26        3407        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== elkring | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 652
+  A    v64-bushward  1008    20      4        5896        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase   324     3     26        3407        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== expanse | v64-bw-chase as side A ==
+Team B (v64-bushward) wins: reached 1000 gems in round 1060
+  A    v64-bw-chase   910     6      6        4840        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bushward  1168     4      8        4938        0  Cassi & Issac, Varg, Vesper Vale
+== expanse | v64-bw-chase as side B ==
+Team B (v64-bw-chase) wins: reached 1000 gems in round 1060
+  A    v64-bushward   910     6      6        4840        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bw-chase  1168     4      8        4938        0  Cassi & Issac, Varg, Vesper Vale
+== fragment | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 727
+  A    v64-bw-chase  1004    15      4        4922        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bushward    22     1     21        1560        0  Cassi & Issac, Varg, Vesper Vale
+== fragment | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 727
+  A    v64-bushward  1004    15      4        4922        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bw-chase    22     1     21        1560        0  Cassi & Issac, Varg, Vesper Vale
+== interlock | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 1202
+  A    v64-bw-chase  1012    26     16        6884        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bushward   558    11     33        3708        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== interlock | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 1202
+  A    v64-bushward  1012    26     16        6884        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bw-chase   558    11     33        3708        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== lanes | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 1600
+  A    v64-bw-chase  1088    41     43        6748        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward   738    32     52        5470        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== lanes | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 1607
+  A    v64-bushward  1110    46     40        6828        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase   694    29     58        5320        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== monolith | v64-bw-chase as side A ==
+Team B (v64-bushward) wins: reached 1000 gems in round 1085
+  A    v64-bw-chase   754    12     22        4791        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward  1008    18     16        5221        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== monolith | v64-bw-chase as side B ==
+Team B (v64-bw-chase) wins: reached 1000 gems in round 1085
+  A    v64-bushward   754    12     22        4791        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase  1008    18     16        5221        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== packs | v64-bw-chase as side A ==
+Team B (v64-bushward) wins: reached 1000 gems in round 513
+  A    v64-bw-chase   680     1      8        3352        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bushward  1012     4      2        3641        0  Cassi & Issac, Varg, Vesper Vale
+== packs | v64-bw-chase as side B ==
+Team B (v64-bw-chase) wins: reached 1000 gems in round 513
+  A    v64-bushward   680     1      8        3352        0  Cassi & Issac, Varg, Vesper Vale
+  B    v64-bw-chase  1012     4      2        3641        0  Cassi & Issac, Varg, Vesper Vale
+== pilgrimage | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 1410
+  A    v64-bw-chase  1052    19     29        5873        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward   484    21     31        4775        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== pilgrimage | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 1410
+  A    v64-bushward  1052    19     29        5873        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase   484    21     31        4775        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== rows | v64-bw-chase as side A ==
+Team B (v64-bushward) wins: reached 1000 gems in round 802
+  A    v64-bw-chase   792     8     10        2748        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bushward  1056     6     11        5916        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rows | v64-bw-chase as side B ==
+Team B (v64-bw-chase) wins: reached 1000 gems in round 802
+  A    v64-bushward   792     8     10        2748        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bw-chase  1056     6     11        5916        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rushbait-v2 | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 1202
+  A    v64-bw-chase  1018    23      7        4404        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bushward   198     5     32        2828        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== rushbait-v2 | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 1202
+  A    v64-bushward  1018    23      7        4404        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bw-chase   198     5     32        2828        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== stampede | v64-bw-chase as side A ==
+Team B (v64-bushward) wins: reached 1000 gems in round 1380
+  A    v64-bw-chase   360    13     20        7317        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bushward  1080    12     23        3867        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== stampede | v64-bw-chase as side B ==
+Team B (v64-bw-chase) wins: reached 1000 gems in round 1380
+  A    v64-bushward   360    13     20        7317        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+  B    v64-bw-chase  1080    12     23        3867        0  Cassi & Issac, Varg, Ryth, Willow, Vesper Vale
+== swirl | v64-bw-chase as side A ==
+Team A (v64-bw-chase) wins: reached 1000 gems in round 1364
+  A    v64-bw-chase  1040    31     18        8489        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bushward   860    12     45        7635        0  Cassi & Issac, Varg, Vesper Vale, Willow
+== swirl | v64-bw-chase as side B ==
+Team A (v64-bushward) wins: reached 1000 gems in round 1364
+  A    v64-bushward  1040    31     18        8489        0  Cassi & Issac, Varg, Vesper Vale, Willow
+  B    v64-bw-chase   860    12     45        7635        0  Cassi & Issac, Varg, Vesper Vale, Willow
+TOTAL v64-bw-chase vs v64-bushward: 17 wins, 17 losses

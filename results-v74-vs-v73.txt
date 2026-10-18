@@ -1,0 +1,76 @@
+map             v74 side  winner            round  gems v74 / v73   kills  deaths
+ambush            A       v73                 830    966 / 1028     4-4    5-6 
+ambush            B       v73                 906    624 / 1010     1-13  16-1 
+collision         A       v74                1122   1036 / 952     19-11  16-27
+collision         B       v73                1018    762 / 1044     9-18  26-14
+contest           A       v74                2000    200 / 0       97-1    2-119
+contest           B       v73                2000      0 / 200      1-97  119-2 
+corners           A       v74                 430   1010 / 512      6-0    2-8 
+corners           B       v73                 829    842 / 1030    11-10  14-13
+eight             A       v74                 496   1048 / 220     19-1    1-24
+eight             B       v73                 496    220 / 1048     1-19  24-1 
+elkring           A       v74                 716   1008 / 774     10-8   12-13
+elkring           B       v73                 565    468 / 1008     3-13  18-4 
+expanse           A       v73                 746    436 / 1060     1-5    8-2 
+expanse           B       v74                 746   1060 / 436      5-1    2-8 
+fragment          A       v74                 563   1012 / 146     14-0    0-20
+fragment          B       v73                 900    518 / 1020    10-16  24-15
+interlock         A       v74                 878   1038 / 226     21-8   11-27
+interlock         B       v73                1000    922 / 1044    11-18  25-15
+lanes             A       v73                1067    818 / 1096    24-24  31-32
+lanes             B       v74                 825   1016 / 912     19-17  23-24
+monolith          A       v74                 525   1038 / 854      3-1    1-4 
+monolith          B       v73                 525    854 / 1038     1-3    4-1 
+packs             A       v74                 571   1028 / 780      5-1    2-7 
+packs             B       v73                 477    716 / 1024     0-4    6-0 
+pilgrimage        A       v73                1023    552 / 1044     9-13  17-12
+pilgrimage        B       v74                1113   1044 / 552     14-10  14-18
+rows              A       v74                 633   1056 / 858      5-5    7-7 
+rows              B       v74                 454   1056 / 660      0-0    0-0 
+rushbait-v2       A       v74                 736   1134 / 600     11-1    1-14
+rushbait-v2       B       v74                 743   1040 / 342      8-2    3-11
+stampede          A       v74                 976   1080 / 0       21-6   12-36
+stampede          B       v73                 976      0 / 1080     6-21  36-12
+swirl             A       v74                 557   1020 / 416     14-3    7-21
+swirl             B       v73                 535    320 / 1020     1-14  18-1 
+
+Wins: v74 18 - 16 v73
+v74 wins as side A: 13, as side B: 5
+
+total over all games              v74          v73   diff
+gemsFinal                       26942        25034     +7.6%
+collectedGems                   32108        31956     +0.5%
+submittedGems                   26942        25034     +7.6%
+gemsLost                         4250         5812    -26.9%
+kills                             384          368     +4.3%
+deaths                            507          519     -2.3%
+assists                           810          808     +0.2%
+earnedGold                     145700       150570     -3.2%
+monsterDamageDone             2064985      2063218     +0.1%
+championDamageDone             706663       683702     +3.4%
+championDamageTaken            683702       706663     -3.2%
+monsterDamageTaken             382722       380220     +0.7%
+healingDone                    194172       202935     -4.3%
+shieldingDone                       0            0     +0.0%
+ev_campClear                      961          961     +0.0%
+ev_gemCollection                 1344         1337     +0.5%
+ev_gemSubmission                  443          395    +12.2%
+ev_wardPlacement                 7867         7674     +2.5%
+ev_fuelExhausted                  568          556     +2.2%
+ev_botFault                         0            0     +0.0%
+firstDeath                        356          363     -2.0%
+
+per champion (totals):
+           bot              collectedGem submittedGem       deaths        kills   earnedGold monsterDamag championDama ev_campClear
+Cassi      v74                      4099         3322          122           30        20525       306438        73449          153
+Cassi      v73                      3776         2568          120           41        21108       313925        76345          160
+Issac      v74                      7063         5822          122           70        31619       288782        87531          136
+Issac      v73                      7232         5848          120           84        34226       322752       102576          152
+Ren        v74                      8771         7598           65          130        35935       538293       221737          264
+Ren        v73                      8340         7006           66          110        35603       527247       216533          246
+Ryth       v74                      3372         3114           50           35        16582       176377        97826           60
+Ryth       v73                      3816         3352           49           34        17412       168039        91777           62
+Stellar    v74                      5800         4662           76          102        27202       628286       196915          262
+Stellar    v73                      5660         3826           89           85        27272       595044       168305          252
+Willow     v74                      3003         2424           72           17        13837       126809        29205           86
+Willow     v73                      3132         2434           75           14        14949       136212        28166           89
