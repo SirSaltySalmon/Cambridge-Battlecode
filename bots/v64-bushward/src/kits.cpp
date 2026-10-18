@@ -32,8 +32,16 @@ void Bot::engage_melee(const bc::champion& me, const Target& target, bool is_cam
     if (stunned && !alive(target)) return;
 
     if (!is_camp && (kind == Champ::issac || kind == Champ::vendetta || kind == Champ::ren)
-        && distance(me.position(), target.position()) > reach + 1)
-        dash_towards(me, target.position(), reach);
+        && distance(me.position(), target.position()) > reach + 1) {
+        const auto last_seen = target.position();
+        const bool dashed = dash_towards(me, last_seen, reach);
+        // The dash moved us, and the target may have dropped out of sight (around a wall, into a bush).
+        // Stop here: reading it now would throw, which ended the turn at this same point anyway.
+        if (dashed && !sighted(target)) {
+            note("target left vision after dash");
+            return;
+        }
+    }
 
     if (!within(me, target, reach) && !stunned) move_towards_closest(tiles_around(target.position(), reach), avoid);
 
@@ -347,6 +355,11 @@ void Bot::engage_vesper(const bc::champion& me, const Target& target, const std:
 
     // Ranged walking uses up the attack, so dash straight into range when it is close enough.
     const bool dashed = !within(me, target, reach) && dash_towards(me, target.position(), reach - 1);
+    // After a dash the target may be out of sight; reading it would throw. Vesper never walks after a dash.
+    if (dashed && !sighted(target)) {
+        note("target left vision after dash");
+        return;
+    }
     if (!within(me, target, reach)) {
         if (!dashed) move_towards_closest(tiles_around(target.position(), reach), avoid);
         return;

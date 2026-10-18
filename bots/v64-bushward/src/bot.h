@@ -80,6 +80,9 @@ private:
     bc::bitboard key_bush_reach;
     // Set once our one ward has gone into a bush; it then stays there.
     bool bush_warded = false;
+    // Route slot the bush ward was placed for. When the shared target moves to another slot, the ward
+    // may be moved to a hidden bush near the new target (wards recharge every round and never expire).
+    int ward_for_slot = -1;
     // Set from spawn until we reach the shared target again; everyone starts on spawn.
     bool rejoining = true;
     // Whether this champion settled the shared decision this round.
@@ -172,6 +175,7 @@ private:
     bool place_ward(const bc::champion& me);
     void build_bush_boards();
     bool bush_ward(const bc::champion& me);
+    bool follow_ward(const bc::champion& me, int target);
     bool ward_detour(const bc::champion& me, int gems);
 
     // tribute.cpp

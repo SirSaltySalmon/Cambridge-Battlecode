@@ -1,4 +1,29 @@
-# v64-bushward
+# v64-bushward (revised warding)
+
+Bush wards now follow the team. A ward remembers the route slot it was placed for; once the shared
+target moves to another slot, the champion moves its ward to a hidden bush within 6 of the new target
+(`FOLLOW_BUSH_RANGE`) as soon as it passes within reach (`follow_ward()` in `warding.cpp`). Same rules as
+placing: not on a fight turn, no enemy in sight, not next to an allied ward. Wards recharge every round
+and never expire, so moving one costs nothing; before, a ward placed by the home altar in round 4 stayed
+there all game. While the target holds, the check is one comparison per turn.
+
+Tested (34 games each, normal fuel):
+- vs the previous v64-bushward: 20-14, gems 25,857 vs 23,415, deaths 667 vs 777; fuel 47.0k vs 44.9k per
+  turn, turns over 100k 0.42% vs 0.32%.
+- Tried and dropped (all vs the previous v64-bushward, or vs this logic): one champion kept for the
+  planned spots (15-19, gems -14%); no bush wards near our spawn (18-16, within noise); a fixed bush
+  class per champion (19-15 alone, but follow + classes + a fixed centre ward + following the altar and
+  planned spots was 15-19 against follow alone); skipping the follow check below 30k fuel (16-18 vs
+  follow alone, saving only 0.6% fuel).
+
+Fix: a dash at an enemy champion (Issac, Vendetta, Ren, Vesper) could move us out of sight of it, and
+the next position read threw "Unit is not in vision", losing the rest of the turn. `sighted()` in
+`actions.cpp` now checks with a raw engine read (no exception) after the dash, and the engagement ends
+there quietly, which is where the error ended it before. Tested vs the version without it: 17-17, gems
+24,996 vs 24,980, 15 of 17 maps identical (it triggers about once per 10 games). Walking on to the
+target's last seen tile instead gave exactly the same results, so it was left out.
+
+# v64-bushward (first version)
 
 `v64` + bush wards. A champion's one ward is placed once and then stays: either on a ward spot as
 before, or in a key bush, whichever comes first.

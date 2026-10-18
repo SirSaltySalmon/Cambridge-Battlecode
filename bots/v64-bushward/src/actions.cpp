@@ -139,6 +139,17 @@ bool within(const bc::champion& me, const bc::unit& unit, double radius) {
     return distance(me.position(), unit.position()) <= radius;
 }
 
+bool sighted(const Target& target) {
+    if (const auto* champion = target.champion()) {
+        bc::detail::champion_info info{};
+        const auto handle = static_cast<std::uint32_t>(static_cast<bc::handle_champion_t>(*champion));
+        return bc::detail::sdk_champion(handle, &info) == 0 && info.x >= 0 && info.y >= 0;
+    }
+    bc::detail::camp_state state{};
+    const auto handle = static_cast<std::uint32_t>(static_cast<bc::handle_camp_t>(*target.camp()));
+    return bc::detail::sdk_camp(handle, &state) == 0;
+}
+
 std::optional<bc::ability> ability_of(const bc::champion& me, Kind kind) {
     for (const auto& ability : me.abilities())
         if (ability.is(kind)) return ability;

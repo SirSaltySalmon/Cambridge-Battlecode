@@ -58,6 +58,9 @@ std::optional<Unit> lowest(const std::vector<Unit>& units) {
 }
 
 bool within(const bc::champion& me, const bc::unit& unit, double radius);
+// Whether a target is still in vision, read without an exception (one raw engine read, ~20-65 fuel).
+// After our own move or dash a target may have dropped out of sight, and position() would throw.
+bool sighted(const Target& target);
 inline bool within(const bc::champion& me, const Target& target, double radius) { return within(me, target.unit(), radius); }
 
 std::optional<bc::ability> ability_of(const bc::champion& me, Kind kind);

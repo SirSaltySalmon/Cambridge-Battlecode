@@ -78,6 +78,8 @@ inline constexpr int BUSH_ALTAR_RANGE = 6;
 inline constexpr int BUSH_CENTER_RANGE = 10;
 inline constexpr int BUSH_CAMP_RANGE = 4;
 inline constexpr int BUSH_WARD_GAP = 4;
+// A followed ward goes on a bush this close to the new target's centre.
+inline constexpr int FOLLOW_BUSH_RANGE = 6;
 // Fuel set aside for building the key-bush boards at a turn end.
 inline constexpr std::uint64_t BUSH_BOARD_FUEL = 15'000;
 // Walk to an uncovered spot this far away when the route leaves time; further on the aggressive route.

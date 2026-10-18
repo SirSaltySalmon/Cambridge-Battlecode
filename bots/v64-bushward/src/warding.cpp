@@ -5,6 +5,7 @@
 #include "trace.h"
 #include <algorithm>
 #include <cstdlib>
+#include <algorithm>
 #include <tuple>
 
 std::vector<vec2> compute_ward_spots() {
@@ -204,7 +205,9 @@ void Bot::build_bush_boards() {
 bool Bot::bush_ward(const bc::champion& me) {
     // A ward still unused goes once into a key bush we cannot see into. Never on a fight turn or with
     // an enemy in sight, and never next to a bush a visible allied ward already watches.
-    if (bush_warded || ward_slot || !key_bushes || mode == FIGHT) return false;
+    if (ward_slot || !key_bushes || mode == FIGHT || route.empty()) return false;
+    const int target = slot % static_cast<int>(route.size());
+    if (bush_warded) return follow_ward(me, target);
     const auto position = me.position();
     if (!key_bush_reach.is_set(position) || bc::map::bushes().is_set(position)) return false;
     if (!seen::champions(Team::enemy).empty()) return false;
@@ -237,12 +240,61 @@ bool Bot::bush_ward(const bc::champion& me) {
                 continue;
             }
             bush_warded = true;
+            ward_for_slot = target;
             trace::act("ward");
             note(std::string("bush ward (") + KINDS[kind] + ") at " + at(tile));
             say(format("round %u: champion %d wards %s bush (%d,%d)", bc::round_number(), champ_id(me.champion_name()),
                        KINDS[kind], tile.x, tile.y));
             return true;
         }
+    }
+    return false;
+}
+
+bool Bot::follow_ward(const bc::champion& me, int target) {
+    // The bush ward was placed for another target: move it to a hidden bush near the current one once we
+    // are close enough to reach one. Checked only after the target has moved, so most turns stop here.
+    if (ward_for_slot == target) return false;
+    const auto position = me.position();
+    const auto center = centers[target];
+    const int reach = static_cast<int>(bc::constants::ward_placement_radius);
+    if (distance(position, center) > FOLLOW_BUSH_RANGE + reach || bc::map::bushes().is_set(position)) return false;
+    if (!seen::champions(Team::enemy).empty()) return false;
+    try {
+        if (me.ward_cooldown() > 0) return false;
+    } catch (const bc::error&) {
+        return false;
+    }
+    auto tiles = me.ward_placement_tiles();
+    tiles &= bc::map::bushes();
+    // Most spots have no bush in placement reach: stop before building the target's area board.
+    if (tiles.is_empty()) return false;
+    tiles &= tiles_around(center, FOLLOW_BUSH_RANGE);
+    if (tiles.is_empty()) return false;
+    tiles &= ~bc::vision::visible_tiles();
+    if (tiles.is_empty()) return false;
+    const auto allied = bc::vision::ward_tiles(Team::ally).positions();
+    const auto own = me.ward_positions();
+    for (const auto tile : tiles.positions()) {
+        bool watched = false;
+        for (const auto ward : allied)
+            if (distance(ward, tile) <= BUSH_WARD_GAP && std::find(own.begin(), own.end(), ward) == own.end())
+                watched = true;
+        if (watched) continue;
+        try {
+            if (!me.place_ward(tile)) {
+                seen::reset();
+                continue;
+            }
+        } catch (const bc::error&) {
+            continue;
+        }
+        ward_for_slot = target;
+        trace::act("ward");
+        note("bush ward follows to " + at(tile) + format(" for slot %d", target));
+        say(format("round %u: champion %d moves ward to bush (%d,%d) for slot %d", bc::round_number(),
+                   champ_id(me.champion_name()), tile.x, tile.y, target));
+        return true;
     }
     return false;
 }
