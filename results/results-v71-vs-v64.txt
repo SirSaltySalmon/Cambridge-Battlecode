@@ -1,0 +1,83 @@
+v71 (tested under the name v74w) vs v64: all 17 maps from both sides. Columns: N = v71, O = v64; clr = groups cleared, cap = groups captured, del = average rounds from clear to capture.
+
+== normal fuel ==
+map          side win   gemsN  gemsO  kilN  kilO  goldN  goldO  clrN  clrO  capN  capO   delN   delO
+ambush       A    L       678   1010    15     4   4090   3189    14    11    14    11    7.4    6.8
+ambush       B    W      1058    394     7     6   4160   2521    13    11    13    10    7.5   31.9
+collision    A    W      1018    732    21    12   6585   4686    82    61    81    59    9.9   14.5
+collision    B    W      1054    820    31    21   8250   5483   103    68   106    62   22.8   20.3
+contest      A    W       400      0    92     4  13565   2551    98    40   101    37    9.3    8.5
+contest      B    W         0      0    49    60   8610   7171    67    57    68    56   12.1   15.8
+corners      A    W      1070    698    17     1   4780   3924    29    26    26    25   11.5   16.6
+corners      B    W      1022    770    17    11   5350   4826    37    28    36    29    8.1   10.0
+eight        A    W      1042    298    39     4   6405   1676    22     5    21     5    7.4    7.8
+eight        B    W      1004    298    30    26   5850   3550    21     8    21     7   11.0    9.7
+elkring      A    W      1008    432    23     4   7195   3106    31    14    31    14    7.6    8.6
+elkring      B    L       954   1152    19    24   7970   7051    35    30    36    29    8.6    9.8
+expanse      A    L       506   1048     2     5   3070   4284    24    28    24    27    7.1    9.8
+expanse      B    L       812   1010     5     4   3970   4910    34    25    34    25    7.6   15.7
+fragment     A    W      1020     58    14     0   4700   1350    23     9    22     9    7.0    7.4
+fragment     B    W      1012    328    16    12   5425   2990    26    16    27    14    8.8   10.4
+interlock    A    W      1012    862    17    12   6910   3956    34    23    34    22    8.5   14.0
+interlock    B    W      1060    354    22     8   5820   2916    30    20    31    19    7.5    8.3
+lanes        A    W      1030    110    19     5   5420    736    40    11    45     5   18.4   10.2
+lanes        B    W      1008    482    33    17   7450   1818    59     8    59     7   15.5   10.6
+monolith     A    L       834   1030     1     9   5235   4598    43    44    42    44    7.4   12.3
+monolith     B    W      1010    490    17     7   5035   4068    42    32    43    30    9.1    8.8
+packs        A    W      1026    542     8     1   3660   2853    18    15    17    15    7.8    8.7
+packs        B    L       968   1064     6    11   4120   4172    26    17    25    18    7.8    9.3
+pilgrimage   A    L       526   1036    14     9   5600   4869    33    35    32    33    9.1   22.7
+pilgrimage   B    L       416   1044    10     6   5115   3569    30    22    30    22    9.0   27.5
+rows         A    L       726   1056     0     0   3510   4500    13    17    13    16    7.2    6.9
+rows         B    W      1056    594     6     1   5160   2058    18     7    18     7    6.7    7.9
+rushbait-v2  A    W      1060    242    18     0   4750   2442    28    25    28    25    8.9   27.0
+rushbait-v2  B    L       516   1052     2     5   3750   3610    33    33    32    34   16.3   10.7
+stampede     A    W      1080    360    12     6   5250   4714    40    35    40    34    7.6   10.5
+stampede     B    W      1080    720    15     8   4840   5689    30    36    31    35    7.4   22.2
+swirl        A    W      1052    800    19    12   6550   6440    32    28    31    28   10.0   11.1
+swirl        B    L       248   1030     4    12   3645   5027    19    26    21    22   12.5    9.4
+
+v74w: 23-11
+new gems 29366 kills 620 deaths 460 gold 191795 clears 1227 captures 1233 avg-delay 9.7
+old gems 21916 kills 327 deaths 838 gold 131303 clears 871 captures 835 avg-delay 13.0
+
+== unlimited fuel (--fuel 100000000 --log-limit 100000000) ==
+map          side win   gemsN  gemsO  kilN  kilO  goldN  goldO  clrN  clrO  capN  capO   delN   delO
+ambush       A    L       958   1070    15     8   4790   5555    20    19    20    19   21.5    8.2
+ambush       B    W      1038    832     7    10   3515   4747    12    20    12    18    6.2    9.5
+collision    A    W      1070      0    15     4   4500   2658    64    33    60    32    9.8   14.3
+collision    B    W      1148    410    31    17   9855   5461   119    64   122    59   18.6   15.9
+contest      A    W         0      0    97     0  14740   1442   102    32   105    28   13.2   11.3
+contest      B    W       200      0    16    83   3390  10714    33    78    36    73   15.8   18.5
+corners      A    W      1004    800    12     8   4820   4728    22    34    26    30   15.2   10.2
+corners      B    L       784   1008    10    24   4830   5780    30    36    33    33   12.0    9.5
+eight        A    W      1102     72    26     8   4625   2511    14     9    15     7    7.5    8.0
+eight        B    W      1004    646    20    22   4810   5131    17    17    18    16   14.3    9.1
+elkring      A    W      1044    306    15     3   5430   3650    23    18    24    17    7.9    7.4
+elkring      B    L       432   1044    10    30   3815   6366    17    24    17    24    8.4   14.4
+expanse      A    L       480   1040     1     2   3460   3458    23    22    23    21    7.4    8.1
+expanse      B    W      1006    816     8     5   4790   4608    37    32    37    31    7.7    8.5
+fragment     A    W      1034     58    15     0   5000   1250    24     8    23     8    6.9    8.1
+fragment     B    L        44   1012     0    12   1125   5140    10    22     9    23    7.4    8.9
+interlock    A    W      1006    414    20     3   5640   2586    27    19    28    18   11.1   13.8
+interlock    B    L       594   1024     8    29   3640   6976    29    35    29    35    7.7    9.9
+lanes        A    W      1008    444    30    23   6470   2784    40    23    49    13   23.8   27.5
+lanes        B    W      1000    716    26    28   6830   3592    45    29    56    18   30.8   22.6
+monolith     A    W      1002    598    14     5   4950   3397    38    31    38    29    9.9   18.3
+monolith     B    W      1076    336    16     5   3800   4248    35    30    36    28   11.2   11.6
+packs        A    W      1004    872     9     4   3960   3788    19    20    17    22    7.1    8.4
+packs        B    W      1034    722     7     4   4030   2554    26    12    25    12    7.9    7.7
+pilgrimage   A    W      1026    510    24     9   7440   3129    36    30    36    29   10.8   26.3
+pilgrimage   B    W      1044    840    19    12   8580   2862    43    29    43    28    8.5   17.3
+rows         A    L       726   1056     0     0   3510   4500    13    17    13    16    7.2    6.9
+rows         B    W      1056    528     4     1   4790   2318    18     8    17     8    6.5    7.0
+rushbait-v2  A    W      1006    880     1     2   5400   3740    40    32    40    31    9.6   27.8
+rushbait-v2  B    W      1018    388     6     3   3900   3058    35    23    33    25   14.0   14.0
+stampede     A    W      1080    360     9     1   5290   2728    28    22    28    22    7.6    7.8
+stampede     B    L       720   1080    11     9   5810   5180    33    41    34    38   10.2   37.0
+swirl        A    W      1018    926     7     5   6275   5361    29    25    29    24    8.0    9.7
+swirl        B    L       570   1036    13    16   4225   7181    20    33    22    30   16.6   13.9
+
+v74w: 25-9
+new gems 29336 kills 522 deaths 544 gold 178035 clears 1121 captures 1153 avg-delay 11.4
+old gems 21844 kills 395 deaths 698 gold 143181 clears 927 captures 865 avg-delay 13.5

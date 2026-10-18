@@ -1,23 +1,23 @@
 # v70 (ladder upload; was v73 locally)
 
-`v71` + only the parts of `v72` that held up against other bots:
-- **Fuel, exact** (`v71-fuel` + `v71-draft`): camps from the map camp list with one raw read per visible
+`v69` + only the parts of `v69-combo` that held up against other bots:
+- **Fuel, exact** (`v69-fuel` + `v69-draft`): camps from the map camp list with one raw read per visible
   camp, raw camp-group state in `observe()`, and the ward spots + solo/escort altar split worked out in the
   draft and passed in draft memory (each champion's first turn 25-40k cheaper).
-- **Gem-starved maps** (`v71-gemless`): on a map where only the monoliths carry gems (contest), the monolith
-  is the goal once its gates pass. As side A on contest: 400 gems tributed (v71: 0).
+- **Gem-starved maps** (`v69-gemless`): on a map where only the monoliths carry gems (contest), the monolith
+  is the goal once its gates pass. As side A on contest: 400 gems tributed (v69: 0).
 
-Checked vs v71 with unlimited fuel: decision log byte-identical on every map except contest (32 of 34
+Checked vs v69 with unlimited fuel: decision log byte-identical on every map except contest (32 of 34
 games); avg fuel 47.3k -> 46.3k per turn, turns over 100k 1151 -> 699 (-39%). At normal fuel 16-18, which is
-fuel noise: the rules are v71's (v71-draft alone, same rules, went 19-15 / 24-10 vs v67 / v64 where v71 went
+fuel noise: the rules are v69's (v69-draft alone, same rules, went 19-15 / 24-10 vs v67 / v64 where v69 went
 22-12 / 22-12).
 
-Left out from v72: the dash permit (38-30 vs v67 + v64 against v71's 44-24; gems vs v64 -13%) and
-score-a (no gain anywhere). See `v72/README.md` for every variant tried.
+Left out from v69-combo: the dash permit (38-30 vs v67 + v64 against v69's 44-24; gems vs v64 -13%) and
+score-a (no gain anywhere). See `v69-combo/README.md` for every variant tried.
 
-# Base: v71
+# Base: v69
 
-# v71 (copy of v70-mono-near)
+# v69 (copy of v70-mono-near)
 
 `v70-stellar-ren` + both `v70-mono` (monolith as a last resort) and `v70-near` (near enemies). See those READMEs.
 
