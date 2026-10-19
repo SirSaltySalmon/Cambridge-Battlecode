@@ -1,0 +1,137 @@
+== ambush | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 781
+  A    v70-stellar-ren   548     7     11        3040        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base         1014     7      9        3865        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== ambush | v70-stellar-ren as side B ==
+Team B (v70-stellar-ren) wins: reached 1000 gems in round 862
+  A    v70-base          514     8     12        3420        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren  1028     9     11        4315        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== collision | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 1337
+  A    v70-stellar-ren  1158    26     18        6080        0  Cassi & Issac, Ren, Stellar
+  B    v70-base          242    13     38        3220        0  Cassi & Issac, Ren, Stellar
+== collision | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 1069
+  A    v70-base         1004    21      8        5555        0  Cassi & Issac, Ren, Stellar
+  B    v70-stellar-ren   132     6     31        2015        0  Cassi & Issac, Ren, Stellar
+== contest | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: round limit (2000) reached; tied on gems, more gold earned
+  A    v70-stellar-ren     0    88      3       12380        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base            0     2    107        1570        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== contest | v70-stellar-ren as side B ==
+Team A (v70-base) wins: round limit (2000) reached with more gems
+  A    v70-base          200    95      3       13765        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren     0     1    116        2010        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== corners | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 524
+  A    v70-stellar-ren   240     2      9        2930        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base         1018     6      2        3850        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== corners | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 1022
+  A    v70-base         1002    26     18        6760        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren   870    14     34        4920        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== eight | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 714
+  A    v70-stellar-ren  1020    25     11        4895        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base           44     6     32        1200        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== eight | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 682
+  A    v70-base         1086    24      3        5385        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren     0     1     32         770        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== elkring | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 771
+  A    v70-stellar-ren  1062    24     12        5490        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base           72     9     29        3375        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== elkring | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 760
+  A    v70-base         1116    18     17        5385        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren   396    12     23        4890        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== expanse | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 1102
+  A    v70-stellar-ren   806     8      8        3780        0  Cassi & Issac, Ren, Stellar
+  B    v70-base         1066     6     11        5010        0  Cassi & Issac, Ren, Stellar
+== expanse | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 1064
+  A    v70-base         1034    14      4        4770        0  Cassi & Issac, Ren, Stellar
+  B    v70-stellar-ren   408     2     19        2840        0  Cassi & Issac, Ren, Stellar
+== fragment | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 1174
+  A    v70-stellar-ren   882    18     33        5150        0  Cassi & Issac, Ren, Stellar
+  B    v70-base         1056    23     28        6400        0  Cassi & Issac, Ren, Stellar
+== fragment | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 671
+  A    v70-base         1056    13      7        4775        0  Cassi & Issac, Ren, Stellar
+  B    v70-stellar-ren    88     5     21        1750        0  Cassi & Issac, Ren, Stellar
+== interlock | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 815
+  A    v70-stellar-ren  1038    17      5        4320        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-base          282     4     23        3180        0  Cassi & Issac, Ren, Stellar, Willow
+== interlock | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 877
+  A    v70-base         1042    19     10        6160        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-stellar-ren   588     8     25        3310        0  Cassi & Issac, Ren, Stellar, Willow
+== lanes | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 1031
+  A    v70-stellar-ren  1008    25     18        6220        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base          394    14     34        2350        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== lanes | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 853
+  A    v70-base         1002    19     16        3730        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren   290    10     25        3370        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== monolith | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 671
+  A    v70-stellar-ren   344     4     17        3195        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base         1096    13      5        4500        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== monolith | v70-stellar-ren as side B ==
+Team B (v70-stellar-ren) wins: reached 1000 gems in round 596
+  A    v70-base          132     2     20        2290        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren  1016    16      2        4020        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== packs | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 521
+  A    v70-stellar-ren  1048     6      2        3240        0  Cassi & Issac, Ren, Stellar
+  B    v70-base          272     1     12        2230        0  Cassi & Issac, Ren, Stellar
+== packs | v70-stellar-ren as side B ==
+Team B (v70-stellar-ren) wins: reached 1000 gems in round 767
+  A    v70-base          872     8      8        4440        0  Cassi & Issac, Ren, Stellar
+  B    v70-stellar-ren  1058     5     13        3360        0  Cassi & Issac, Ren, Stellar
+== pilgrimage | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 1108
+  A    v70-stellar-ren   394    12     23        2055        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base         1002    16     15        6765        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== pilgrimage | v70-stellar-ren as side B ==
+Team B (v70-stellar-ren) wins: reached 1000 gems in round 1486
+  A    v70-base          630    19     27        3940        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren  1016    18     26        6090        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== rows | v70-stellar-ren as side A ==
+Team B (v70-base) wins: reached 1000 gems in round 442
+  A    v70-stellar-ren   660     0      0        3240        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-base         1056     0      0        4590        0  Cassi & Issac, Ren, Stellar, Willow
+== rows | v70-stellar-ren as side B ==
+Team B (v70-stellar-ren) wins: reached 1000 gems in round 442
+  A    v70-base          660     0      0        3240        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-stellar-ren  1056     0      0        4590        0  Cassi & Issac, Ren, Stellar, Willow
+== rushbait-v2 | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 1294
+  A    v70-stellar-ren  1008    14     15        6300        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-base          836    10     18        4260        0  Cassi & Issac, Ren, Stellar, Willow
+== rushbait-v2 | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 880
+  A    v70-base         1016    15      6        4230        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-stellar-ren   132     4     19        2120        0  Cassi & Issac, Ren, Stellar, Willow
+== stampede | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 879
+  A    v70-stellar-ren  1080    18      5        5880        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-base            0     3     29        1340        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== stampede | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 967
+  A    v70-base         1080    14      2        5890        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+  B    v70-stellar-ren     0     1     27        1660        0  Cassi & Issac, Ren, Ryth, Willow, Stellar
+== swirl | v70-stellar-ren as side A ==
+Team A (v70-stellar-ren) wins: reached 1000 gems in round 540
+  A    v70-stellar-ren  1030     4      4        5165        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-base          387     3      8        4670        0  Cassi & Issac, Ren, Stellar, Willow
+== swirl | v70-stellar-ren as side B ==
+Team A (v70-base) wins: reached 1000 gems in round 648
+  A    v70-base         1242     9     13        6060        0  Cassi & Issac, Ren, Stellar, Willow
+  B    v70-stellar-ren   630     9     12        5255        0  Cassi & Issac, Ren, Stellar, Willow
+TOTAL v70-stellar-ren vs v70-base: 15 wins, 19 losses
