@@ -1,0 +1,19 @@
+Recall caution, corrected (arrivals that leave spawn the same turn count as completed). vs v80-5, 34 normal + 34 unlimited fuel each.
+caution off:
+replays/bench4/v81-norc  started  731 completed  599 broken   45 cancelled   65 died  20 | turns held for an enemy reach 0
+replays/bench5/v81-norc  started  643 completed  530 broken   42 cancelled   58 died  12 | turns held for an enemy reach 0
+RECALL_REACH_MODE 0 (v81-m0):
+replays/bench6/n/v81-m0  started  720 completed  584 broken    6 cancelled  123 died   7 | turns held for an enemy reach 1239
+v81-m0: 19-15, gems 26178 vs 23932 (+9.4%), kills 383 deaths 490, mage deaths 5.76/game, mage camp damage 749/game, monolith captures 7
+replays/bench6/u/v81-m0  started  675 completed  546 broken   10 cancelled  111 died   7 | turns held for an enemy reach 1129
+v81-m0: 20-14, gems 25745 vs 24659 (+4.4%), kills 388 deaths 488, mage deaths 5.82/game, mage camp damage 858/game, monolith captures 9
+RECALL_REACH_MODE 1 (v81-m1):
+replays/bench6/n/v81-m1  started  778 completed  600 broken    8 cancelled  161 died   8 | turns held for an enemy reach 1394
+v81-m1: 19-15, gems 25896 vs 23920 (+8.3%), kills 400 deaths 523, mage deaths 6.26/game, mage camp damage 894/game, monolith captures 7
+replays/bench6/u/v81-m1  started  686 completed  553 broken    9 cancelled  117 died   7 | turns held for an enemy reach 1146
+v81-m1: 21-13, gems 26697 vs 24001 (+11.2%), kills 401 deaths 487, mage deaths 5.82/game, mage camp damage 855/game, monolith captures 9
+RECALL_REACH_MODE 2 (v82):
+replays/bench6/n/v81     started  766 completed  590 broken    5 cancelled  164 died   6 | turns held for an enemy reach 870
+v81: 21-13, gems 26992 vs 24464 (+10.3%), kills 435 deaths 509, mage deaths 5.88/game, mage camp damage 910/game, monolith captures 7
+replays/bench6/u/v81     started  712 completed  560 broken    9 cancelled  135 died   8 | turns held for an enemy reach 775
+v81: 16-18, gems 25070 vs 24762 (+1.2%), kills 351 deaths 480, mage deaths 5.26/game, mage camp damage 955/game, monolith captures 6
