@@ -1,0 +1,20 @@
+34 games
+
+v90-pre: 18 wins, gems 26614
+  'not in vision' errors 200 (5.88/game), other bot errors 0
+    fight.hit.cast                 123
+    farm.camp.standoff             62
+    mono.camp.standoff             8
+    retreat.camp.standoff          7
+  fuel per turn over 149927 champion turns: mean 32214, median 32977, p95 63873, p99 79717
+  turns >= 90k: 568 (0.38%); out of fuel: 259 (0.173%), fuelExhausted events 181, in 33 games
+  most out-of-fuel turns: contest-a 26, lanes-a 21, swirl-b 17, swirl-a 11, eight-a 10
+
+v82: 16 wins, gems 24262
+  'not in vision' errors 222 (6.53/game), other bot errors 0
+    fight.hit.cast                 114
+    farm.camp.standoff             98
+    retreat.camp.standoff          10
+  fuel per turn over 149995 champion turns: mean 36929, median 37524, p95 69178, p99 85419
+  turns >= 90k: 972 (0.65%); out of fuel: 412 (0.275%), fuelExhausted events 248, in 34 games
+  most out-of-fuel turns: swirl-b 40, contest-b 37, lanes-b 23, elkring-a 22, monolith-a 21
