@@ -1,24 +1,18 @@
 # v82
 
-`v81` + fixes for v81's gem trade-off (switches in `constants.h`). Not submitted. Final setting:
-`PROTECT_SPLIT = false`, `DODGE_TO_ALLY = true`, `RETREAT_RELEASE = true`.
+`v81` + recall caution (`RECALL_SPELL_CAUTION`, `RECALL_REACH_MODE`) and the champion id on each log turn line.
 
-- `PROTECT_SPLIT` (off): carrier protection from `PROTECT_GEMS` = 30 again, built Ren exempt. Alone vs v81: 27-41,
-  gems -9.5%, gems lost +16%; champions left fights to bank and lost them. The 60-gem `CARRY_GEMS` stays.
-- `DODGE_TO_ALLY`: under recall health and in reach, prefer tiles out of reach within 3 tiles of the nearest
-  visible ally. Alone vs v81: 34-34, gems +7.8%, gems lost -14%.
-- `RETREAT_RELEASE`: a collector retreating toward help gives its claim back. Alone vs v81: 35-33, gems +1.9%.
+## Recall caution (68 games each: 34 normal + 34 unlimited fuel, `analyze_recalls.py`)
 
-## Results (68 games = 34 normal + 34 unlimited fuel)
+| | record vs v80-5 | gems | recalls broken | died mid-recall | turns held by an enemy's reach | cancelled by us |
+| --- | --- | --- | --- | --- | --- | --- |
+| caution off | 35-33 | +3.4% | 87 / 1,374 (6.3%) | 32 | 0 | 123 |
+| mode 0: casters by name | 39-29 | +6.9% | 16 / 1,395 (1.1%) | 14 | 2,368 | 234 |
+| mode 1: kit, all ready | 40-28 | +9.7% | 17 / 1,464 (1.2%) | 15 | 2,540 | 278 |
+| mode 2: kit, live cooldowns (v82) | 37-31 | +5.8% | 14 / 1,478 (0.9%) | 14 | 1,645 | 299 |
 
-| Opponent | v82 | gems | v81 on the same test |
-| --- | --- | --- | --- |
-| v81 | 35-33 | +6.9% (gems lost -11%) | - |
-| v80 | 34-34 | -4.9% | 42-26 (+12.0%) |
-| v76 | 38-30 | -0.8% | 42-26 (+4.1%) |
-| brawler | 28-40 | -10.5% | 33-35 (-6.2%) |
-
-v82 edges v81 head to head and loses fewer gems there, but does worse than v81 against every other opponent.
-Fuel (unlimited, all maps): mean 46.4k, p99 95.4k, 0.64% of turns over 100k (v81: 46.0k / 93.5k / 0.53%); per-branch
-costs are unchanged, v82 just plays more fight and retreat turns.
-Note: running two evaluations in parallel on the same bot folder breaks the build (cmake); run them one at a time.
+- Caster caution cuts broken recalls ~83% and deaths mid-recall ~55%.
+- Dashes barely matter: with casters covered almost nothing breaks, and planning for dashes (mode 1) or not (mode 0,
+  which still cancels once an enemy is close) gives the same rate.
+- Live cooldowns hold recalls back 30% less often than mode 0 at the same safety, so v82 uses mode 2. Records and gems
+  are within noise (about +-2 games, +-9% gems per 34 games).

@@ -1,0 +1,59 @@
+game                         R round   gems    opp  kill  death mDeath mCampDmg  mono
+ambush-a                     W   830   1000    298     5      4      1      200     0
+ambush-b                     L  1005    576   1048     3     25      9      120     0
+collision-a                  W   765   1018     66    17      4      2      876     0
+collision-b                  L   825    496   1016     5     23     13      440     0
+contest-a                    W  1686   1000      0    83      1      0      360     5
+contest-b                    L  2000      0    600     4    126     43        0     0
+corners-a                    W   815   1004    736    14      5      3      378     0
+corners-b                    L   552    466   1048     3     14      5      380     0
+eight-a                      W   482   1036     66    20      0      0     1340     0
+eight-b                      L   754     66   1054     6     34     12     2840     0
+elkring-a                    W   500   1080    504    11      2      1     1758     0
+elkring-b                    L   640    216   1116     6     26     10     1020     0
+expanse-a                    W   825   1000    714     4      5      3      200     0
+expanse-b                    W   855   1106    684     4      8      4      240     0
+fragment-a                   W   570   1012    110    13      0      0      320     0
+fragment-b                   L   782    226   1020     3     27     14     1020     0
+interlock-a                  W   911   1044    590    22     12      5      260     0
+interlock-b                  L   679    480   1006     2     19      8      660     0
+lanes-a                      L  1369    716   1008    25     45     17     2240     0
+lanes-b                      L   900    614   1014    14     25      9     2694     0
+monolith-a                   L   601    906   1002     2      5      2       20     0
+monolith-b                   W   576   1016    556     7      2      1       20     0
+packs-a                      W   488   1052    920     5      3      1      120     0
+packs-b                      L   473    504   1028     2      9      5      120     0
+pilgrimage-a                 W  1073   1120    416    18     16      5      680     0
+pilgrimage-b                 W  1026   1044    458    18     16      6      880     0
+rows-a                       W   653   1056    858    10      7      4      320     0
+rows-b                       W   619   1056    792     6      6      2       80     0
+rushbait-v2-a                W   755   1026    480    12      6      2      140     0
+rushbait-v2-b                W   884   1018    676     7     13      5     2300     0
+stampede-a                   W   978   1080      0    20      6      2      420     3
+stampede-b                   L  1647    720   1080    17     34     12       60     6
+swirl-a                      W   577   1016    588    11      5      2      360     0
+swirl-b                      L   862    984   1012    15     20      8     3272     0
+
+v81: 20-14, gems 27754 vs 23564 (+17.8%), kills 414 deaths 553, mage deaths 6.35/game, mage camp damage 769/game, monolith captures 14
+
+mage/monolith branches (our side):
+  farm.camp.tanked             5679
+  fight.hit.step               2995
+  farm.camp.cooldown           2237
+  farm.camp.closing            1481
+  fight.hit.cast               785
+  farm.camp.standoff           781
+  fight.hit.hold               678
+  farm.camp.leave              411
+  fight.hit.back               338
+  fight.hit.basic              327
+  retreat.camp.closing         177
+  retreat.camp.cooldown        161
+  mono.camp.closing            151
+  retreat.camp.tanked          135
+  mono.walk                    98
+  retreat.camp.standoff        68
+  farm.camp.finish             66
+  retreat.camp.leave           54
+  retreat.camp.finish          10
+  mono.camp.finish             2

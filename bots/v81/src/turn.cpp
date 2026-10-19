@@ -36,7 +36,9 @@ void Bot::play_turn() {
         say(std::string("ally memory error: ") + error_text(error));
     }
     try {
-        log_turn(me);
+        // v81: the decision log costs ~9k fuel a turn (110 of 150 turns over 95k in profiling stayed under without it).
+        // debug_block runs it free in local debug builds and skips it in release builds (the platform).
+        debug_block({ log_turn(me); });
     } catch (const std::exception& error) {
         say(std::string("log error: ") + error_text(error));
     }
@@ -107,7 +109,9 @@ void Bot::play(const bc::champion& me) {
     // into a key bush instead.
     // v72: with FIX_SCOUT_WARD the ward follows us instead; only kept posts (SCOUT_KEEP_POSTS) use the old rules.
     const bool scouting = FIX_SCOUT_WARD && (!SCOUT_KEEP_POSTS || (!ward_slot && !bush_warded));
-    if (FIX_SCOUT_WARD && scout_ward(me)) {
+    // v81: a mage on a monolith keeps its ward for the monolith's bush (mono_ward).
+    const bool mono_ward_due = monolith_delegated() && mono_job >= 0 && distance(me.position(), centers[mono_job]) <= MAGE_CAST_RANGE + 4;
+    if (FIX_SCOUT_WARD && !mono_ward_due && scout_ward(me)) {
     } else if (!scouting && !place_ward(me)) {
         bush_ward(me);
     }
@@ -146,6 +150,16 @@ void Bot::play(const bc::champion& me) {
         return;
     }
 
+    // v85 (WILLOW_HEAL_STEP): Willow's heal allows walking, so it is spent at the start of any turn, not only on
+    // attack turns (retreats, dodges and escorts are when allies need it). Cached vision is checked first, so the
+    // ability is only read when a hurt ally is in reach.
+    if (WILLOW_HEAL_STEP && me.champion_name() == Champ::willow && !channelling(me)) {
+        bool hurt_near = false;
+        for (const auto& a : seen::champions(Team::ally))
+            if (a != me && a.health() < a.max_health() && distance(position, a.position()) <= HEAL_REACH) hurt_near = true;
+        if (hurt_near && heal_lowest_ally(me)) note("willow heal step");
+    }
+
     // 3. Recall when hurt and nothing can interrupt it; otherwise step out of reach first.
     // v72: a carrier recalls (or steps out of reach) earlier, since its death hands the bag over.
     const double recall_share = FIX_CARRIER && static_cast<int>(me.gem_count()) >= CARRY_GEMS ? CARRY_RECALL_HEALTH : RECALL_HEALTH;
@@ -165,10 +179,22 @@ void Bot::play(const bc::champion& me) {
         }
         const std::string why = channel_cut ? "channel just aborted, not recalling again this turn" : "stepping out of threat";
         branch("hurt.dodge", hurt + ", " + why);
-        if (FIX_DODGE)
+        bool dodged = false;
+        if (FIX_DODGE) {
             escape(me, zone);
-        else
-            move_towards_closest(~zone);
+            dodged = true;
+        } else if (WILLOW_DODGE && me.champion_name() == Champ::willow) {
+            // v85: the healer steps out of reach toward the nearest visible ally, who shields her and whom she heals.
+            std::optional<vec2> ally;
+            for (const auto& a : seen::champions(Team::ally))
+                if (a != me && (!ally || distance(position, a.position()) < distance(position, *ally))) ally = a.position();
+            if (ally) {
+                auto near_ally = tiles_around(*ally, WILLOW_DODGE_RANGE);
+                near_ally &= ~zone;
+                if (!near_ally.is_empty()) dodged = move_towards_closest(near_ally);
+            }
+        }
+        if (!dodged) move_towards_closest(~zone);
         return;
     }
 
@@ -310,6 +336,8 @@ void Bot::play(const bc::champion& me) {
     // 9-10. Follow the mode; a quiet farm turn may walk over to an uncovered ward spot.
     if (now_mode == RETREAT && retreat(me)) return;
     if (now_mode == FARM && !(FIX_SCOUT_WARD && !SCOUT_KEEP_POSTS) && ward_detour(me, gems)) return;
+    // v81 (MAGE_MONOLITH): a mage spends quiet farm turns on a monolith, with spells from outside its reach.
+    if (now_mode == FARM && is_mage(me.champion_name()) && monolith_delegated() && mage_monolith(me)) return;
     if (now_mode != FARM && now_mode != RETREAT) note(std::string("mode ") + MODE_NAMES[now_mode] + " reached farm fallback");
     farm(me);
 }

@@ -210,7 +210,14 @@ bool Bot::recall_to_shop(const bc::champion& me) {
         note(format("shop recall held, channel just aborted, spawn is %d tiles away", home));
         return false;
     }
-    if (threat_zone(seen::champions(Team::enemy), true).is_set(position)) return false;
+    const auto& enemies = seen::champions(Team::enemy);
+    if (recall_zone(enemies, true).is_set(position)) {
+        if (RECALL_SPELL_CAUTION)
+            if (const auto caster = recall_caster(enemies, position))
+                note(format("shop recall held: c%d %d off, within its reach %d + %d", champ_id(caster->champion_name()),
+                            distance(position, caster->position()), recall_reach(*caster), RECALL_SPELL_STEP));
+        return false;
+    }
     try {
         me.recall();
         trace::act("recall");

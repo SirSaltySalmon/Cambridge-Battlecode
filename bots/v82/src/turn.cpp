@@ -36,7 +36,9 @@ void Bot::play_turn() {
         say(std::string("ally memory error: ") + error_text(error));
     }
     try {
-        log_turn(me);
+        // v81: the decision log costs ~9k fuel a turn (110 of 150 turns over 95k in profiling stayed under without it).
+        // debug_block runs it free in local debug builds and skips it in release builds (the platform).
+        debug_block({ log_turn(me); });
     } catch (const std::exception& error) {
         say(std::string("log error: ") + error_text(error));
     }
@@ -107,7 +109,9 @@ void Bot::play(const bc::champion& me) {
     // into a key bush instead.
     // v72: with FIX_SCOUT_WARD the ward follows us instead; only kept posts (SCOUT_KEEP_POSTS) use the old rules.
     const bool scouting = FIX_SCOUT_WARD && (!SCOUT_KEEP_POSTS || (!ward_slot && !bush_warded));
-    if (FIX_SCOUT_WARD && scout_ward(me)) {
+    // v81: a mage on a monolith keeps its ward for the monolith's bush (mono_ward).
+    const bool mono_ward_due = monolith_delegated() && mono_job >= 0 && distance(me.position(), centers[mono_job]) <= MAGE_CAST_RANGE + 4;
+    if (FIX_SCOUT_WARD && !mono_ward_due && scout_ward(me)) {
     } else if (!scouting && !place_ward(me)) {
         bush_ward(me);
     }
@@ -146,13 +150,28 @@ void Bot::play(const bc::champion& me) {
         return;
     }
 
+    // v85 (WILLOW_HEAL_STEP): Willow's heal allows walking, so it is spent at the start of any turn, not only on
+    // attack turns (retreats, dodges and escorts are when allies need it). Cached vision is checked first, so the
+    // ability is only read when a hurt ally is in reach.
+    if (WILLOW_HEAL_STEP && me.champion_name() == Champ::willow && !channelling(me)) {
+        bool hurt_near = false;
+        for (const auto& a : seen::champions(Team::ally))
+            if (a != me && a.health() < a.max_health() && distance(position, a.position()) <= HEAL_REACH) hurt_near = true;
+        if (hurt_near && heal_lowest_ally(me)) note("willow heal step");
+    }
+
     // 3. Recall when hurt and nothing can interrupt it; otherwise step out of reach first.
     // v72: a carrier recalls (or steps out of reach) earlier, since its death hands the bag over.
     const double recall_share = FIX_CARRIER && static_cast<int>(me.gem_count()) >= CARRY_GEMS ? CARRY_RECALL_HEALTH : RECALL_HEALTH;
     if (me.health() < me.max_health() * recall_share) {
-        auto zone = threat_zone(seen::champions(Team::enemy), true);
+        const auto& enemies = seen::champions(Team::enemy);
+        auto zone = recall_zone(enemies, true);
         if (FIX_HIDDEN && hidden_active()) zone |= hidden_zone;
-        const std::string hurt = format("below %.0f%% health", recall_share * 100);
+        std::string hurt = format("below %.0f%% health", recall_share * 100);
+        if (RECALL_SPELL_CAUTION && zone.is_set(position))
+            if (const auto caster = recall_caster(enemies, position))
+                hurt += format(", c%d %d off within its reach %d + %d", champ_id(caster->champion_name()),
+                               distance(position, caster->position()), recall_reach(*caster), RECALL_SPELL_STEP);
         if (!channel_cut && !zone.is_set(position)) {
             try {
                 me.recall();
@@ -169,13 +188,13 @@ void Bot::play(const bc::champion& me) {
         if (FIX_DODGE) {
             escape(me, zone);
             dodged = true;
-        } else if (DODGE_TO_ALLY) {
-            // v82: out of reach, and beside the nearest visible ally if a tile there is free of threat.
+        } else if (WILLOW_DODGE && me.champion_name() == Champ::willow) {
+            // v85: the healer steps out of reach toward the nearest visible ally, who shields her and whom she heals.
             std::optional<vec2> ally;
             for (const auto& a : seen::champions(Team::ally))
                 if (a != me && (!ally || distance(position, a.position()) < distance(position, *ally))) ally = a.position();
             if (ally) {
-                auto near_ally = tiles_around(*ally, DODGE_ALLY_RANGE);
+                auto near_ally = tiles_around(*ally, WILLOW_DODGE_RANGE);
                 near_ally &= ~zone;
                 if (!near_ally.is_empty()) dodged = move_towards_closest(near_ally);
             }
@@ -241,7 +260,7 @@ void Bot::play(const bc::champion& me) {
         return;
     }
     // v72: any carrier below CARRY_FRONT_HEALTH also stays behind the front, not only a heavy bag.
-    const bool hurt_carrier = protect_bag(me, gems) && me.health() < me.max_health() * CARRY_FRONT_HEALTH;
+    const bool hurt_carrier = FIX_CARRIER && gems >= CARRY_GEMS && me.health() < me.max_health() * CARRY_FRONT_HEALTH;
     if (((gems >= ESCORT_GEMS && me.health() < FRONT_HEALTH) || hurt_carrier) && (now_mode == FIGHT || now_mode == RETREAT)) {
         if (retreat(me)) {
             branch_name = "front." + branch_name;
@@ -283,7 +302,7 @@ void Bot::play(const bc::champion& me) {
     }
 
     // v72: enemy champions in sight hunt bags: a carrier cashes in rather than farming on.
-    if (protect_bag(me, gems) && now_mode != FIGHT && !seen::champions(Team::enemy).empty() && bank_gems(me, {}, "bank.hunted"))
+    if (FIX_CARRIER && gems >= CARRY_GEMS && now_mode != FIGHT && !seen::champions(Team::enemy).empty() && bank_gems(me, {}, "bank.hunted"))
         return;
 
     // 7a. While rushing his build, Ren goes to shop at every emblem's worth of gold, before banking and
@@ -322,6 +341,8 @@ void Bot::play(const bc::champion& me) {
     // 9-10. Follow the mode; a quiet farm turn may walk over to an uncovered ward spot.
     if (now_mode == RETREAT && retreat(me)) return;
     if (now_mode == FARM && !(FIX_SCOUT_WARD && !SCOUT_KEEP_POSTS) && ward_detour(me, gems)) return;
+    // v81 (MAGE_MONOLITH): a mage spends quiet farm turns on a monolith, with spells from outside its reach.
+    if (now_mode == FARM && is_mage(me.champion_name()) && monolith_delegated() && mage_monolith(me)) return;
     if (now_mode != FARM && now_mode != RETREAT) note(std::string("mode ") + MODE_NAMES[now_mode] + " reached farm fallback");
     farm(me);
 }
@@ -342,7 +363,7 @@ bool Bot::bank_from_spawn(const bc::champion& me) {
             if (distance(position, altar) <= NEAR_BANK_RANGE) close.push_back(altar);
         if (!close.empty() && bank_gems(me, close, "spawn.bank.near")) return true;
     }
-    if (protect_bag(me, gems) && mode != FIGHT && !seen::champions(Team::enemy).empty()
+    if (FIX_CARRIER && gems >= CARRY_GEMS && mode != FIGHT && !seen::champions(Team::enemy).empty()
         && bank_gems(me, {}, "spawn.bank.hunted"))
         return true;
     if (building) return false;
@@ -350,12 +371,4 @@ bool Bot::bank_from_spawn(const bc::champion& me) {
     if (gems >= ESCORT_GEMS && carrier != mine) return !solo_altars.empty() && bank_gems(me, solo_altars, "spawn.bank.solo");
     const bool idle = !route.empty() && wait_at(slot % static_cast<int>(route.size()), position) > 0;
     return (gems >= GEM_BANK || (idle && gems >= IDLE_BANK)) && bank_gems(me, {}, "spawn.bank");
-}
-
-bool Bot::protect_bag(const bc::champion& me, int gems) {
-    if (!FIX_CARRIER) return false;
-    if (!PROTECT_SPLIT) return gems >= CARRY_GEMS;
-    if (gems < PROTECT_GEMS) return false;
-    // A built Ren is the team's carry with his own bank cap; the protection rules would pull him out of fights.
-    return !(me.champion_name() == Champ::ren && emblem_count(me) >= REN_CORE_EMBLEMS);
 }

@@ -226,6 +226,10 @@ bool Bot::ren_funnel(const bc::champion& champion) const {
 
 bool Bot::allowed(int s) {
     if (!monoliths.count(s)) return true;
+    // v81 (MAGE_MONOLITH): the mages take monoliths on their own job; the shared route only points at one on a
+    // gem-starved map, under the usual gates (strong and grouped: the area is contested), and then the team holds
+    // the area around it (melees guard, mages cast).
+    if (monolith_delegated() && !gem_starved) return false;
     return team_emblems() >= MONOLITH_EMBLEMS && monolith_grouped(s);
 }
 
@@ -397,9 +401,10 @@ void Bot::drop_monoliths(Travel& travel) {
         for (int s = 0; s < static_cast<int>(travel.steps.size()) && last_resort; ++s)
         if (travel.has(s) && !monoliths.count(s) && ready_at[s] - now - travel.at(s) <= MONOLITH_IDLE) last_resort = false;
     const bool strong = team_emblems() >= MONOLITH_EMBLEMS;
+    const bool delegated = monolith_delegated();
     for (const int m : monoliths) {
         if (!travel.has(m)) continue;
-        if (strong && (last_resort || mid_clear(m)) && monolith_grouped(m)) continue;
+        if (!(delegated && !gem_starved) && strong && (last_resort || mid_clear(m)) && monolith_grouped(m)) continue;
         travel.steps[m] = -1;
         --travel.reachable;
     }
@@ -905,48 +910,84 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
         }
     }
     const auto& allies = FIX_FIGHT_BODIES ? fighters : seen_allies;
-    const int ne = static_cast<int>(enemies.size());
-    auto weight = [&](std::size_t i) { return FIX_FIGHT_BODIES && i < fighter_weight.size() ? fighter_weight[i] : 1.0; };
-    double na_w = 0.0;
-    for (std::size_t i = 0; i < allies.size(); ++i) na_w += weight(i);
-    const int na = static_cast<int>(allies.size());
+    // v81: everything but the distance and the ping bonus is the same for every origin, so it is worked out once per
+    // round and vision list (score_mode runs twice on a leader's fight turn: the shared decision, then step 5) and
+    // reused with its reason text. Fight bodies depend on the origin, so they are never cached.
+    const bool cacheable = !FIX_FIGHT_BODIES;
+    const auto round = bc::round_number();
+    const bool hit = cacheable && score_base.round == round && score_base.enemies == near_src && score_base.allies == &seen_allies
+        && score_base.valid;
+    if (!hit) {
+        const int ne = static_cast<int>(enemies.size());
+        auto weight = [&](std::size_t i) { return FIX_FIGHT_BODIES && i < fighter_weight.size() ? fighter_weight[i] : 1.0; };
+        double na_w = 0.0;
+        for (std::size_t i = 0; i < allies.size(); ++i) na_w += weight(i);
+        const int na = static_cast<int>(allies.size());
 
-    double score = 0.0;
-    // The reason text, built into one string (each separate std::string costs an allocation).
-    std::string joined;
-    joined.reserve(200);
+        double head = 0.0, tail = 0.0;
+        // The reason text, built into one string per part of the score (each separate std::string costs an allocation).
+        std::string head_text, tail_text;
+        head_text.reserve(160);
+        auto part = [](std::string& joined, const std::string& text) {
+            if (!joined.empty()) joined += ", ";
+            joined += text;
+        };
+        if (far_skipped) part(head_text, format("far skip %d", far_skipped));
+        if (na_w > ne) {
+            head += OUTNUMBER_BONUS;
+            part(head_text, format("nums +%d %dv%d", OUTNUMBER_BONUS, na, ne));
+        } else {
+            const int pen = static_cast<int>(MISSING_BODY_PENALTY * (ne - na_w) + 0.5);
+            head -= pen;
+            part(head_text, format("nums -%d %dv%d", pen, na, ne));
+        }
+        PySum ally_hp, enemy_hp;
+        for (std::size_t i = 0; i < allies.size(); ++i) ally_hp.add(allies[i].health() * weight(i));
+        for (const auto& e : enemies) enemy_hp.add(e.health());
+        const double ally_health = ally_hp.value(), enemy_health = enemy_hp.value();
+        const int hp_edge = ally_health > enemy_health ? HEALTH_EDGE : -HEALTH_EDGE;
+        head += hp_edge;
+        part(head_text, format("hp %+d %.0f/%.0f", hp_edge, ally_health, enemy_health));
+        PySum ally_pw, enemy_pw;
+        for (std::size_t i = 0; i < allies.size(); ++i) ally_pw.add((static_cast<double>(allies[i].strength()) + allies[i].focus()) * weight(i));
+        for (const auto& e : enemies) enemy_pw.add(static_cast<double>(e.strength()) + e.focus());
+        const double ally_power = ally_pw.value(), enemy_power = enemy_pw.value();
+        const int power_edge = ally_power > enemy_power ? POWER_EDGE : -POWER_EDGE;
+        head += power_edge;
+        part(head_text, format("power %+d %.0f/%.0f", power_edge, ally_power, enemy_power));
+        double owned_w = 0.0;
+        for (std::size_t i = 0; i < allies.size(); ++i) owned_w += emblem_count(allies[i]) * weight(i);
+        const int emblem_score = static_cast<int>(EMBLEM_BONUS * owned_w + 0.5);
+        head += emblem_score;
+        part(head_text, format("emblems +%d", emblem_score));
+        if (!allies.empty() && squishy_overextended(allies, enemies)) {
+            tail -= OVEREXTEND_PENALTY;
+            part(tail_text, format("overextend -%d", OVEREXTEND_PENALTY));
+        }
+        if (seen::ally_spawn().is_set(bc::self().position())) {
+            tail += SPAWN_BONUS;
+            part(tail_text, format("ally-spawn +%d", SPAWN_BONUS));
+        }
+        const auto& enemy_roster = seen::roster(Team::enemy);
+        int dead_enemies = 0;
+        for (const auto& enemy : enemy_roster)
+            if (!enemy.is_alive()) ++dead_enemies;
+        const int kill_window = kill_window_dead_enemies(enemy_roster.size());
+        if (kill_window >= 0 && dead_enemies >= kill_window) {
+            tail -= KILL_WINDOW_FIGHT_PENALTY;
+            part(tail_text, format("kill-window -%d (%d/%zu dead)", KILL_WINDOW_FIGHT_PENALTY, dead_enemies, enemy_roster.size()));
+        }
+        score_base = {round, near_src, &seen_allies, head, tail, std::move(head_text), std::move(tail_text), true};
+        if (!cacheable) score_base.valid = false;
+    }
+
+    // Same terms, same order as before: the cached head, the distance, the cached tail, then the ping.
+    double score = score_base.head;
+    std::string joined = score_base.head_text;
     auto part = [&](const std::string& text) {
         if (!joined.empty()) joined += ", ";
         joined += text;
     };
-    if (far_skipped) part(format("far skip %d", far_skipped));
-    if (na_w > ne) {
-        score += OUTNUMBER_BONUS;
-        part(format("nums +%d %dv%d", OUTNUMBER_BONUS, na, ne));
-    } else {
-        const int pen = static_cast<int>(MISSING_BODY_PENALTY * (ne - na_w) + 0.5);
-        score -= pen;
-        part(format("nums -%d %dv%d", pen, na, ne));
-    }
-    PySum ally_hp, enemy_hp;
-    for (std::size_t i = 0; i < allies.size(); ++i) ally_hp.add(allies[i].health() * weight(i));
-    for (const auto& e : enemies) enemy_hp.add(e.health());
-    const double ally_health = ally_hp.value(), enemy_health = enemy_hp.value();
-    const int hp_edge = ally_health > enemy_health ? HEALTH_EDGE : -HEALTH_EDGE;
-    score += hp_edge;
-    part(format("hp %+d %.0f/%.0f", hp_edge, ally_health, enemy_health));
-    PySum ally_pw, enemy_pw;
-    for (std::size_t i = 0; i < allies.size(); ++i) ally_pw.add((static_cast<double>(allies[i].strength()) + allies[i].focus()) * weight(i));
-    for (const auto& e : enemies) enemy_pw.add(static_cast<double>(e.strength()) + e.focus());
-    const double ally_power = ally_pw.value(), enemy_power = enemy_pw.value();
-    const int power_edge = ally_power > enemy_power ? POWER_EDGE : -POWER_EDGE;
-    score += power_edge;
-    part(format("power %+d %.0f/%.0f", power_edge, ally_power, enemy_power));
-    double owned_w = 0.0;
-    for (std::size_t i = 0; i < allies.size(); ++i) owned_w += emblem_count(allies[i]) * weight(i);
-    const int emblem_score = static_cast<int>(EMBLEM_BONUS * owned_w + 0.5);
-    score += emblem_score;
-    part(format("emblems +%d", emblem_score));
     if (origin) {
         int nearest = distance(enemies[0].position(), *origin);
         for (const auto& e : enemies) nearest = std::min(nearest, distance(e.position(), *origin));
@@ -954,23 +995,8 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
         score -= dist;
         part(format("dist -%.1f", dist));
     }
-    if (!allies.empty() && squishy_overextended(allies, enemies)) {
-        score -= OVEREXTEND_PENALTY;
-        part(format("overextend -%d", OVEREXTEND_PENALTY));
-    }
-    if (seen::ally_spawn().is_set(bc::self().position())) {
-        score += SPAWN_BONUS;
-        part(format("ally-spawn +%d", SPAWN_BONUS));
-    }
-    const auto& enemy_roster = seen::roster(Team::enemy);
-    int dead_enemies = 0;
-    for (const auto& enemy : enemy_roster)
-        if (!enemy.is_alive()) ++dead_enemies;
-    const int kill_window = kill_window_dead_enemies(enemy_roster.size());
-    if (kill_window >= 0 && dead_enemies >= kill_window) {
-        score -= KILL_WINDOW_FIGHT_PENALTY;
-        part(format("kill-window -%d (%d/%zu dead)", KILL_WINDOW_FIGHT_PENALTY, dead_enemies, enemy_roster.size()));
-    }
+    score += score_base.tail;
+    if (!score_base.tail_text.empty()) part(score_base.tail_text);
     if (ping_bonus) {
         score += PING_SCORE_BONUS;
         part(format("ping +%d", PING_SCORE_BONUS));

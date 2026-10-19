@@ -1,6 +1,7 @@
 #include "actions.h"
 #include "board.h"
 #include "seen.h"
+#include "state.h"
 #include "trace.h"
 #include <algorithm>
 #include <set>
@@ -371,10 +372,14 @@ ChannelThreat channel_threat(const bc::champion& me) {
         bc::champion enemy;
     };
     std::optional<Nearest> nearest;
+    // v82 (RECALL_SPELL_CAUTION): any damage breaks a recall, so a caster counts with its spell reach; a tribute
+    // only breaks on a stun or death, and keeps the basic attack range.
+    const bool recalling = RECALL_SPELL_CAUTION && me.is_recalling();
     for (const auto& enemy : seen::champions(Team::enemy)) {
         int reach, gap;
         try {
             reach = enemy.attack_range();
+            if (recalling) reach = std::max(reach, recall_reach(enemy));
             gap = distance(origin, enemy.position()) - reach;
         } catch (const bc::error&) {
             continue;

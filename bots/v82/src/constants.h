@@ -93,7 +93,8 @@ inline int camp_kind_strength(bc::camp_type kind) {
     default: return 0;
     }
 }
-inline constexpr int CAMP_REACH = 3, MONOLITH_REACH = 5;
+// v81: every camp, the monolith included, hits at 3 (the SDK; the handbook table's 5 for the monolith is wrong).
+inline constexpr int CAMP_REACH = 3, MONOLITH_REACH = 3;
 // A ranged champion opens a camp without waiting when a sturdy ally (melee, or over SQUISHY_HEALTH) already
 // stands inside the camp's reach and closer to it: the camp hits the nearest champion, so that ally tanks.
 inline constexpr bool FIX_ABSORB = true;
@@ -193,14 +194,6 @@ inline constexpr int REN_ANSWER_GEMS = 100;
 // of pingers died within 5 rounds, and help that walks over mostly arrives after the fight is decided.
 inline constexpr bool PING_RETREAT = true;
 inline constexpr double PING_RETREAT_HEALTH = 0.75;
-// v82: (1) PROTECT_SPLIT: carrier protection (bank when an enemy is in sight, stay behind the front when hurt) starts
-// at PROTECT_GEMS again; a built Ren is exempt (his own REN_BANK_GEMS cap). CARRY_GEMS = 60 now only gates ping
-// answering. With protection at 60, losses of 100+ bags rose ~50% (v81 vs v76). (2) DODGE_TO_ALLY: below recall
-// health in reach, prefer tiles out of reach within DODGE_ALLY_RANGE of the nearest visible ally (two thirds of the
-// gems we lose are lost on these turns). (3) RETREAT_RELEASE: a collector retreating toward help gives its claim back.
-inline constexpr bool PROTECT_SPLIT = false, DODGE_TO_ALLY = true, RETREAT_RELEASE = true;
-inline constexpr int PROTECT_GEMS = 30;
-inline constexpr float DODGE_ALLY_RANGE = 3;
 inline constexpr int PING_ALONE = 3;
 inline constexpr int PING_REPORT = 5;
 inline constexpr int FIGHT_ALLY_RANGE = 8;
@@ -209,6 +202,58 @@ inline constexpr int FIGHT_ALLY_RANGE = 8;
 inline constexpr int FIGHT_WEIGHTING = 0;
 inline constexpr int SOFT_NEAR = 4, SOFT_FAR = 12;
 inline constexpr float ESCAPE_ALLY_RANGE = 3;
+
+// v81 mages (Cassi and Stellar): their spells reach MAGE_CAST_RANGE, one past every camp's reach (3), and their basic
+// attacks are weak, so they keep their health for the fights.
+// MAGE_STANDOFF: on a camp that hits, a mage casts from outside its reach and basic attacks only once a sturdy ally
+//   tanks it (FIX_ABSORB's rule) or the finish is cheap: the hits it would take killing the camp with basic attacks
+//   (camp health over the damage of us and allies in reach, times the camp's strength) are at most MAGE_FINISH_SHARE
+//   of max health. It no longer waits for a melee in sight before opening a camp: the spells start it.
+// MAGE_LEAVE: a mage inside an awake camp's reach that may not basic attack steps out to the cast ring (a tank left,
+//   or it walked into a camp).
+// MAGE_KITE: in a fight a mage casts a ready spell from wherever it stands, walks toward the fight only outside enemy
+//   basic-attack reach (a melee's walk-and-hit, MELEE_THREAT; a ranged shot, RANGED_THREAT), steps back out of that
+//   reach while its spells cool, and basic attacks from outside it. Enemy spells reach 4 whether we stand at 3 or 4,
+//   so they do not move us. (v81 first draft: cast only from a safe tile and basic attack only out of every spell's
+//   reach: 56% of mage fight turns were steps, 11% casts, champion damage -28%.)
+// MAGE_MONOLITH: melees never hit a monolith (its 200 a hit cost them more than it gives); mages take it with spells
+//   from outside its reach while the rest of the team farms and holds the area. Monoliths leave the shared route.
+inline constexpr bool MAGE_STANDOFF = true, MAGE_LEAVE = true, MAGE_KITE = true, MAGE_MONOLITH = true;
+inline constexpr double MAGE_FINISH_SHARE = 0.10;
+inline constexpr int MAGE_CAST_RANGE = 4;
+inline constexpr int MELEE_THREAT = 2, RANGED_THREAT = 3;
+// A monolith is near the team's target (or near us while that target respawns) within MONOLITH_JOB_RANGE. One we
+// worked on within MONOLITH_RESUME rounds is resumed wherever the team is.
+inline constexpr int MONOLITH_JOB_RANGE = 10;
+inline constexpr int MONOLITH_RESUME = 40;
+// On a gem-starved map the monolith is the only gem source, and two mages' spells alone take it too slowly (contest:
+// ~36 a round, 20,000 -> 8,760 in the last 850 rounds). With MONOLITH_TEAM_STARVED the whole team still hits it
+// there (v80-5's rule), the mages from outside its reach unless a tank holds it (MAGE_STANDOFF).
+inline constexpr bool MONOLITH_TEAM_STARVED = true;
+// Melees hold this ring around a monolith the mages are on: outside its reach, close enough to answer an enemy.
+inline constexpr int MONOLITH_GUARD_RANGE = 5;
+inline bool is_mage(Champ kind) { return kind == Champ::cassi || kind == Champ::stellar; }
+// v82 (RECALL_SPELL_CAUTION): any damage cancels a recall, and a spell reaches past a basic attack: Cassi, Tavi, Ren
+// and Marcella hit at 4, Stellar, Prism and Ryth at 5 (a radius-1 area around a tile 4 off). The old checks used 4
+// for everyone to start a recall and the basic attack range (Stellar 3) to keep one going, so a Stellar 4-5 tiles off
+// broke recalls. Now a recall starts only beyond a caster's spell reach + RECALL_SPELL_STEP (spells exclude walking:
+// she walks one turn and casts the next), a hurt champion steps out that far first, and a running recall is judged
+// against spell reach. Tributes keep the old check: damage does not break them.
+inline constexpr bool RECALL_SPELL_CAUTION = true;
+inline constexpr int RECALL_SPELL_STEP = 1;
+// How an enemy's reach is judged for recalls (RECALL_SPELL_CAUTION on): 0 casters by name (spell_reach), basic range
+// for the rest; 1 from the enemy's own kit, every dash and spell taken as ready (a dash adds its range to a basic
+// attack: Issac, Vendetta, Ren 1 + 2, Vesper 3 + 2; one cast a turn, so never dash and spell together); 2 the same with
+// live cooldowns: a dash or spell counts only if it is ready by the enemy's next turn (cooldown <= RECALL_READY_TICKS).
+inline constexpr int RECALL_REACH_MODE = 2;
+inline constexpr int RECALL_READY_TICKS = 1;
+inline int spell_reach(Champ kind) {
+    switch (kind) {
+    case Champ::stellar: case Champ::prism: case Champ::ryth: return 5;
+    case Champ::cassi: case Champ::tavi: case Champ::ren: case Champ::marcella: return 4;
+    default: return 0;
+    }
+}
 
 
 // Escorted tributes: a bag this big is only carried to an altar with the team around it.
@@ -280,6 +325,9 @@ inline int priority_of(Champ kind) {
     switch (kind) {
     case Champ::ren: return 7;  // v70: Ren acts first, so his stun lands before the team's damage.
     case Champ::cassi: return 6;
+    // v85: Willow acts third (ties with Cassi go by draft order, so Cassi first): her heal and her retreat step
+    // come before more enemy champions have acted.
+    case Champ::willow: return 6;
     case Champ::issac: return 5;
     case Champ::vendetta: return 4;
     case Champ::varg: return 3;
@@ -289,7 +337,7 @@ inline int priority_of(Champ kind) {
 }
 
 // Ranged bodies hold at least this far from a camp while no melee is coming in to tank it.
-// A camp whose own reach is longer (a monolith hits at 5) pushes the ring out past that reach.
+// A camp whose own reach is longer would push the ring out past that reach (every camp hits at 3).
 inline constexpr int RANGED_CAMP_STANDOFF = 4;
 
 // One family at a time until its emblem is done; the fallback shard is bought without limit.
@@ -302,11 +350,24 @@ inline constexpr Item VENDETTA_STRENGTH[] = {Item::jungle_shard_of_strength, Ite
 inline constexpr Item MELEE_FOCUS[] = {Item::jungle_shard_of_focus, Item::bruiser_shard_of_focus,
     Item::durability_shard_of_focus};
 // v70 Ren: Bruiser Health, Durability Health, then Power Focus without limit.
-inline constexpr Item REN_BUILD[] = {Item::bruiser_shard_of_health, Item::durability_shard_of_health};
+// v83: Jungle Health first (camps hit Ren 30% less while he tanks them), then Durability; Bruiser Focus stacks after.
+inline constexpr Item REN_BUILD[] = {Item::jungle_shard_of_health, Item::durability_shard_of_health};
 // v70 Stellar: Power Focus, then Bruiser Health, then Power Focus without limit.
 inline constexpr Item STELLAR_BUILD[] = {Item::power_shard_of_focus, Item::bruiser_shard_of_health};
 inline constexpr Item RANGED_FOCUS[] = {Item::power_shard_of_focus, Item::monster_shard_of_focus,
     Item::durability_shard_of_focus};
+// v83: Willow builds Durability first (10% less damage taken), then Power, instead of Monster (more damage to camps): she heals and
+// stays alive rather than farming camps. Cassi keeps RANGED_FOCUS.
+// v85 Willow (switches): WILLOW_HEAL_STEP: heal at the start of every turn (her heal allows walking), not only
+//   while attacking; a cheap check on cached vision runs before the ability is read. WILLOW_HEAL_PICK: heal the ally
+//   that gains most: effective heal (missing health, at most the heal), doubled for an ally under HEAL_LOW health or
+//   with an enemy champion within HEAL_DANGER tiles; any hurt ally can still be healed. WILLOW_DODGE: under recall
+//   health and in reach, Willow steps out of reach toward the nearest visible ally. Priority: Willow acts third.
+inline constexpr bool WILLOW_HEAL_STEP = true, WILLOW_HEAL_PICK = true, WILLOW_DODGE = true;
+inline constexpr double HEAL_LOW = 0.5;
+inline constexpr int HEAL_DANGER = 5, HEAL_REACH = 4;
+inline constexpr float WILLOW_DODGE_RANGE = 3;
+inline constexpr Item WILLOW_FOCUS[] = {Item::durability_shard_of_focus, Item::power_shard_of_focus};
 // Ryth's passive turns bonus health into Strength, and Jungle cuts the camp hits he stands in.
 inline constexpr Item RYTH_HEALTH[] = {Item::jungle_shard_of_health, Item::durability_shard_of_health,
     Item::bruiser_shard_of_health};
@@ -321,7 +382,8 @@ inline std::span<const Item> shop_order(Champ kind) {
     case Champ::issac: return MELEE_STRENGTH;
     case Champ::ren: return REN_BUILD;
     case Champ::stellar: return STELLAR_BUILD;
-    case Champ::cassi: case Champ::willow: return RANGED_FOCUS;
+    case Champ::cassi: return RANGED_FOCUS;
+    case Champ::willow: return WILLOW_FOCUS;
     case Champ::ryth: return RYTH_HEALTH;
     case Champ::vesper_vale: return VESPER_STRENGTH;
     default: return {};
@@ -330,7 +392,7 @@ inline std::span<const Item> shop_order(Champ kind) {
 
 inline constexpr Item FALLBACK_VENDETTA[] = {Item::power_shard_of_strength};
 inline constexpr Item FALLBACK_MELEE[] = {Item::power_shard_of_strength, Item::power_shard_of_health};
-inline constexpr Item FALLBACK_REN[] = {Item::power_shard_of_focus};
+inline constexpr Item FALLBACK_REN[] = {Item::bruiser_shard_of_focus};
 inline constexpr Item FALLBACK_RANGED[] = {Item::power_shard_of_focus};
 inline constexpr Item FALLBACK_RYTH[] = {Item::bruiser_shard_of_health};
 inline constexpr Item FALLBACK_VESPER[] = {Item::power_shard_of_strength, Item::power_shard_of_strength,

@@ -52,9 +52,11 @@ bool Bot::in_spawn_probe(const bc::champion& me) const {
 }
 
 std::string Bot::where_text(const bc::champion& me) const {
-    if (!me.is_alive()) return "dead";
+    // The champion first, so a reader can follow one champion through the interleaved turns.
+    const std::string who = format("c%d ", champ_id(me.champion_name()));
+    if (!me.is_alive()) return who + "dead";
     const auto pos = me.position();
-    std::string text = at(pos);
+    std::string text = who + at(pos);
     if (bc::map::spawn_region(Team::enemy).is_set(pos)) text += " ON-ENEMY-SPAWN";
     if (bc::map::spawn_region(Team::ally).is_set(pos)) text += " on-ally-spawn";
     if (ready && spawn_zone.is_set(pos)) text += " IN-CHASE-RING";

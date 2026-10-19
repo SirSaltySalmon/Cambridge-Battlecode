@@ -203,7 +203,7 @@ bool Bot::retreat(const bc::champion& me) {
             }
         if (!swung)
             for (const auto& target : group_camps())
-                if (attack_if_in_range(target)) {
+                if (!(target.is_monolith() && monolith_delegated()) && attack_if_in_range(target)) {
                     swung = Target{target};
                     break;
                 }
@@ -335,6 +335,19 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
                 s = other;
                 camps = camps_at(s);
             }
+        }
+    }
+    // v81 (MAGE_MONOLITH): a melee never hits a monolith and keeps out of an awake one's reach; mages take it.
+    bc::bitboard keep_out;
+    if (!is_mage(me.champion_name()) && !monoliths.empty() && monolith_delegated()) {
+        if (monoliths.count(s)) {
+            monolith_guard(me, s, avoid, stem);
+            return;
+        }
+        keep_out = awake_monoliths();
+        if (!keep_out.is_empty()) {
+            if (avoid) keep_out |= *avoid;
+            avoid = &keep_out;
         }
     }
     const int reach = me.attack_range();

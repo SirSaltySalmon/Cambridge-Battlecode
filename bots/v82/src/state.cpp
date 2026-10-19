@@ -1,6 +1,7 @@
 #include "state.h"
 #include "board.h"
 #include "seen.h"
+#include <algorithm>
 #include <array>
 #include <cstddef>
 
@@ -63,6 +64,48 @@ bc::bitboard threat_zone(const std::vector<bc::champion>& enemies, bool include_
         for (const auto& camp : seen::camps())
             if (camp.strength() > 0) zone.draw_chebyshev(camp.position(), static_cast<float>(camp.attack_range()));
     return zone;
+}
+
+int recall_reach(const bc::champion& enemy) {
+    int basic = 1;
+    try {
+        basic = enemy.attack_range();
+        if (RECALL_REACH_MODE == 0) return std::max(basic, spell_reach(enemy.champion_name()));
+        int dash = 0, spell = 0;
+        for (const auto& slot : enemy.abilities()) {
+            const auto& info = slot.info();
+            if (!info) continue;
+            if (RECALL_REACH_MODE == 2 && slot.cooldown() > RECALL_READY_TICKS) continue;
+            if (const auto* d = std::get_if<bc::ability_dash>(&*info)) dash = std::max(dash, static_cast<int>(d->range));
+            else if (const auto* h = std::get_if<bc::ability_damage>(&*info)) spell = std::max(spell, static_cast<int>(h->range));
+            else if (const auto* c = std::get_if<bc::ability_cc>(&*info)) spell = std::max(spell, static_cast<int>(c->range));
+            else if (const auto* o = std::get_if<bc::ability_aoe_damage>(&*info))
+                spell = std::max(spell, static_cast<int>(o->range + o->radius));
+        }
+        return std::max(basic + dash, spell);
+    } catch (const std::exception&) {
+        return std::max(basic, THREAT_RANGE);
+    }
+}
+
+bc::bitboard recall_zone(const std::vector<bc::champion>& enemies, bool include_camps) {
+    auto zone = threat_zone(enemies, include_camps);
+    if (!RECALL_SPELL_CAUTION) return zone;
+    for (const auto& enemy : enemies) {
+        const int reach = recall_reach(enemy);
+        if (reach + RECALL_SPELL_STEP > THREAT_RANGE)
+            zone.draw_chebyshev(enemy.position(), static_cast<float>(reach + RECALL_SPELL_STEP));
+    }
+    return zone;
+}
+
+std::optional<bc::champion> recall_caster(const std::vector<bc::champion>& enemies, vec2 tile) {
+    for (const auto& enemy : enemies) {
+        const int reach = recall_reach(enemy);
+        const int gap = distance(tile, enemy.position());
+        if (gap > THREAT_RANGE && gap <= reach + RECALL_SPELL_STEP) return enemy;
+    }
+    return std::nullopt;
 }
 
 bool under_threat(const bc::champion& me) {

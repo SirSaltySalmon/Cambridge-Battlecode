@@ -2,12 +2,20 @@
 #include "bot.h"
 #include "seen.h"
 #include "state.h"
+#include "trace.h"
+#include <algorithm>
+#include <cmath>
 #include <tuple>
 
 void Bot::engage(const bc::champion& me, const Target& target, const std::vector<bc::champion>& enemies, bool is_camp,
                  const bc::bitboard* avoid) {
+    const bool mage = is_mage(me.champion_name());
     if (me.champion_name() == Champ::vesper_vale)
         engage_vesper(me, target, enemies, is_camp, avoid);
+    else if (mage && is_camp && MAGE_STANDOFF && group_hits(target))
+        mage_camp(me, target, avoid);
+    else if (mage && !is_camp && MAGE_KITE)
+        mage_fight(me, target, enemies, avoid);
     else if (me.attack_range() > 1)
         engage_ranged(me, target, enemies, is_camp, avoid);
     else
@@ -400,12 +408,25 @@ bool Bot::heal_lowest_ally(const bc::champion& me) {
     if (!heal || !heal->is_ready()) return false;
     std::optional<bc::champion> target;
     double best = 0;
+    // v85 (WILLOW_HEAL_PICK): the ally who gains most. Effective heal is the missing health up to the heal's size;
+    // an ally low on health or with an enemy champion near counts double. Any hurt ally can still be picked.
+    const double amount = 3.0 * me.focus();
+    const auto& enemies = seen::champions(Team::enemy);
     for (const auto& a : seen::champions(Team::ally))
         if (a != me && a.health() < a.max_health() && within(me, a, ability_range(*heal))) {
-            const double ratio = static_cast<double>(a.health()) / a.max_health();
-            if (!target || ratio < best) {
+            double score;
+            if (WILLOW_HEAL_PICK) {
+                score = std::min(amount, static_cast<double>(a.max_health() - a.health()));
+                bool danger = a.health() < a.max_health() * HEAL_LOW;
+                for (const auto& e : enemies)
+                    if (!danger && distance(a.position(), e.position()) <= HEAL_DANGER) danger = true;
+                if (danger) score *= 2;
+            } else {
+                score = 1.0 - static_cast<double>(a.health()) / a.max_health();
+            }
+            if (!target || score > best) {
                 target = a;
-                best = ratio;
+                best = score;
             }
         }
     return target && cast(heal, *target);
@@ -466,4 +487,364 @@ bool Bot::vesper_kite(const bc::champion& me, const std::vector<bc::champion>& e
         }
     }
     return best && margin(*best) > margin(position) && cast(dash, *best);
+}
+
+// v81 mages (Cassi, Stellar): spells from outside reach, basic attacks only where they cost little.
+
+bool Bot::mage_spell_ready(const bc::champion& me) {
+    for (const auto kind : {Kind::damage, Kind::aoe_damage}) {
+        const auto spell = ability_of(me, kind);
+        if (spell && spell->is_ready()) return true;
+    }
+    return false;
+}
+
+bool Bot::mage_cast(const bc::champion& me, const Target& target, bool is_camp) {
+    if (me.champion_name() == Champ::stellar) return stellar_cast(me, target, is_camp);
+    const auto damage = ability_of(me, Kind::damage);
+    if (!damage || !damage->is_ready() || (is_camp && !damage->can_target_camps())) return false;
+    return within(me, target, ability_range(*damage)) && cast(damage, target);
+}
+
+bc::bitboard Bot::camp_danger(const Target& camp) {
+    // The target's whole group wakes when it is hit; any other camp already hurt is awake too.
+    bc::bitboard zone;
+    const auto s = camp_slot(camp);
+    for (const auto& c : seen::camps()) {
+        if (c.strength() <= 0) continue;
+        const bool group = s && slot_at(c.spawn_position()) == *s;
+        if (group || c.health() < c.max_health()) zone.draw_chebyshev(c.position(), static_cast<float>(c.attack_range()));
+    }
+    zone.draw_chebyshev(camp.position(), static_cast<float>(camp.attack_range()));
+    return zone;
+}
+
+bool Bot::group_hits(const Target& camp) {
+    // The camp or any camp of its group in sight hits back (a cluster beside wolves is no free hit).
+    if (camp.strength() > 0) return true;
+    const auto s = camp_slot(camp);
+    if (!s) return false;
+    for (const auto& c : seen::camps())
+        if (c.strength() > 0 && slot_at(c.spawn_position()) == *s) return true;
+    return false;
+}
+
+std::pair<bool, int> Bot::finish_cost(const bc::champion& me, const Target& camp) {
+    // Rounds to finish the camp with basic attacks (ours and those of allies already in reach of it), times its
+    // strength: what the camp would hit us for meanwhile if we were the one in its reach.
+    const auto spot = camp.position();
+    double damage = me.strength();
+    for (const auto& ally : seen::champions(Team::ally))
+        if (ally != me && distance(ally.position(), spot) <= ally.attack_range()) damage += ally.strength();
+    if (damage <= 0) return {false, 0};
+    // Every camp of the group is awake while we fight it (a cluster beside a monolith is no free hit).
+    double strength = camp.strength();
+    if (const auto s = camp_slot(camp)) {
+        strength = 0;
+        for (const auto& c : seen::camps())
+            if (slot_at(c.spawn_position()) == *s && c.health() > 0) strength += c.strength();
+    }
+    const int cost = static_cast<int>(std::ceil(camp.health() / damage) * strength);
+    const bool cheap = cost <= MAGE_FINISH_SHARE * me.max_health() && me.health() - cost > me.max_health() * RECALL_HEALTH;
+    return {cheap, cost};
+}
+
+void Bot::mage_camp(const bc::champion& me, const Target& target, const bc::bitboard* avoid) {
+    const int reach = me.attack_range();
+    const auto position = me.position();
+    const int g = distance(position, target.position());
+    const auto [finish, cost] = finish_cost(me, target);
+    const bool tanked = camp_tanked(me, target);
+    if (tanked || finish) {
+        // Someone sturdier takes the hits, or the few left cost little: spells and basic attacks both.
+        branch_name += tanked ? ".tanked" : ".finish";
+        if (!tanked)
+            note(format("mage finish: camp hp %.0f, basic attacks cost ~%d <= %.0f%% of max hp", target.health(), cost,
+                        MAGE_FINISH_SHARE * 100));
+        const bool cast_spell = mage_cast(me, target, true);
+        if (cast_spell && !alive(target)) return;
+        if (g <= reach)
+            attack_if_in_range(target);
+        else if (!cast_spell)
+            move_towards_closest(tiles_around(target.position(), reach), avoid);
+        return;
+    }
+    // Untanked with too much health left: never stand in its reach.
+    const auto danger = camp_danger(target);
+    const auto ring = tiles_around(target.position(), MAGE_CAST_RANGE) & ~danger;
+    if (danger.is_set(position) && MAGE_LEAVE) {
+        branch_name += ".leave";
+        note(format("mage leaves camp reach: untanked, camp hp %.0f, finish would cost ~%d", target.health(), cost));
+        if (!move_towards_closest(ring, avoid)) move_towards_closest(~danger, avoid);
+        return;
+    }
+    if (g <= MAGE_CAST_RANGE) {
+        if (mage_cast(me, target, true)) {
+            branch_name += ".standoff";
+            note(format("mage casts from %d outside camp reach, camp hp %.0f", g, target.health()));
+        } else {
+            branch_name += ".cooldown";
+            note(format("mage waits at %d outside camp reach, spells cooling", g));
+        }
+        return;
+    }
+    branch_name += ".closing";
+    note(format("mage walks to the cast ring %d off the camp", MAGE_CAST_RANGE));
+    bc::bitboard keep_out = danger;
+    if (avoid) keep_out |= *avoid;
+    if (!move_towards_closest(ring, &keep_out)) move_towards_closest(ring, avoid);
+}
+
+namespace {
+
+std::string champ_name_tag(const bc::champion& champion) {
+    try {
+        return "c" + std::to_string(champ_id(champion.champion_name()));
+    } catch (const bc::error&) {
+        return "c?";
+    }
+}
+
+} // namespace
+
+bc::bitboard Bot::enemy_reach(const std::vector<bc::champion>& enemies) {
+    // Tiles an enemy can hit next turn with a basic attack: a melee walks one and hits one, a ranged one stands and
+    // shoots three. Their spells reach 4 whether we stand at 3 or 4, so they do not change where we stand.
+    bc::bitboard zone;
+    for (const auto& e : enemies)
+        if (alive(e)) zone.draw_chebyshev(e.position(), static_cast<float>(e.attack_range() <= 1 ? MELEE_THREAT : RANGED_THREAT));
+    return zone;
+}
+
+void Bot::mage_fight(const bc::champion& me, const Target& target, const std::vector<bc::champion>& enemies,
+                     const bc::bitboard* avoid) {
+    // A ready spell is cast from wherever we stand; we only walk toward the fight outside enemy basic-attack reach,
+    // step back out of it while the spells cool, and basic attack from outside it. One threat board, one path search.
+    const auto zone = enemy_reach(seen::champions(Team::enemy));
+    const auto position = me.position();
+    const bool safe = !zone.is_set(position);
+    // Cassi's stun allows walking, so it is spent first, as before.
+    if (me.champion_name() == Champ::cassi) cassi_stun(me, enemies);
+    // Targets by health, the fight's pick first.
+    auto order = alive(enemies);
+    if (order.empty()) return;
+    std::stable_sort(order.begin(), order.end(), [](const auto& a, const auto& b) { return a.health() < b.health(); });
+    if (const auto* pick = target.champion()) {
+        auto it = std::find(order.begin(), order.end(), *pick);
+        if (it != order.end()) std::rotate(order.begin(), it, it + 1);
+    }
+    const auto main = order.front();
+    bc::bitboard keep_out = zone;
+    if (avoid) keep_out |= *avoid;
+
+    if (mage_spell_ready(me)) {
+        for (const auto& e : order)
+            if (distance(position, e.position()) <= MAGE_CAST_RANGE && mage_cast(me, e, false)) {
+                branch_name += ".cast";
+                note("mage casts on " + champ_name_tag(e) + at(e.position()) + format(" from %d off", distance(position, e.position()))
+                     + (safe ? ", outside enemy reach" : ", inside enemy reach"));
+                if (safe && alive(e)) attack_if_in_range(e);
+                return;
+            }
+        branch_name += ".step";
+        note("mage steps toward " + champ_name_tag(main) + at(main.position()) + " to cast, outside enemy reach");
+        if (!move_towards_closest(tiles_around(main.position(), MAGE_CAST_RANGE) & ~zone, &keep_out) && !safe)
+            move_towards_closest(~zone, avoid);
+        return;
+    }
+    if (!safe) {
+        branch_name += ".back";
+        note("mage backs out of enemy reach, spells cooling");
+        move_towards_closest(~zone, avoid);
+        return;
+    }
+    for (const auto& e : order)
+        if (attack_if_in_range(e)) {
+            branch_name += ".basic";
+            note("mage basic attacks " + champ_name_tag(e) + " from outside enemy reach, spells cooling");
+            return;
+        }
+    const auto spots = tiles_around(main.position(), me.attack_range()) & ~zone;
+    if (!spots.is_empty() && move_towards_closest(spots, &keep_out)) {
+        branch_name += ".step";
+        note("mage steps in to basic attack " + champ_name_tag(main) + " from outside enemy reach, spells cooling");
+        return;
+    }
+    branch_name += ".hold";
+    note("mage holds outside enemy reach, spells cooling");
+}
+
+bool Bot::mages_drafted() {
+    if (mage_team) return *mage_team;
+    bool any = false, known = true;
+    for (const auto& ally : seen::roster(Team::ally)) {
+        try {
+            if (is_mage(ally.champion_name())) any = true;
+        } catch (const bc::error&) {
+            known = false;
+        }
+    }
+    if (any || known) mage_team = any;
+    return any;
+}
+
+bool Bot::monolith_delegated() {
+    return MAGE_MONOLITH && mages_drafted() && !(MONOLITH_TEAM_STARVED && gem_starved);
+}
+
+bc::bitboard Bot::awake_monoliths() {
+    bc::bitboard zone;
+    for (const auto& c : seen::camps())
+        if (c.is_monolith() && c.health() < c.max_health()) zone.draw_chebyshev(c.position(), static_cast<float>(c.attack_range()));
+    return zone;
+}
+
+bool Bot::mage_monolith(const bc::champion& me) {
+    // Monoliths are off the shared route; a mage takes one on whenever it is near the team's target, or near us while
+    // that target respawns. On a gem-starved map the route's gates make it the team's target, and the mages take it
+    // then. Fights, pings, banking and shopping come first.
+    if (monoliths.empty() || route.empty()) return false;
+    const int now = static_cast<int>(bc::round_number());
+    const auto position = me.position();
+    if (mono_job >= 0 && ready_at[mono_job] > now) note(format("monolith s%d is down, mage job over", mono_job));
+    // Picked afresh each turn: the job holds while its reason does (or we have been hitting it).
+    const int was = mono_job;
+    mono_job = -1;
+    int pick = -1;
+    {
+        const int target = slot % static_cast<int>(route.size());
+        const bool idle = wait_at(target, position) > 0;
+        std::pair<bool, int> pick_key{};
+        for (const int m : monoliths) {
+            if (ready_at[m] > now) continue;
+            // Near the team's target, or near us while that target respawns; one we have been hitting is finished.
+            const bool near = distance(centers[m], centers[target]) <= MONOLITH_JOB_RANGE
+                || (idle && distance(position, centers[m]) <= MONOLITH_JOB_RANGE);
+            const bool started = m == mono_last && now - mono_hit <= MONOLITH_RESUME;
+            const bool hit = started || mid_clear(m);
+            // On a gem-starved map the monolith is the team's target once the team is ready for it (the route gates).
+            if (gem_starved ? !hit && m != target : !near && !hit) continue;
+            // One already hit first, then the one nearest the team's target, so both mages pick the same one.
+            const std::pair<bool, int> key{!hit, distance(centers[m], centers[target])};
+            if (pick < 0 || key < pick_key) {
+                pick = m;
+                pick_key = key;
+            }
+        }
+        if (pick < 0) return false;
+        if (pick != was) note(format("mage takes monolith s%d", pick) + at(centers[pick])
+             + (gem_starved ? " (gem-starved, team target)" : idle ? " (team target respawning)" : " (near the team target)"));
+    }
+    mono_job = pick;
+    auto camps = camps_at(pick);
+    // A monolith in a bush is hidden from outside it, and spells need sight: the ward goes in first.
+    if (camps.empty() && distance(position, centers[pick]) <= MAGE_CAST_RANGE + 4 && mono_ward(me, pick)) camps = camps_at(pick);
+    if (camps.empty()) {
+        bc::bitboard danger, ring, tiles;
+        for (const auto tile : spawn_lists[pick]) {
+            danger.draw_chebyshev(tile, MONOLITH_REACH);
+            ring.draw_chebyshev(tile, MAGE_CAST_RANGE);
+            tiles.set(tile);
+        }
+        ring &= ~danger;
+        // Only ring tiles that see a monolith tile (sight is symmetric, so cast from the tiles; walls and bushes
+        // block it), when there are any.
+        auto sight = mono_sight(pick);
+        sight &= ring;
+        if (!sight.is_empty()) ring = sight;
+        auto seen_tiles = tiles;
+        seen_tiles &= bc::vision::visible_tiles();
+        auto bush_tiles = tiles;
+        bush_tiles &= bc::map::bushes();
+        if (!seen_tiles.is_empty()) {
+            note(format("monolith s%d tiles in sight and empty, mage job over", pick));
+            mono_job = -1;
+            return false;
+        }
+        branch("mono.walk", format("monolith s%d", pick) + at(centers[pick]) + format(" not in sight (%d of %d tiles bush)",
+                                                                                    static_cast<int>(bush_tiles.count()), static_cast<int>(tiles.count()))
+                                + ", walk to its cast ring");
+        if (ring.is_set(position)) {
+            // On the ring and still blind: step to the ring tile nearest its tiles.
+            auto inner = ring;
+            inner &= tiles_around(centers[pick], MAGE_CAST_RANGE);
+            if (!move_towards_closest(inner, &danger)) note("mage blind on the monolith ring");
+            return true;
+        }
+        move_towards_closest(ring, &danger);
+        return true;
+    }
+    const auto target = *lowest(camps);
+    mono_last = pick;
+    mono_hit = now;
+    branch("mono.camp", format("monolith s%d", pick) + at(target.position()) + format(" hp %.0f", target.health()));
+    mage_camp(me, target, nullptr);
+    return true;
+}
+
+bc::bitboard Bot::mono_sight(int s) {
+    if (mono_sights.size() != route.size()) mono_sights.resize(route.size());
+    auto& board = mono_sights[s];
+    if (!board) {
+        board.emplace();
+        const auto opaque = bc::map::walls() | bc::map::bushes();
+        for (const auto tile : spawn_lists[s]) *board |= opaque.shadow_cast(tile, static_cast<std::uint16_t>(MAGE_CAST_RANGE));
+        *board &= ~opaque;
+    }
+    return *board;
+}
+
+bool Bot::mono_ward(const bc::champion& me, int s) {
+    // The ward goes on the free tile in reach nearest the monolith's tiles, a bush one first: from inside the bush
+    // it sees the whole bush, monolith included.
+    try {
+        if (me.ward_cooldown() > 0) return false;
+    } catch (const bc::error&) {
+        return false;
+    }
+    auto tiles = me.ward_placement_tiles();
+    tiles &= ~(seen::terrain() | bc::vision::ward_tiles(Team::ally));
+    if (tiles.is_empty()) return false;
+    const auto& bushes = bc::map::bushes();
+    auto gap = [&](vec2 tile) {
+        int best = 1000;
+        for (const auto spot : spawn_lists[s]) best = std::min(best, distance(tile, spot));
+        return best;
+    };
+    std::optional<vec2> best;
+    std::pair<bool, int> best_key{};
+    for (const auto tile : tiles.positions()) {
+        const std::pair<bool, int> key{bushes.is_set(tile), -gap(tile)};
+        if (!best || key > best_key) {
+            best = tile;
+            best_key = key;
+        }
+    }
+    const auto own = me.ward_positions();
+    if (!best || std::find(own.begin(), own.end(), *best) != own.end()) return false;
+    bool placed = false;
+    try {
+        placed = me.place_ward(*best);
+    } catch (const bc::error&) {
+        return false;
+    }
+    seen::reset();
+    if (placed) trace::act("ward");
+    note(format("monolith s%d hidden: ward ", s) + (placed ? "placed at " : "refused at ") + at(*best)
+         + (bushes.is_set(*best) ? " (bush)" : ""));
+    return placed;
+}
+
+bool Bot::monolith_guard(const bc::champion& me, int s, const bc::bitboard* avoid, const std::string& stem) {
+    // A melee never hits a monolith: it holds a ring outside its reach, near enough to meet an enemy.
+    bc::bitboard danger, ring;
+    for (const auto tile : spawn_lists[s]) {
+        danger.draw_chebyshev(tile, MONOLITH_REACH);
+        ring.draw_chebyshev(tile, MONOLITH_GUARD_RANGE);
+    }
+    ring &= ~danger;
+    branch(stem + ".guard", format("slot %d", s) + at(centers[s]) + " is a monolith: mages take it, hold outside its reach");
+    if (avoid) danger |= *avoid;
+    if (!ring.is_set(me.position())) move_towards_closest(ring, &danger);
+    return true;
 }

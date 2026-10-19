@@ -219,6 +219,16 @@ private:
     bool drafted_ren();
     bool collect(const bc::champion& me);
     int score_mode(std::optional<vec2> origin, int current = FARM);
+    // v81: score_mode's origin-free terms and their reason text, for the round and vision lists they were read from.
+    struct ScoreBase {
+        std::uint32_t round = 0;
+        const void* enemies = nullptr;
+        const void* allies = nullptr;
+        double head = 0, tail = 0;
+        std::string head_text, tail_text;
+        bool valid = false;
+    };
+    ScoreBase score_base;
     bool squishy_overextended(const std::vector<bc::champion>& allies, const std::vector<bc::champion>& enemies);
 
     // log.cpp
@@ -304,6 +314,37 @@ private:
     void engage_vesper(const bc::champion& me, const Target& target, const std::vector<bc::champion>& enemies,
                        bool is_camp, const bc::bitboard* avoid);
     bool vesper_kite(const bc::champion& me, const std::vector<bc::champion>& enemies, const Target& target, int reach);
+    // v81 mages (MAGE_STANDOFF, MAGE_LEAVE, MAGE_KITE, MAGE_MONOLITH).
+    bool mage_spell_ready(const bc::champion& me);
+    bool mage_cast(const bc::champion& me, const Target& target, bool is_camp);
+    // Reach of the camp's group and of every awake camp in sight.
+    bc::bitboard camp_danger(const Target& camp);
+    // Whether finishing the camp with basic attacks is cheap, and the hits it would cost.
+    bool group_hits(const Target& camp);
+    std::pair<bool, int> finish_cost(const bc::champion& me, const Target& camp);
+    void mage_camp(const bc::champion& me, const Target& target, const bc::bitboard* avoid);
+    // Tiles enemy champions can hit with a basic attack next turn (melee walk-and-hit, ranged shot).
+    bc::bitboard enemy_reach(const std::vector<bc::champion>& enemies);
+    void mage_fight(const bc::champion& me, const Target& target, const std::vector<bc::champion>& enemies,
+                    const bc::bitboard* avoid);
+    bool mages_drafted();
+    // Whether monoliths are the mages' job (MAGE_MONOLITH with a mage drafted; MONOLITH_TEAM_STARVED keeps the old
+    // whole-team monolith on gem-starved maps).
+    bool monolith_delegated();
+    std::optional<bool> mage_team;
+    // Reach of every visible monolith already hit (melees keep out of it).
+    bc::bitboard awake_monoliths();
+    // The monolith slot this mage is working on, -1 for none.
+    int mono_job = -1;
+    // The monolith we last worked on and the round, so a job interrupted by a fight or a bank is resumed.
+    int mono_last = -1, mono_hit = -1000;
+    bool mage_monolith(const bc::champion& me);
+    // Puts the ward into a hidden monolith's bush so spells can see it.
+    bool mono_ward(const bc::champion& me, int s);
+    // Tiles within MAGE_CAST_RANGE that see one of the monolith's tiles, by slot, built on first use.
+    std::vector<std::optional<bc::bitboard>> mono_sights;
+    bc::bitboard mono_sight(int s);
+    bool monolith_guard(const bc::champion& me, int s, const bc::bitboard* avoid, const std::string& stem);
 
     // shop.cpp
     int vesper_recall_gold(const bc::champion& me) const;
