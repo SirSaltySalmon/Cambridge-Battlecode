@@ -15,7 +15,7 @@ using Camp = bc::camp_type;
 // Picks in order, by the team size the map asks for (3 to 5).
 // v70: Ren takes Varg's place and Stellar takes Vesper Vale's, on every team size.
 // v94 (balance patch): Varg takes Cassi & Issac's place (splash on cluster-heavy maps), Vesper Vale takes Stellar's.
-constexpr Draft ROSTER_5[] = {Draft::varg, Draft::ren, Draft::ryth, Draft::willow, Draft::vesper_vale};
+constexpr Draft ROSTER_5[] = {Draft::varg, Draft::ren, Draft::stellar, Draft::willow, Draft::vesper_vale};
 constexpr Draft ROSTER_4[] = {Draft::varg, Draft::ren, Draft::vesper_vale, Draft::willow};
 constexpr Draft ROSTER_3[] = {Draft::varg, Draft::ren, Draft::vesper_vale};
 
