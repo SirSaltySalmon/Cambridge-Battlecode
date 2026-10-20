@@ -1,0 +1,93 @@
+v101-salmon variants vs v100, 3 fuel-burn seeds each (baseline: v100 seeds vs v100), 21 maps x both sides, release. analyze_hor.py:
+n100s1,n100s2,n100s3    61/126 gems    648-658    margin    -10 kills  17.2 deaths  20.6 K-D  -3.4 gold   7695-7849  
+  5-pick maps           43/90  gems    659-673    margin    -14 kills  17.3 deaths  21.6 K-D  -4.4 gold   7787-8003  
+  3/4-pick maps         18/36  gems    620-620    margin     +0 kills  17.1 deaths  18.2 K-D  -1.1 gold   7463-7463  
+    n100s1,n100s2, Ren            games 126 kills  3.1 deaths  4.5 champ dmg   8147 taken  10325 shield     0 gems   151 gold  1537
+    n100s1,n100s2, Stellar        games  90 kills  2.7 deaths  4.0 champ dmg   7325 taken   4033 shield     0 gems   110 gold  1147
+    n100s1,n100s2, Varg           games 126 kills  2.0 deaths  4.9 champ dmg   3928 taken   9683 shield 11538 gems   163 gold  1475
+hs1,hs2,hs3             78/126 gems    735-552    margin   +184 kills  21.4 deaths  17.0 K-D  +4.4 gold   8759-6901  
+  5-pick maps           57/90  gems    749-538    margin   +211 kills  21.8 deaths  17.2 K-D  +4.6 gold   8711-6890  
+  3/4-pick maps         21/36  gems    700-586    margin   +114 kills  20.5 deaths  16.8 K-D  +3.8 gold   8877-6930  
+    hs1,hs2,hs3    Heart of Ruin  games 126 kills  6.4 deaths  4.1 champ dmg   9244 taken  12829 shield  6946 gems   175 gold  2063
+    hs1,hs2,hs3    Ren            games 126 kills  2.8 deaths  3.8 champ dmg   7472 taken   9347 shield     0 gems   161 gold  1555
+    hs1,hs2,hs3    Varg           games  90 kills  2.5 deaths  3.2 champ dmg   4351 taken   7995 shield 11536 gems   210 gold  1570
+h-rens1,h-rens2,h-rens  72/126 gems    691-564    margin   +127 kills  19.8 deaths  17.9 K-D  +1.9 gold   8186-7075  
+  5-pick maps           57/90  gems    749-538    margin   +211 kills  21.8 deaths  17.2 K-D  +4.6 gold   8711-6890  
+  3/4-pick maps         15/36  gems    546-630    margin    -84 kills  14.8 deaths  19.7 K-D  -4.9 gold   6874-7538  
+    h-rens1,h-rens Heart of Ruin  games 126 kills  5.6 deaths  4.3 champ dmg   8438 taken  11825 shield  6401 gems   161 gold  1862
+    h-rens1,h-rens Ren            games  90 kills  2.5 deaths  3.4 champ dmg   6576 taken   8256 shield     0 gems   135 gold  1335
+    h-rens1,h-rens Varg           games 126 kills  2.3 deaths  3.9 champ dmg   4384 taken   8355 shield 11533 gems   202 gold  1608
+h-mons1,h-mons2,h-mons  80/126 gems    747-574    margin   +173 kills  20.2 deaths  16.7 K-D  +3.5 gold   8162-6881  
+  5-pick maps           56/90  gems    735-585    margin   +150 kills  20.0 deaths  16.6 K-D  +3.4 gold   8048-6855  
+  3/4-pick maps         24/36  gems    774-545    margin   +229 kills  20.7 deaths  17.0 K-D  +3.7 gold   8447-6948  
+    h-mons1,h-mons Heart of Ruin  games 126 kills  6.1 deaths  4.0 champ dmg   9009 taken  12754 shield  7209 gems   183 gold  1780
+    h-mons1,h-mons Ren            games 126 kills  2.5 deaths  3.8 champ dmg   6880 taken   9334 shield     0 gems   170 gold  1544
+    h-mons1,h-mons Varg           games  90 kills  2.3 deaths  3.2 champ dmg   4070 taken   8020 shield 11020 gems   201 gold  1555
+h-ren-mons1,h-ren-mons  71/126 gems    687-606    margin    +81 kills  18.4 deaths  17.5 K-D  +0.9 gold   7630-7084  
+  5-pick maps           56/90  gems    735-585    margin   +150 kills  20.0 deaths  16.6 K-D  +3.4 gold   8048-6855  
+  3/4-pick maps         15/36  gems    565-660    margin    -94 kills  14.5 deaths  20.0 K-D  -5.5 gold   6585-7659  
+    h-ren-mons1,h- Heart of Ruin  games 126 kills  5.1 deaths  4.4 champ dmg   7969 taken  11630 shield  6629 gems   154 gold  1579
+    h-ren-mons1,h- Ren            games  90 kills  2.6 deaths  3.3 champ dmg   6246 taken   8196 shield     0 gems   144 gold  1325
+    h-ren-mons1,h- Varg           games 126 kills  2.3 deaths  3.9 champ dmg   4384 taken   8492 shield 11226 gems   196 gold  1580
+
+Per map, baseline vs v101-salmon:
+map                      old W/G margin new W/G margin
+00ambush                   3/6       +0   3/6     +216 
+00collision                3/6       +0   3/6     +116 
+00contest                  3/6       +0   3/6     +400 
+00corners                  3/6       +0   6/6     +289 <<
+00eight                    3/6       +0   3/6       -8 
+00elkring                  3/6       +0   3/6      -29 
+00expanse                  3/6       +0   3/6     +258 
+00fragment                 3/6       +0   3/6      +13 
+00interlock                3/6       +0   3/6      -10 
+00lanes                    2/6     -169   4/6     +309 
+00monolith                 3/6       +9   6/6     +117 <<
+01big-world                2/6      -50   3/6       +2 
+01boss-battle              3/6       +0   0/6     -227 <<
+01broken-curve             3/6       +0   3/6      +26 
+01concentrated-wealth      3/6       -0   3/6      -16 
+01corridors                3/6       +0   6/6     +956 <<
+01elk-arena                3/6       +0   3/6      -18 
+01fracture                 3/6       +0   6/6     +798 <<
+01gold-rush                3/6       +0   6/6     +569 <<
+01hooks                    3/6       +0   3/6      -28 
+01islands                  3/6       +0   5/6     +122 
+total old 61/126, new 78/126
+
+Per map, v101-salmon (Treasure) vs v101-salmon-mon (Monster):
+map                      old W/G margin new W/G margin
+00ambush                   3/6     +216   3/6      +56 
+00collision                3/6     +116   6/6     +614 <<
+00contest                  3/6     +400   6/6     +800 <<
+00corners                  6/6     +289   6/6     +472 
+00eight                    3/6       -8   3/6      +10 
+00elkring                  3/6      -29   3/6      -47 
+00expanse                  3/6     +258   4/6     +287 
+00fragment                 3/6      +13   3/6      +11 
+00interlock                3/6      -10   3/6      +48 
+00lanes                    4/6     +309   4/6     +280 
+00monolith                 6/6     +117   3/6      +61 <<
+01big-world                3/6       +2   3/6      +66 
+01boss-battle              0/6     -227   0/6     -531 
+01broken-curve             3/6      +26   3/6     +154 
+01concentrated-wealth      3/6      -16   3/6      -14 
+01corridors                6/6     +956   6/6     +293 
+01elk-arena                3/6      -18   3/6      -54 
+01fracture                 6/6     +798   3/6     +352 <<
+01gold-rush                6/6     +569   6/6     +542 
+01hooks                    3/6      -28   3/6       +6 
+01islands                  5/6     +122   6/6     +224 
+total old 78/126, new 80/126
+
+Fuel (fuel_bench.py):
+1/n100s2,../../replays/bench-v101/n100s3 games 126 turns  833983 mean  28484 median  28677 p95  49959 p99  62266 >=90k  208 out-of-fuel   81
+    most out-of-fuel turns: 01big-world-b 6, 01big-world-b 5, 01big-world-b 5, 01big-world-a 5, 01big-world-a 5, 01big-world-a 5
+ch-v101/hs2,../../replays/bench-v101/hs3 games 126 turns  811555 mean  29671 median  29545 p95  52120 p99  65033 >=90k  329 out-of-fuel  111
+    most out-of-fuel turns: 00lanes-a 15, 00lanes-b 10, 01boss-battle-b 6, 00lanes-a 6, 01boss-battle-a 5, 01big-world-b 5
+h-rens2,../../replays/bench-v101/h-rens3 games 126 turns  798025 mean  29446 median  29365 p95  52099 p99  65146 >=90k  323 out-of-fuel  111
+    most out-of-fuel turns: 00lanes-a 15, 00lanes-b 10, 01boss-battle-b 6, 00lanes-a 6, 01boss-battle-a 5, 01big-world-b 5
+h-mons2,../../replays/bench-v101/h-mons3 games 126 turns  820649 mean  29736 median  29668 p95  52155 p99  65416 >=90k  313 out-of-fuel   94
+    most out-of-fuel turns: 00lanes-b 15, 00lanes-a 6, 00lanes-a 6, 01big-world-b 5, 01big-world-b 5, 01big-world-b 5
+ns2,../../replays/bench-v101/h-ren-mons3 games 126 turns  803708 mean  29498 median  29492 p95  52107 p99  65468 >=90k  309 out-of-fuel   94
+    most out-of-fuel turns: 00lanes-b 15, 00lanes-a 6, 00lanes-a 6, 01big-world-b 5, 01big-world-b 5, 01big-world-b 5
