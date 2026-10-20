@@ -1,0 +1,122 @@
+bench-v96: each variant vs v95, 21 maps x both sides, cambc 3.0.1 --release. FARM_GOLD_WEIGHT / GOLD_WEIGHT / cluster health in the dir name (gw = farm weight only; hp = 120 health; both = 0.6/0.1+hp; m1 0.3/0.1, m2 0.6/0.2, m3 0.0/0.1, m4 0.6/0.0, gem 0/0, all +hp; agg0.1 = 1.5/0.1 no hp). rNNN = gems banked by round NNN.
+
+== v96-agg0.1: 21-21
+  banked       27487 vs    26972 (+1.9%)
+  collected    36635 vs    37708 (-2.8%)
+  gold        299630 vs   307520 (-2.6%)
+  kills          617 vs      628 (-1.8%)
+  deaths         771 vs      748 (+3.1%)
+  r300          3551 vs     3622 (-2.0%)
+  r600          8955 vs     8892 (+0.7%)
+  r900         14262 vs    15326 (-6.9%)
+  lost: 00ambush-b 247-1026, 00collision-b 169-1003, 00contest-b 0-1000, 00corners-a 268-1003, 00corners-b 564-1032, 00eight-a 70-1057, 00elkring-a 638-1012, 00expanse-b 414-1002, 00fragment-b 66-1004, 00interlock-b 764-1000, 00lanes-a 53-1011, 00monolith-a 655-1001, 01big-world-b 299-1008, 01concentrated-wealth-a 60-1013, 01corridors-a 732-800, 01corridors-b 40-1046, 01elk-arena-a 0-1008, 01fracture-b 552-1007, 01gold-rush-a 710-1010, 01hooks-b 0-1012, 01islands-b 828-1000
+== v96-both: 24-18
+  banked       28617 vs    24509 (+16.8%)
+  collected    40190 vs    38671 (+3.9%)
+  gold        300078 vs   307569 (-2.4%)
+  kills          593 vs      677 (-12.4%)
+  deaths         760 vs      736 (+3.3%)
+  r300          3968 vs     3545 (+11.9%)
+  r600          9554 vs     9208 (+3.8%)
+  r900         15788 vs    13912 (+13.5%)
+  lost: 00collision-b 169-1003, 00contest-a 0-600, 00contest-b 0-600, 00corners-b 346-1005, 00eight-b 38-1015, 00elkring-a 638-1012, 00expanse-b 444-1003, 00fragment-b 66-1004, 00lanes-a 47-1002, 00monolith-a 768-1023, 01big-world-b 183-1008, 01boss-battle-a 0-335, 01boss-battle-b 0-0, 01concentrated-wealth-a 15-1028, 01elk-arena-a 0-1008, 01gold-rush-a 666-1044, 01hooks-b 0-1012, 01islands-b 828-1000
+== v96-gem: 21-21
+  banked       26743 vs    25904 (+3.2%)
+  collected    36318 vs    37666 (-3.6%)
+  gold        274114 vs   309816 (-11.5%)
+  kills          597 vs      614 (-2.8%)
+  deaths         706 vs      733 (-3.7%)
+  r300          3911 vs     3722 (+5.1%)
+  r600          9598 vs     8004 (+19.9%)
+  r900         15805 vs    13794 (+14.6%)
+  lost: 00ambush-b 682-1037, 00collision-b 55-1014, 00contest-a 0-0, 00contest-b 0-800, 00eight-b 27-1000, 00elkring-a 638-1012, 00expanse-a 593-1035, 00fragment-b 50-1002, 00interlock-b 201-1001, 00lanes-b 438-1001, 00monolith-a 798-1006, 01big-world-b 327-1008, 01boss-battle-a 0-0, 01concentrated-wealth-a 0-1025, 01elk-arena-a 0-1008, 01fracture-a 770-1181, 01fracture-b 337-1050, 01gold-rush-a 677-1100, 01hooks-b 0-1012, 01islands-a 652-1012, 01islands-b 592-914
+== v96-gw0.1: 21-21
+  banked       27899 vs    27944 (-0.2%)
+  collected    38480 vs    38085 (+1.0%)
+  gold        306006 vs   314153 (-2.6%)
+  kills          618 vs      645 (-4.2%)
+  deaths         744 vs      760 (-2.1%)
+  r300          3647 vs     3679 (-0.9%)
+  r600          9284 vs     9028 (+2.8%)
+  r900         15698 vs    15006 (+4.6%)
+  lost: 00collision-b 93-1012, 00contest-b 0-1000, 00corners-a 302-1003, 00corners-b 787-1006, 00eight-b 120-1018, 00elkring-a 638-1012, 00expanse-b 283-1012, 00fragment-b 66-1004, 00interlock-b 855-1033, 00lanes-b 528-935, 00monolith-b 842-1003, 01big-world-b 773-1008, 01boss-battle-b 0-19, 01broken-curve-b 524-1026, 01concentrated-wealth-a 52-1010, 01elk-arena-a 0-1008, 01fracture-a 234-1111, 01fracture-b 315-1027, 01gold-rush-a 479-1089, 01hooks-b 0-1012, 01islands-b 498-1011
+== v96-gw0.3: 18-24
+  banked       27257 vs    27141 (+0.4%)
+  collected    38973 vs    38619 (+0.9%)
+  gold        302723 vs   314208 (-3.7%)
+  kills          609 vs      646 (-5.7%)
+  deaths         743 vs      739 (+0.5%)
+  r300          3924 vs     3574 (+9.8%)
+  r600          9134 vs     9216 (-0.9%)
+  r900         15678 vs    15043 (+4.2%)
+  lost: 00ambush-b 824-1010, 00collision-b 154-1029, 00contest-b 0-1000, 00corners-a 716-1003, 00eight-b 43-1040, 00elkring-a 638-1012, 00expanse-b 522-1018, 00fragment-b 66-1004, 00interlock-a 156-1012, 00interlock-b 518-1004, 00lanes-b 528-935, 00monolith-a 801-1001, 01big-world-b 183-1008, 01boss-battle-a 68-83, 01boss-battle-b 49-74, 01broken-curve-b 447-1015, 01concentrated-wealth-a 15-1000, 01corridors-b 710-1023, 01elk-arena-a 0-1008, 01fracture-a 887-1009, 01gold-rush-a 479-1089, 01hooks-b 0-1012, 01islands-a 427-502, 01islands-b 570-1024
+== v96-gw0.6: 22-20
+  banked       27512 vs    25928 (+6.1%)
+  collected    37376 vs    35898 (+4.1%)
+  gold        303973 vs   296368 (+2.6%)
+  kills          597 vs      598 (-0.2%)
+  deaths         724 vs      723 (+0.1%)
+  r300          3549 vs     3786 (-6.3%)
+  r600          8785 vs     9272 (-5.3%)
+  r900         14781 vs    15246 (-3.0%)
+  lost: 00collision-b 94-1000, 00contest-b 0-1000, 00corners-a 339-1014, 00eight-b 38-1005, 00elkring-a 638-1012, 00expanse-b 273-1026, 00fragment-b 66-1004, 00interlock-a 419-1007, 00lanes-a 47-1002, 00monolith-a 801-1001, 01big-world-b 183-1008, 01boss-battle-a 0-0, 01boss-battle-b 0-139, 01broken-curve-b 717-1002, 01concentrated-wealth-a 22-1000, 01corridors-b 648-856, 01elk-arena-a 0-1008, 01gold-rush-a 479-1089, 01hooks-b 0-1012, 01islands-b 502-1000
+== v96-gw1.0: 23-19
+  banked       28034 vs    26342 (+6.4%)
+  collected    38215 vs    36348 (+5.1%)
+  gold        311628 vs   298209 (+4.5%)
+  kills          649 vs      633 (+2.5%)
+  deaths         781 vs      780 (+0.1%)
+  r300          3567 vs     3524 (+1.2%)
+  r600          9096 vs     9065 (+0.3%)
+  r900         15497 vs    14796 (+4.7%)
+  lost: 00collision-b 94-1000, 00contest-b 0-1000, 00corners-a 401-1017, 00elkring-a 638-1012, 00expanse-b 273-1026, 00fragment-b 66-1004, 00interlock-a 167-1003, 00lanes-a 53-1013, 00monolith-a 868-1000, 01big-world-b 183-1008, 01boss-battle-b 51-130, 01broken-curve-b 500-1031, 01concentrated-wealth-a 0-1010, 01corridors-b 40-1046, 01elk-arena-a 0-1008, 01fracture-b 314-1023, 01gold-rush-a 479-1089, 01hooks-b 0-1012, 01islands-b 502-1000
+== v96-hp: 22-20
+  banked       25302 vs    25529 (-0.9%)
+  collected    34749 vs    34682 (+0.2%)
+  gold        291828 vs   303298 (-3.8%)
+  kills          549 vs      696 (-21.1%)
+  deaths         854 vs      709 (+20.5%)
+  r300          3353 vs     3613 (-7.2%)
+  r600          8704 vs     8895 (-2.1%)
+  r900         14523 vs    14543 (-0.1%)
+  lost: 00ambush-b 966-1026, 00collision-b 65-1002, 00contest-a 0-600, 00contest-b 0-600, 00eight-a 70-1031, 00eight-b 107-1073, 00elkring-a 638-1012, 00expanse-b 258-1011, 00fragment-b 66-1004, 00interlock-a 167-1002, 00lanes-a 53-1011, 00monolith-a 552-1004, 01big-world-b 183-1008, 01broken-curve-a 197-1011, 01concentrated-wealth-a 15-1028, 01corridors-b 40-1046, 01elk-arena-a 0-1008, 01fracture-a 777-1043, 01hooks-b 0-1012, 01islands-b 484-1000
+== v96-m1: 21-21
+  banked       26331 vs    25904 (+1.6%)
+  collected    37103 vs    35896 (+3.4%)
+  gold        282506 vs   312520 (-9.6%)
+  kills          563 vs      688 (-18.2%)
+  deaths         799 vs      703 (+13.7%)
+  r300          4052 vs     3385 (+19.7%)
+  r600          9865 vs     8433 (+17.0%)
+  r900         15658 vs    14388 (+8.8%)
+  lost: 00collision-b 204-1055, 00contest-a 0-600, 00contest-b 0-600, 00corners-a 339-1014, 00corners-b 346-1005, 00eight-b 43-1040, 00elkring-a 638-1012, 00expanse-b 444-1003, 00fragment-b 66-1004, 00lanes-b 129-1000, 01big-world-b 183-1008, 01boss-battle-a 0-516, 01boss-battle-b 0-60, 01broken-curve-a 437-1025, 01concentrated-wealth-a 15-1028, 01corridors-a 947-1030, 01corridors-b 541-1047, 01elk-arena-a 0-1008, 01gold-rush-a 666-1044, 01hooks-b 0-1012, 01islands-b 503-1004
+== v96-m2: 22-20
+  banked       27401 vs    25656 (+6.8%)
+  collected    37215 vs    35747 (+4.1%)
+  gold        293635 vs   308208 (-4.7%)
+  kills          572 vs      680 (-15.9%)
+  deaths         773 vs      704 (+9.8%)
+  r300          3942 vs     3490 (+13.0%)
+  r600          8893 vs     9004 (-1.2%)
+  r900         15272 vs    14804 (+3.2%)
+  lost: 00ambush-b 892-1026, 00collision-b 65-1009, 00contest-a 0-600, 00contest-b 0-600, 00corners-b 849-1004, 00eight-b 38-1005, 00elkring-a 638-1012, 00expanse-b 444-1003, 00fragment-b 66-1004, 00interlock-a 335-1008, 00lanes-a 47-1002, 01big-world-b 183-1008, 01boss-battle-a 0-0, 01broken-curve-b 670-1042, 01concentrated-wealth-a 15-1028, 01elk-arena-a 0-1008, 01fracture-a 925-1169, 01gold-rush-a 479-1089, 01hooks-b 0-1012, 01islands-b 417-931
+== v96-m3: 24-18
+  banked       28461 vs    25302 (+12.5%)
+  collected    37032 vs    35665 (+3.8%)
+  gold        295674 vs   304391 (-2.9%)
+  kills          667 vs      649 (+2.8%)
+  deaths         744 vs      801 (-7.1%)
+  r300          3937 vs     3649 (+7.9%)
+  r600          9141 vs     8585 (+6.5%)
+  r900         15028 vs    14107 (+6.5%)
+  lost: 00ambush-b 682-1037, 00collision-b 119-1021, 00contest-b 0-800, 00corners-a 577-1011, 00corners-b 479-1015, 00eight-b 49-1015, 00elkring-a 638-1012, 00expanse-a 593-1035, 00fragment-b 50-1000, 00interlock-b 292-1011, 00lanes-b 239-1017, 01big-world-b 327-1008, 01concentrated-wealth-a 0-1025, 01elk-arena-a 0-1008, 01gold-rush-a 677-1100, 01hooks-b 0-1012, 01islands-a 652-1012, 01islands-b 592-914
+== v96-m4: 25-17
+  banked       28719 vs    25542 (+12.4%)
+  collected    37809 vs    35215 (+7.4%)
+  gold        278874 vs   308436 (-9.6%)
+  kills          538 vs      663 (-18.9%)
+  deaths         749 vs      683 (+9.7%)
+  r300          4128 vs     3486 (+18.4%)
+  r600          9537 vs     8894 (+7.2%)
+  r900         15538 vs    14545 (+6.8%)
+  lost: 00collision-b 355-1014, 00contest-a 0-800, 00contest-b 0-600, 00corners-b 346-1005, 00eight-b 38-1015, 00elkring-a 638-1012, 00expanse-b 429-1013, 00fragment-b 50-1002, 00interlock-a 198-1014, 00interlock-b 622-1034, 00lanes-a 47-1002, 01big-world-b 425-1008, 01concentrated-wealth-a 15-1028, 01elk-arena-a 0-1008, 01gold-rush-a 704-1062, 01hooks-b 0-1012, 01islands-b 828-1000
