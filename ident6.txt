@@ -1,0 +1,4 @@
+bots/v99 bots/v98 maps/01fracture.map26a replays/ident6/01fracture-new.repl26a
+bots/v98copy bots/v98 maps/01fracture.map26a replays/ident6/01fracture-old.repl26a
+bots/v99 bots/v98 maps/00expanse.map26a replays/ident6/00expanse-new.repl26a
+bots/v98copy bots/v98 maps/00expanse.map26a replays/ident6/00expanse-old.repl26a

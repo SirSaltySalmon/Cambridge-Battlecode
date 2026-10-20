@@ -1,0 +1,16 @@
+bots/v99 bots/v98 maps/00ambush.map26a replays/ident8/00ambush-new.repl26a --statistics replays/ident8/00ambush-new.json --json
+bots/v98t bots/v98 maps/00ambush.map26a replays/ident8/00ambush-old.repl26a --statistics replays/ident8/00ambush-old.json --json
+bots/v99 bots/v98 maps/00corners.map26a replays/ident8/00corners-new.repl26a --statistics replays/ident8/00corners-new.json --json
+bots/v98t bots/v98 maps/00corners.map26a replays/ident8/00corners-old.repl26a --statistics replays/ident8/00corners-old.json --json
+bots/v99 bots/v98 maps/01concentrated-wealth.map26a replays/ident8/01concentrated-wealth-new.repl26a --statistics replays/ident8/01concentrated-wealth-new.json --json
+bots/v98t bots/v98 maps/01concentrated-wealth.map26a replays/ident8/01concentrated-wealth-old.repl26a --statistics replays/ident8/01concentrated-wealth-old.json --json
+bots/v99 bots/v98 maps/01islands.map26a replays/ident8/01islands-new.repl26a --statistics replays/ident8/01islands-new.json --json
+bots/v98t bots/v98 maps/01islands.map26a replays/ident8/01islands-old.repl26a --statistics replays/ident8/01islands-old.json --json
+bots/v99 bots/v98 maps/01fracture.map26a replays/ident8/01fracture-new.repl26a --statistics replays/ident8/01fracture-new.json --json
+bots/v98t bots/v98 maps/01fracture.map26a replays/ident8/01fracture-old.repl26a --statistics replays/ident8/01fracture-old.json --json
+bots/v99 bots/v98 maps/00expanse.map26a replays/ident8/00expanse-new.repl26a --statistics replays/ident8/00expanse-new.json --json
+bots/v98t bots/v98 maps/00expanse.map26a replays/ident8/00expanse-old.repl26a --statistics replays/ident8/00expanse-old.json --json
+bots/v99 bots/v98 maps/00lanes.map26a replays/ident8/00lanes-new.repl26a --statistics replays/ident8/00lanes-new.json --json
+bots/v98t bots/v98 maps/00lanes.map26a replays/ident8/00lanes-old.repl26a --statistics replays/ident8/00lanes-old.json --json
+bots/v99 bots/v98 maps/01big-world.map26a replays/ident8/01big-world-new.repl26a --statistics replays/ident8/01big-world-new.json --json
+bots/v98t bots/v98 maps/01big-world.map26a replays/ident8/01big-world-old.repl26a --statistics replays/ident8/01big-world-old.json --json

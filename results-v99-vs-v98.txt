@@ -1,0 +1,30 @@
+v99 vs v98, six fuel-burn seeds each (v98 seeds: v98 vs v98), 21 maps x both sides. analyze_seeds.py:
+map                      old W/G margin new W/G margin
+00ambush                   6/12     +14   6/12     -51 
+00collision                5/12    -114   6/12     -20 
+00contest                  5/12     -17   6/12    +100 
+00corners                  7/12    +137   6/12     +31 
+00eight                    5/12    -141   6/12      +4 
+00elkring                  6/12      -5   6/12     -45 
+00expanse                 11/12    +293   6/12     +85 <<
+00fragment                 6/12      +0   6/12      +5 
+00interlock                6/12    -143   6/12      +0 
+00lanes                    7/12    +124   9/12    +378 
+00monolith                 6/12     -10   1/12     -98 <<
+01big-world                6/12     +51   6/12     +42 
+01boss-battle              4/12    -200   5/12    -126 
+01broken-curve             6/12     +39  12/12    +766 <<
+01concentrated-wealth      6/12     -30   9/12    +482 
+01corridors                3/12    -209   6/12    +173 
+01elk-arena                3/12    -450   8/12    +288 <<
+01fracture                 7/12    +168   0/12    -462 <<
+01gold-rush                6/12      +0   6/12      +0 
+01hooks                    6/12      +0   6/12      +0 
+01islands                  6/12     +26   9/12    +195 
+total old 123/252, new 131/252
+
+Fuel of the bot under test (fuel_bench.py; seeds burn 300 x seed loop iterations a turn on top):
+-v99/n98s5,../../replays/bench-v99/n98s6 games 252 turns 1656836 mean  37654 median  38295 p95  64011 p99  77651 >=90k 4720 out-of-fuel 1918
+    most out-of-fuel turns: 01big-world-b 102, 01big-world-b 89, 01big-world-a 78, 01big-world-a 65, 00lanes-a 65, 01boss-battle-b 48
+-v99/n99s5,../../replays/bench-v99/n99s6 games 252 turns 1638215 mean  32790 median  32865 p95  55164 p99  67776 >=90k  931 out-of-fuel  298
+    most out-of-fuel turns: 00lanes-b 17, 00lanes-a 11, 00lanes-b 10, 00lanes-b 10, 00lanes-a 10, 01elk-arena-a 9

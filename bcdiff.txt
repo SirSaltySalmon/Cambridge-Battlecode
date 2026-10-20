@@ -1,0 +1,2 @@
+bots/v98 bots/v97 maps/01broken-curve.map26a replays/bcdiff/new.repl26a
+bots/v97copy bots/v97 maps/01broken-curve.map26a replays/bcdiff/old.repl26a

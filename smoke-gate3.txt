@@ -1,0 +1,3 @@
+bots/v98g2 bots/v98hop maps/01boss-battle.map26a replays/v98gate3/bb-a.repl26a --statistics replays/v98gate3/bb-a.json --json
+bots/v98hop bots/v98g2 maps/01boss-battle.map26a replays/v98gate3/bb-b.repl26a --statistics replays/v98gate3/bb-b.json --json
+bots/v98hop bots/v98hop maps/01boss-battle.map26a replays/v98gate3/bb-m.repl26a --statistics replays/v98gate3/bb-m.json --json

@@ -1,0 +1,84 @@
+v97 vs v96 (42 games, release) against the v96-vs-v96 mirror baseline (replays/bench-v97/mirror96).
+
+00ambush-a                 new L  830-1013 | mirror L  830-1013 
+00ambush-b                 new W 1007- 830 | mirror W 1013- 830 
+00collision-a              new W 1058- 174 | mirror W 1018-  82 
+00collision-b              new L  270-1008 | mirror L   82-1018 
+00contest-a                new W  400-   0 | mirror W  400-   0 
+00contest-b                new L    0- 400 | mirror L    0- 400 
+00corners-a                new W 1005- 374 | mirror W 1005- 374 
+00corners-b                new L  374-1005 | mirror L  374-1005 
+00eight-a                  new W 1031-  37 | mirror W 1031-  37 
+00eight-b                  new L   37-1031 | mirror L   37-1031 
+00elkring-a                new L  264-1012 | mirror L  264-1012 
+00elkring-b                new W 1012- 264 | mirror W 1012- 264 
+00expanse-a                new W 1029- 305 | mirror W 1029- 305 
+00expanse-b                new L  305-1029 | mirror L  305-1029 
+00fragment-a               new W 1022-  80 | mirror W 1022-  80 
+00fragment-b               new L   80-1022 | mirror L   80-1022 
+00interlock-a              new L  629-1003 | mirror L  629-1003 
+00interlock-b              new W 1003- 629 | mirror W 1003- 629 
+00lanes-a                  new W 1018- 162 | mirror L   33-1002 << gained
+00lanes-b                  new L  110-1000 | mirror W 1002-  33 << lost
+00monolith-a               new W 1004- 933 | mirror W 1004- 933 
+00monolith-b               new L  933-1004 | mirror L  933-1004 
+01big-world-a              new W 1008- 183 | mirror W 1008- 183 
+01big-world-b              new L  183-1008 | mirror L  183-1008 
+01boss-battle-a            new L    0-   0 | mirror L   25- 222 
+01boss-battle-b            new L    0- 921 | mirror W  222-  25 << lost
+01broken-curve-a           new L  188-1006 | mirror L  188-1006 
+01broken-curve-b           new W 1006- 188 | mirror W 1006- 188 
+01concentrated-wealth-a    new L  202-1075 | mirror L  202-1075 
+01concentrated-wealth-b    new W 1075- 202 | mirror W 1075- 202 
+01corridors-a              new L  219- 913 | mirror L  398- 690 
+01corridors-b              new W  690- 398 | mirror W  690- 398 
+01elk-arena-a              new L    0-1008 | mirror L    0-1008 
+01elk-arena-b              new W 1008-   0 | mirror W 1008-   0 
+01fracture-a               new L  403-1005 | mirror W 1080- 449 << lost
+01fracture-b               new L  449-1080 | mirror L  449-1080 
+01gold-rush-a              new L  429-1051 | mirror L  429-1051 
+01gold-rush-b              new W 1051- 429 | mirror W 1051- 429 
+01hooks-a                  new W 1012-   0 | mirror W 1012-   0 
+01hooks-b                  new L    0-1012 | mirror L    0-1012 
+01islands-a                new W 1001- 612 | mirror W 1025- 855 
+01islands-b                new L  957-1015 | mirror L  855-1025 
+flips: 1 gained, 3 lost; summed gem margin -2119 (mirror +0)
+
+== v97: 19-23
+  banked       25302 vs    27421 (-7.7%)
+  collected    35645 vs    38425 (-7.2%)
+  gold        299244 vs   310970 (-3.8%)
+  kills          699 vs      736 (-5.0%)
+  deaths         841 vs      799 (+5.3%)
+  r300          3641 vs     3558 (+2.3%)
+  r600          9044 vs     8666 (+4.4%)
+  r900         14993 vs    14522 (+3.2%)
+  lost: 00ambush-a 830-1013, 00collision-b 270-1008, 00contest-b 0-400, 00corners-b 374-1005, 00eight-b 37-1031, 00elkring-a 264-1012, 00expanse-b 305-1029, 00fragment-b 80-1022, 00interlock-a 629-1003, 00lanes-b 110-1000, 00monolith-b 933-1004, 01big-world-b 183-1008, 01boss-battle-a 0-0, 01boss-battle-b 0-921, 01broken-curve-a 188-1006, 01concentrated-wealth-a 202-1075, 01corridors-a 219-913, 01elk-arena-a 0-1008, 01fracture-a 403-1005, 01fracture-b 449-1080, 01gold-rush-a 429-1051, 01hooks-b 0-1012, 01islands-b 957-1015
+
+Rejected experiments, each vs v96 (42 games): wait-farm 20-22, wait-farm + aggressive goal 18-24, aggressive goal 21-21;
+3-pick rosters with Cassi & Issac (8 games each on 3-pick maps): C&I/Ren/Vesper 3-5, C&I/Varg/Vesper 4-4, C&I/Ren/Stellar 2-6.
+
+Turn use per map (v96 vs v95, debug logs, analyze_waste.py):
+game                        turns   boxed    idle    wait    walk    camp   fight collect    bank   other
+00ambush-a                   7740    0.0%   44.0%    9.7%   19.3%   15.1%    0.0%    2.2%    7.9%    1.7%
+00collision-a                3716    0.4%    7.8%    4.5%   13.2%   20.8%   16.3%   19.5%    7.2%   10.3%
+00contest-a                  5386    0.2%    3.8%    1.3%   40.3%    4.2%   25.5%    4.9%    0.0%   19.7%
+00corners-a                  6218    0.1%    5.0%    3.4%   23.8%   31.6%   15.2%    8.5%    7.6%    4.8%
+00eight-a                    5863    0.1%    5.7%    6.8%   13.5%   29.3%   21.3%    5.9%    8.2%    9.3%
+00elkring-a                  3299    0.5%    2.5%    8.2%   10.5%   49.8%    6.3%    6.4%    8.2%    7.5%
+00expanse-a                  5148    0.0%    3.8%    3.0%   45.2%   21.8%   12.0%    3.7%    3.8%    6.6%
+00fragment-a                 4920    0.3%   23.5%   12.0%    5.1%   22.6%   14.1%    8.5%    6.5%    7.4%
+00interlock-a                5454    0.1%    5.2%    4.7%   26.5%   28.3%   11.8%    8.8%    6.9%    7.7%
+00lanes-a                    4185    0.3%    3.2%    0.8%   40.3%   13.8%   14.8%    5.4%    0.6%   20.9%
+00monolith-a                 6421    0.0%    2.7%    9.2%   26.6%   43.1%    1.5%    9.0%    5.9%    2.0%
+01big-world-a                6986    0.0%   10.7%   34.3%    8.8%   20.1%    0.0%    3.1%   20.5%    2.5%
+01boss-battle-a              8789    6.2%    5.6%    1.5%    7.2%   30.3%    8.3%    4.8%   20.2%   15.9%
+01broken-curve-a             3174    0.0%    6.7%    4.1%   19.7%   25.7%    6.4%   17.7%    9.1%   10.6%
+01concentrated-wealth-a      4399    0.2%    1.9%    2.4%   62.3%   17.4%    6.3%    3.0%    0.8%    5.7%
+01corridors-a                7379    0.0%   35.3%    6.9%   22.7%   16.1%    1.5%    2.3%   11.3%    3.9%
+01elk-arena-a                2358    3.3%    6.0%    4.6%   10.6%    8.0%   29.2%   11.8%    0.3%   26.3%
+01fracture-a                 7192    0.1%    2.5%    1.7%   54.5%   20.6%    2.4%    8.1%    4.3%    5.7%
+01gold-rush-a                3840    0.0%   12.3%   25.9%   11.0%   24.2%    2.4%   11.7%    7.8%    4.8%
+01hooks-a                    4726    0.4%    9.5%    7.3%   16.8%   17.2%   12.8%   19.1%    6.3%   10.6%
+01islands-a                  6492   18.4%   17.4%   10.2%   13.7%   22.0%    0.0%    1.2%   15.4%    1.7%
+ALL                        113685    1.7%   11.5%    7.9%   23.5%   23.1%    8.7%    7.0%    8.5%    8.0%

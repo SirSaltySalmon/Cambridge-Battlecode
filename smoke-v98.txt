@@ -1,0 +1,4 @@
+bots/v98 bots/v97 maps/01concentrated-wealth.map26a replays/v98smoke/01concentrated-wealth-a.repl26a --statistics replays/v98smoke/01concentrated-wealth-a.json --json
+bots/v97 bots/v98 maps/01concentrated-wealth.map26a replays/v98smoke/01concentrated-wealth-b.repl26a --statistics replays/v98smoke/01concentrated-wealth-b.json --json
+bots/v98 bots/v97 maps/01islands.map26a replays/v98smoke/01islands-a.repl26a --statistics replays/v98smoke/01islands-a.json --json
+bots/v97 bots/v98 maps/01islands.map26a replays/v98smoke/01islands-b.repl26a --statistics replays/v98smoke/01islands-b.json --json

@@ -1,0 +1,3 @@
+bots/v98hop bots/v97 maps/01fracture.map26a replays/v98diag/a/01fracture-a.repl26a --statistics replays/v98diag/a/01fracture-a.json --json
+bots/v98hop bots/v97 maps/01broken-curve.map26a replays/v98diag/a/01broken-curve-a.repl26a --statistics replays/v98diag/a/01broken-curve-a.json --json
+bots/v98hop bots/v97 maps/00ambush.map26a replays/v98diag/a/00ambush-a.repl26a --statistics replays/v98diag/a/00ambush-a.json --json

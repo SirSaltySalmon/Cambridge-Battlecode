@@ -1,0 +1,3 @@
+bots/v99 bots/v98 maps/00corners.map26a replays/det/c1.repl26a --statistics replays/det/c1.json --json
+bots/v99 bots/v98 maps/00corners.map26a replays/det/c2.repl26a --statistics replays/det/c2.json --json
+bots/v99 bots/v98 maps/00corners.map26a replays/det/c3.repl26a --statistics replays/det/c3.json --json

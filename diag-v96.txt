@@ -1,0 +1,8 @@
+bots/v96 bots/v95 maps/01boss-battle.map26a replays/diag-v96/01boss-battle-a.repl26a --statistics replays/diag-v96/01boss-battle-a.json --json
+bots/v95 bots/v96 maps/01boss-battle.map26a replays/diag-v96/01boss-battle-b.repl26a --statistics replays/diag-v96/01boss-battle-b.json --json
+bots/v96 bots/v95 maps/00contest.map26a replays/diag-v96/00contest-a.repl26a --statistics replays/diag-v96/00contest-a.json --json
+bots/v95 bots/v96 maps/00contest.map26a replays/diag-v96/00contest-b.repl26a --statistics replays/diag-v96/00contest-b.json --json
+bots/v96 bots/v95 maps/01big-world.map26a replays/diag-v96/01big-world-a.repl26a --statistics replays/diag-v96/01big-world-a.json --json
+bots/v95 bots/v96 maps/01big-world.map26a replays/diag-v96/01big-world-b.repl26a --statistics replays/diag-v96/01big-world-b.json --json
+bots/v96 bots/v95 maps/01gold-rush.map26a replays/diag-v96/01gold-rush-a.repl26a --statistics replays/diag-v96/01gold-rush-a.json --json
+bots/v95 bots/v96 maps/01gold-rush.map26a replays/diag-v96/01gold-rush-b.repl26a --statistics replays/diag-v96/01gold-rush-b.json --json

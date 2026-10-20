@@ -1,0 +1,2 @@
+bots/v98hop bots/v97 maps/01fracture.map26a replays/v98diag/b/01fracture-a.repl26a --statistics replays/v98diag/b/01fracture-a.json --json
+bots/v98hop bots/v97 maps/01concentrated-wealth.map26a replays/v98diag/b/01cw-a.repl26a --statistics replays/v98diag/b/01cw-a.json --json
