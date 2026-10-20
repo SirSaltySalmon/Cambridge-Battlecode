@@ -1,0 +1,24 @@
+v93: 19-15, gems 27864
+  farming: 978 camp groups cleared (28.8/game), 29024 gems from camps, camp damage done 65752/game (casters 34119)
+  mage camp turns 15027: cheap finish 277 (1.8%), standoff 8278 (55.1%)
+  risk: caster camp damage taken 1100/game (team 9970), deaths to camps 16 (casters 8), caster deaths 231, caster hurt recalls/dodges 1082
+v92: 15-19, gems 25300
+  farming: 941 camp groups cleared (27.7/game), 27586 gems from camps, camp damage done 62231/game (casters 32169)
+  mage camp turns 14508: cheap finish 265 (1.8%), standoff 7878 (54.3%)
+  risk: caster camp damage taken 1098/game (team 9385), deaths to camps 32 (casters 15), caster deaths 257, caster hurt recalls/dodges 1179
+
+games where v93 banked more / less / same: 19 / 15 / 0
+
+34 games
+
+v93: 19 wins, gems 27864
+  'not in vision' errors 0 (0.00/game), other bot errors 0
+  fuel per turn over 149250 champion turns: mean 28663, median 29407, p95 52491, p99 65640
+  turns >= 90k: 203 (0.14%); out of fuel: 162 (0.109%), fuelExhausted events 64, in 28 games
+  most out-of-fuel turns: contest-a 14, contest-b 7, eight-a 7, eight-b 7, elkring-a 7
+
+v92: 15 wins, gems 25300
+  'not in vision' errors 0 (0.00/game), other bot errors 0
+  fuel per turn over 149252 champion turns: mean 28037, median 28951, p95 52205, p99 65766
+  turns >= 90k: 202 (0.14%); out of fuel: 160 (0.107%), fuelExhausted events 62, in 27 games
+  most out-of-fuel turns: contest-b 13, contest-a 7, eight-a 7, eight-b 7, elkring-a 7
