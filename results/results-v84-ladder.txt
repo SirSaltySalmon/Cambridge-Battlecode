@@ -1,0 +1,86 @@
+match                    opponent               R  gems    opp | deaths(champ/camp) lost stolen | trib first | opp deaths lost trib first | opp consumables
+ambush-a-8d112906                               L   962  1086 |   0 ( 0/ 0)    0    0 |   9  101 |   1    0  10  117 | {'Altar Lock': 3}
+ambush-a-aab619a7                               L   962  1024 |   0 ( 0/ 0)    0    0 |   9  101 |   0    0  10  183 | {}
+ambush-a-bdcd1fe1                               W  1010   462 |   1 ( 1/ 0)    0    0 |   9  101 |   4    0   5  148 | {'Altar Lock': 3}
+ambush-b-87227b92                               L   846  1072 |   0 ( 0/ 0)    0    0 |   8  115 |   0    0  12  102 | {'Altar Lock': 4, 'Teleport Crystal': 5}
+ambush-b-967410b2                               L   952  1038 |   0 ( 0/ 0)    0    0 |   9  115 |   0    0  11  176 | {'Altar Lock': 6}
+ambush-b-99071c3b                               W  1024   798 |   0 ( 0/ 0)    0    0 |  10  115 |   5    0   9  135 | {'Altar Lock': 5}
+ambush-b-ccca7342                               L   654  1024 |   0 ( 0/ 0)    0    0 |   6  115 |   0    0  12   98 | {}
+collision-a-0fdfda97                            L   220  1032 |  15 (15/ 0)  402  234 |   5   81 |  15  300  11  227 | {'Altar Lock': 9}
+collision-a-13c3051f                            L   336  1098 |  16 (16/ 0)  616  352 |   3   61 |  11  352  22  116 | {'Altar Lock': 7}
+collision-a-bb7d9bd2                            L    66  1006 |  17 (15/ 2)  176    0 |   1  143 |   0    0  25   68 | {'Altar Lock': 4}
+collision-a-f3d7bb6a                            L   484  1000 |  17 (17/ 0)  226   80 |   6  143 |   4   80  24   68 | {}
+collision-b-2e3dbe1b                            L    44  1080 |  21 (21/ 0)  242    0 |   2  218 |   2    0  18  120 | {'Teleport Crystal': 4}
+collision-b-97670095                            W  1060   518 |  15 (15/ 0)  132  386 |  15   70 |  21  386  16   40 | {'Altar Lock': 11}
+contest-a-4c1ac2f2                              W   200     0 |   6 ( 6/ 0)    0    0 |   1 1756 |  52    0   0    0 | {'Altar Lock': 5}
+contest-a-aa261856                              L   600  1000 |  73 (73/ 0)  400  800 |   3  804 |  26  800   5  978 | {'Altar Lock': 10}
+contest-b-994e8b02                              W     0     0 |  32 (32/ 0)    0    0 |   0    0 |  93    0   0    0 | {}
+contest-b-c68c1825                              W   200     0 |  32 (32/ 0)    0    0 |   1 1967 |  95    0   0    0 | {'Altar Lock': 7}
+corners-a-34d25769                              L   500  1168 |   4 ( 4/ 0)   80   22 |   7   60 |   2   22  24   99 | {}
+corners-a-3a533ebf                              L   602  1004 |   0 ( 0/ 0)    0    0 |   7   60 |   0    0  10  134 | {}
+corners-a-fa438100                              W  1104   586 |   9 ( 8/ 1)  174  314 |  10  128 |  11  358  13   68 | {'Altar Lock': 8}
+corners-b-2dc67b52                              L   990  1008 |  13 (13/ 0)  238  108 |  12  125 |   4  108  31   53 | {}
+corners-b-62b8b36f                              L   874  1034 |   5 ( 5/ 0)  116  204 |  13  125 |  14  204  18   73 | {}
+eight-a-3962402f                                L    88  1058 |  26 (25/ 1)  826  468 |   1  465 |  13  468  19   52 | {'Altar Lock': 9}
+eight-a-5111306b                                L   868  1012 |  32 (23/ 9)  604  540 |  10  388 |  39  540  14   39 | {'Altar Lock': 6}
+eight-a-c5f13f68                                L     0  1008 |  15 (15/ 0)  622  264 |   0    0 |   9  264  17  111 | {}
+eight-a-f13e8faf                                L   116  1058 |  26 (25/ 1)  424   72 |   1  615 |   8   72  21   68 | {'Altar Lock': 7}
+eight-b-4f97fec6                                L     0  1014 |  22 (22/ 0)  138   22 |   0    0 |   5   22  19   59 | {'Altar Lock': 4, 'Teleport Crystal': 7}
+eight-b-97819d91                                L   832  1004 |  33 (31/ 2)  530  132 |  13  536 |  52  132  20   67 | {'Altar Lock': 9}
+elkring-a-7dc97f61                              W  1008   774 |  12 (12/ 0)  108  288 |  10   66 |  14  288  11   55 | {}
+elkring-a-c5cdc9d5                              L   720  1008 |  25 (24/ 1)  414  378 |  11   81 |  18  414  22   94 | {'Altar Lock': 7}
+elkring-a-d9dc289e                              W  1008   828 |  18 (18/ 0)  108  216 |  11   66 |  18  252  19   62 | {'Altar Lock': 6}
+elkring-a-f67dfcf2                              L   900  1008 |  12 (12/ 0)   36  108 |  14   66 |  13  108  26   61 | {'Altar Lock': 11}
+elkring-b-1afdd686                              L   180  1008 |  26 (25/ 1)  252  108 |   2   81 |   4  108  13   55 | {'Altar Lock': 8}
+elkring-b-a6b56413                              W  1008   612 |  15 (15/ 0)  216  324 |  13   85 |  24  324  22   51 | {'Altar Lock': 11}
+elkring-b-e3fe35d4                              L   216  1008 |  25 (25/ 0)  108    0 |   4   89 |   1    0  26   74 | {'Altar Lock': 9, 'Teleport Crystal': 6}
+expanse-a-46694f9a                              L   320  1014 |   0 ( 0/ 0)    0    0 |   8   86 |   1    0  20   60 | {}
+expanse-a-5f49b76a                              L   422  1016 |   2 ( 2/ 0)    0    0 |  12   86 |   0    0  29   40 | {'Altar Lock': 4}
+expanse-a-7729a10e                              L   858  1018 |   0 ( 0/ 0)    0   36 |  12   86 |   6   36  22   67 | {}
+expanse-a-ee0d8db3                              L   320  1148 |   3 ( 3/ 0)  240    0 |   8   86 |   2    0  21   56 | {'Altar Lock': 3, 'Teleport Crystal': 2}
+expanse-b-131a12b4                              L   622  1038 |   0 ( 0/ 0)    0    0 |  12   60 |   0    0  18   89 | {}
+expanse-b-9cbb2b17                              L   742  1006 |   0 ( 0/ 0)    0    0 |  12   60 |   0    0  17   55 | {'Altar Lock': 4}
+expanse-b-c56a289e                              W  1102   914 |   0 ( 0/ 0)    0    0 |  15   60 |   0    0  33   41 | {'Altar Lock': 7}
+fragment-a-0aea099e                             W  1048   344 |   5 ( 5/ 0)   58  182 |  18   58 |  16  182   9   70 | {'Altar Lock': 6}
+fragment-a-3f7ee04e                             L   648  1014 |  25 (25/ 0)  204    0 |  14   51 |   5    0  21   57 | {}
+fragment-a-99243b07                             L     0  1008 |  26 (26/ 0)  154    0 |   0    0 |   1   22  28   56 | {'Altar Lock': 4}
+interlock-b-22263999                            L   160  1026 |  26 (26/ 0)   66   44 |   4   62 |   4   44  28   50 | {'Altar Lock': 8}
+interlock-b-4aec7e37                            W  1032   640 |  11 (11/ 0)    0  154 |  19   77 |  23  154  21   32 | {'Altar Lock': 9}
+interlock-b-568a9471                            L   342  1020 |  26 (26/ 0)  198  138 |   4   59 |  10  160  20   80 | {}
+interlock-b-5aaeed9d                            L   408  1028 |  22 (20/ 2)  110   44 |   6   59 |   6   44  22  115 | {}
+interlock-b-afc9f617                            L   408  1004 |  19 (18/ 1)  414  298 |   9   59 |  10  298  20  115 | {'Altar Lock': 5}
+lanes-a-a21dd632                                L   636  1028 |  16 (16/ 0)  124    0 |  15   55 |   0    0  30   67 | {'Altar Lock': 12}
+lanes-b-27624719                                L   424  1024 |  14 (13/ 1)  190    0 |   8   75 |   2    0  39   62 | {}
+monolith-a-13fe2437                             L   790  1034 |   4 ( 3/ 1)   88    0 |   9   66 |   0    0  23  101 | {'Altar Lock': 8}
+monolith-a-a400bf4b                             L   556  1024 |   5 ( 5/ 0)   80    0 |   9   66 |   1    0  22   88 | {}
+monolith-a-c084ab0d                             L   842  1032 |   0 ( 0/ 0)    0    0 |  15   66 |   1    0  18  129 | {'Altar Lock': 8}
+monolith-b-2adcaa72                             L   592  1004 |   4 ( 4/ 0)   44    0 |   8   66 |   3    0  22   48 | {}
+monolith-b-81dd9f8a                             L   680  1018 |   1 ( 1/ 0)   66   66 |  12  108 |   6   66  15   84 | {'Altar Lock': 6}
+packs-b-15708736                                W  1036   984 |   2 ( 2/ 0)    0    0 |  18   31 |   6    0  16   57 | {'Altar Lock': 4}
+packs-b-80e3e4da                                L   812  1020 |  14 (14/ 0)  184   44 |  16   31 |  13   44  20   50 | {'Altar Lock': 8}
+packs-b-8123c2e0                                L   132  1000 |  17 (17/ 0)  132    0 |   4   31 |   0    0  22   62 | {'Altar Lock': 4}
+pilgrimage-a-a07c195e                           W  1128   848 |  14 (14/ 0)   68   68 |  11  115 |  13   68  10  141 | {'Altar Lock': 6}
+pilgrimage-a-be8d77d4                           L   988  1104 |   6 ( 6/ 0)    0  288 |   8  115 |  20  288  14   73 | {'Altar Lock': 8}
+pilgrimage-b-3c27963d                           L   984  1104 |  16 ( 8/ 8)  288   68 |   7  117 |  17   68  18  210 | {'Teleport Crystal': 1, 'Altar Lock': 10}
+pilgrimage-b-af60bb8b                           L   934  1002 |  15 (11/ 4)  288  102 |   9  117 |  18  102  13  133 | {}
+pilgrimage-b-cbe5119c                           L   984  1036 |  27 (25/ 2)  356    0 |   9  233 |  35    0  14   75 | {}
+rows-a-d6961f87                                 L   990  1089 |   0 ( 0/ 0)    0    0 |  13   49 |   0    0  17  106 | {}
+rows-b-12ab4388                                 L   990  1056 |   0 ( 0/ 0)    0    0 |  10   48 |   0    0  13   90 | {'Altar Lock': 5}
+rows-b-9ad115cf                                 L   594  1012 |   0 ( 0/ 0)    0    0 |   7   48 |   0    0  16   50 | {}
+rushbait-v2-a-0c2030f5                          W  1002   830 |   6 ( 4/ 2)   58  110 |  14   76 |  10  110  29   59 | {}
+rushbait-v2-b-2f905acc                          L   246  1056 |   8 ( 8/ 0)  152    0 |   5   74 |   0    0  16   60 | {'Altar Lock': 4}
+rushbait-v2-b-8c97605f                          L   880  1040 |  11 (11/ 0)  268  420 |  11  115 |  10  420  23   63 | {'Altar Lock': 6}
+rushbait-v2-b-8ca5e612                          L   882  1004 |   0 ( 0/ 0)    0    0 |  18   77 |   0    0  26  112 | {'Altar Lock': 4}
+rushbait-v2-b-a8eb06e1                          L   560  1000 |  12 (12/ 0)   58   36 |   9  107 |   2   36  16  117 | {'Altar Lock': 5}
+stampede-a-3781855b                             L     0  1080 |  11 ( 7/ 4)    0    0 |   0    0 |   1    0   7  194 | {}
+stampede-b-384250dc                             L     0  1080 |  12 ( 9/ 3)    0    0 |   0    0 |   5    0   8  310 | {'Altar Lock': 7}
+swirl-a-17cf47a1                                L   132  1034 |  18 (18/ 0)  509  393 |   2  345 |  13  411  19   39 | {'Altar Lock': 5, 'Teleport Crystal': 10}
+swirl-a-c0ff5fa9                                L   886  1032 |  15 (14/ 1)  106   88 |  12   96 |  21   88  16   29 | {}
+swirl-b-2606a50d                                L   552  1094 |  34 (30/ 4)  540  308 |  11   44 |  33  308  28   31 | {'Altar Lock': 8}
+swirl-b-85f67206                                L    54  1022 |  21 (18/ 3)   90    0 |   4   32 |   2    0  20   80 | {'Altar Lock': 7}
+swirl-b-c7917e6f                                L   196  1006 |  19 (18/ 1)    0    0 |   5   31 |   1    0  19   50 | {'Altar Lock': 6}
+
+16-64
+us   per game: tributed 607, captured 690 (25.3 captures), kills 8.6, deaths 13.1 (champ 12.4, camp 0.7), gems lost 154, stolen 104, tributes 8.3, wards 40; consumables {}
+them per game: tributed 942, captured 947 (29.6 captures), kills 9.2, deaths 11.2 (champ 10.6, camp 0.6), gems lost 107, stolen 152, tributes 17.9, wards 224; consumables {'Altar Lock': 350, 'Teleport Crystal': 35}
+by map: {'ambush': '2-5', 'collision': '1-5', 'contest': '3-1', 'corners': '1-4', 'eight': '0-6', 'elkring': '3-4', 'expanse': '1-6', 'fragment': '1-2', 'interlock': '1-4', 'lanes': '0-2', 'monolith': '0-5', 'packs': '1-2', 'pilgrimage': '1-4', 'rows': '0-3', 'rushbait-v2': '1-4', 'stampede': '0-2', 'swirl': '0-5'}

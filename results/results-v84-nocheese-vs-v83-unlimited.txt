@@ -1,0 +1,37 @@
+game             R round  gems   opp kill death  over100k/turns
+ambush-a         W   535  1010   904    0     0      0/3208
+ambush-b         L   535   904  1010    0     0      0/3209
+collision-a      W  1135  1018   746   20    21      6/4536
+collision-b      W   849  1002   388   15    13      2/3394
+contest-a        W  2000     0     0   99     3     51/11994
+contest-b        L  2000     0     0    2   119      6/11994
+corners-a        L   553   886  1024    5     5      4/3314
+corners-b        W   553  1024   886    3     5      9/3314
+eight-a          W   590  1026    66   25     2      5/3536
+eight-b          L   592    66  1048    0    32      2/3551
+elkring-a        W   545  1008   216   15     5      0/3268
+elkring-b        L   545   216  1008    4    19      0/3269
+expanse-a        L   614   888  1012    0     0      0/2453
+expanse-b        W   611  1012   888    0     0      0/2440
+fragment-a       L   864   218  1012    5    31      0/3453
+fragment-b       W   949  1056   378   24    13      1/3793
+interlock-a      W   705  1066    44   21     1      0/3523
+interlock-b      L   727     0  1016    0    30      2/3633
+lanes-a          W   794  1000   344   19    18     20/4762
+lanes-b          L   794   344  1000   14    25     30/4762
+monolith-a       W   626  1010   842    7     6      1/3754
+monolith-b       L   626   842  1010    4    10      1/3754
+packs-a          W   536  1032   552   10     4      2/2141
+packs-b          L   536   552  1032    2    14      0/2141
+pilgrimage-a     W  1162  1028   900   12    13      4/6971
+pilgrimage-b     L  1162   900  1028    9    17      6/6971
+rows-a           L   445   990  1056    0     0      0/2222
+rows-b           W   445  1056   990    0     0      0/2222
+rushbait-v2-a    W   559  1010   356    6     1      6/2790
+rushbait-v2-b    L   577   400  1010    1     8      2/2884
+stampede-a       W  1164  1200   600   15     4      1/6983
+stampede-b       L  1147   600  1200    2    20      2/6882
+swirl-a          W   672  1010   302   17    10     37/3355
+swirl-b          L  1302   992  1062   32    42     99/6509
+
+v84-nocheese: 18-16, gems 26366 vs 24930 (+5.8%), kills 388, deaths 491, fuel mean 37.2k p99 84.9k, turns >=100k 299 (0.20%)

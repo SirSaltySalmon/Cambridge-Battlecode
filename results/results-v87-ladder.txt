@@ -1,0 +1,27 @@
+v87 (platform version 87) ladder A/B: same 16 groups (team + 5 maps) as replays/ladder-v82-ab and ladder-v86.
+
+opponent                     ladder-v86     ladder-v87    
+Cozy Campfire                2-3 (-67)      3-2 (+48)     
+EMPEROR Tung                 0-5 (-500)     1-4 (-187)    
+ESILV - Hidden Wolves        2-3 (-136)     1-4 (-232)    
+FRChronic                    2-3 (-246)     2-3 (-60)     
+Kingstonks                   2-3 (-232)     3-2 (+25)     
+Master of Betas              2-3 (-356)     1-4 (-447)    
+Quantum Altar Keepers        5-0 (+248)     5-0 (+313)    
+Quantum Bush Campers         5-0 (+486)     5-0 (+626)    
+Serious-Wyso                 3-2 (+54)      4-1 (+203)    
+Sponge(Albert and Bob)       3-2 (-75)      2-3 (-214)    
+Tozo's Disciples             1-4 (-224)     3-2 (-9)      
+noobers                      1-4 (-56)      2-3 (+84)     
+octo's odyssey               1-4 (-128)     1-4 (-19)     
+orZers                       1-4 (-197)     1-4 (-197)    
+procless                     0-5 (-590)     0-5 (-590)    
+ᕙ(⇀‸↼‶)ᕗ                     3-2 (+50)      2-3 (-138)    
+ladder-v86 on shared opponents: 33-47
+ladder-v87 on shared opponents: 36-44
+
+36-44
+us   per game: tributed 770, captured 825 (31.7 captures), kills 9.4, deaths 7.0 (champ 6.5, camp 0.5), gems lost 117, stolen 109, tributes 13.8, wards 191; consumables {}
+them per game: tributed 819, captured 861 (27.9 captures), kills 4.7, deaths 12.5 (champ 11.8, camp 0.8), gems lost 117, stolen 116, tributes 16.1, wards 194; consumables {'Altar Lock': 350, 'Teleport Crystal': 40}
+by map: {'ambush': '4-3', 'collision': '2-4', 'contest': '4-0', 'corners': '2-3', 'eight': '4-2', 'elkring': '3-4', 'expanse': '2-5', 'fragment': '2-1', 'interlock': '3-2', 'lanes': '0-2', 'monolith': '0-5', 'packs': '2-1', 'pilgrimage': '1-4', 'rows': '1-2', 'rushbait-v2': '2-3', 'stampede': '1-1', 'swirl': '3-2'}
+mean per game: camp gems@200 236/250, @400 471/529, total 825/860, captures 31.7/27.9
