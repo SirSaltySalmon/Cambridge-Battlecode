@@ -1,0 +1,13 @@
+34 games
+
+v90-log: 20 wins, gems 28815
+  'not in vision' errors 0 (0.00/game), other bot errors 0
+  fuel per turn over 155838 champion turns: mean 28337, median 29073, p95 52572, p99 66540
+  turns >= 90k: 207 (0.13%); out of fuel: 166 (0.107%), fuelExhausted events 68, in 30 games
+  most out-of-fuel turns: contest-a 11, eight-a 8, collision-a 7, contest-b 7, eight-b 7
+
+v90: 14 wins, gems 25635
+  'not in vision' errors 0 (0.00/game), other bot errors 0
+  fuel per turn over 155828 champion turns: mean 31723, median 32555, p95 62414, p99 79053
+  turns >= 90k: 602 (0.39%); out of fuel: 284 (0.182%), fuelExhausted events 206, in 33 games
+  most out-of-fuel turns: lanes-a 38, lanes-b 32, contest-b 25, eight-b 12, swirl-b 12
