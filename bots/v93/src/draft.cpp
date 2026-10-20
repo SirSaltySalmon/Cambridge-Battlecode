@@ -14,9 +14,9 @@ using Camp = bc::camp_type;
 
 // Picks in order, by the team size the map asks for (3 to 5).
 // v70: Ren takes Varg's place and Stellar takes Vesper Vale's, on every team size.
-constexpr Draft ROSTER_5[] = {Draft::cassi_and_issac, Draft::ren, Draft::ryth, Draft::willow, Draft::stellar};
-constexpr Draft ROSTER_4[] = {Draft::cassi_and_issac, Draft::ren, Draft::stellar, Draft::willow};
-constexpr Draft ROSTER_3[] = {Draft::cassi_and_issac, Draft::ren, Draft::stellar};
+constexpr Draft ROSTER_5[] = {Draft::varg, Draft::ren, Draft::ryth, Draft::willow, Draft::stellar};
+constexpr Draft ROSTER_4[] = {Draft::varg, Draft::ren, Draft::stellar, Draft::willow};
+constexpr Draft ROSTER_3[] = {Draft::varg, Draft::ren, Draft::stellar};
 
 std::span<const Draft> roster(std::uint32_t size) {
     if (size <= 3) return ROSTER_3;
