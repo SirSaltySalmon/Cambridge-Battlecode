@@ -837,8 +837,7 @@ inline constexpr Item FALLBACK_RANGED[] = {Item::power_shard_of_focus};
 inline constexpr Item FALLBACK_RYTH[] = {Item::bruiser_shard_of_health};
 inline constexpr Item FALLBACK_WILLOW[] = {Item::power_shard_of_health, Item::power_shard_of_focus};
 inline constexpr Item FALLBACK_VESPER[] = {Item::power_shard_of_strength, Item::power_shard_of_strength, Item::power_shard_of_health};
-// v123: two Bruiser Health emblems to one Bruiser Focus, repeated.
-inline constexpr Item FALLBACK_PRISM[] = {Item::bruiser_shard_of_health, Item::bruiser_shard_of_health, Item::bruiser_shard_of_focus};
+inline constexpr Item FALLBACK_PRISM[] = {Item::bruiser_shard_of_focus};
 
 inline std::span<const Item> shop_fallback(Champ kind) {
     switch (kind) {
