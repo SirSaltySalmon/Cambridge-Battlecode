@@ -1,0 +1,16 @@
+bots/v120fprof bots/v119 maps/00lanes.map26a replays/p120/v120fprof/00lanes-a.repl26a --statistics replays/p120/v120fprof/00lanes-a.json --json
+bots/v119 bots/v120fprof maps/00lanes.map26a replays/p120/v120fprof/00lanes-b.repl26a --statistics replays/p120/v120fprof/00lanes-b.json --json
+bots/v120fprof bots/v119 maps/01elk-arena.map26a replays/p120/v120fprof/01elk-arena-a.repl26a --statistics replays/p120/v120fprof/01elk-arena-a.json --json
+bots/v119 bots/v120fprof maps/01elk-arena.map26a replays/p120/v120fprof/01elk-arena-b.repl26a --statistics replays/p120/v120fprof/01elk-arena-b.json --json
+bots/v120fprof bots/v119 maps/00split.map26a replays/p120/v120fprof/00split-a.repl26a --statistics replays/p120/v120fprof/00split-a.json --json
+bots/v119 bots/v120fprof maps/00split.map26a replays/p120/v120fprof/00split-b.repl26a --statistics replays/p120/v120fprof/00split-b.json --json
+bots/v120fprof bots/v119 maps/01yellow-brick-road.map26a replays/p120/v120fprof/01yellow-brick-road-a.repl26a --statistics replays/p120/v120fprof/01yellow-brick-road-a.json --json
+bots/v119 bots/v120fprof maps/01yellow-brick-road.map26a replays/p120/v120fprof/01yellow-brick-road-b.repl26a --statistics replays/p120/v120fprof/01yellow-brick-road-b.json --json
+bots/v120fprof bots/v119 maps/00corners.map26a replays/p120/v120fprof/00corners-a.repl26a --statistics replays/p120/v120fprof/00corners-a.json --json
+bots/v119 bots/v120fprof maps/00corners.map26a replays/p120/v120fprof/00corners-b.repl26a --statistics replays/p120/v120fprof/00corners-b.json --json
+bots/v120fprof bots/v119 maps/01big-world.map26a replays/p120/v120fprof/01big-world-a.repl26a --statistics replays/p120/v120fprof/01big-world-a.json --json
+bots/v119 bots/v120fprof maps/01big-world.map26a replays/p120/v120fprof/01big-world-b.repl26a --statistics replays/p120/v120fprof/01big-world-b.json --json
+bots/v120fprof bots/v119 maps/01islands.map26a replays/p120/v120fprof/01islands-a.repl26a --statistics replays/p120/v120fprof/01islands-a.json --json
+bots/v119 bots/v120fprof maps/01islands.map26a replays/p120/v120fprof/01islands-b.repl26a --statistics replays/p120/v120fprof/01islands-b.json --json
+bots/v120fprof bots/v119 maps/01boss-battle.map26a replays/p120/v120fprof/01boss-battle-a.repl26a --statistics replays/p120/v120fprof/01boss-battle-a.json --json
+bots/v119 bots/v120fprof maps/01boss-battle.map26a replays/p120/v120fprof/01boss-battle-b.repl26a --statistics replays/p120/v120fprof/01boss-battle-b.json --json

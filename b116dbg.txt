@@ -1,0 +1,8 @@
+bots/v115 bots/v114 maps/00ambush.map26a replays/b116dbg/00ambush-a.repl26a --statistics replays/b116dbg/00ambush-a.json --json
+bots/v115 bots/v114 maps/01big-world.map26a replays/b116dbg/01big-world-a.repl26a --statistics replays/b116dbg/01big-world-a.json --json
+bots/v115 bots/v114 maps/00expanse.map26a replays/b116dbg/00expanse-a.repl26a --statistics replays/b116dbg/00expanse-a.json --json
+bots/v115 bots/v114 maps/01corridors.map26a replays/b116dbg/01corridors-a.repl26a --statistics replays/b116dbg/01corridors-a.json --json
+bots/v115 bots/v114 maps/00split.map26a replays/b116dbg/00split-a.repl26a --statistics replays/b116dbg/00split-a.json --json
+bots/v115 bots/v114 maps/01the-farm.map26a replays/b116dbg/01the-farm-a.repl26a --statistics replays/b116dbg/01the-farm-a.json --json
+bots/v115 bots/v114 maps/00lanes.map26a replays/b116dbg/00lanes-a.repl26a --statistics replays/b116dbg/00lanes-a.json --json
+bots/v115 bots/v114 maps/01starfish.map26a replays/b116dbg/01starfish-a.repl26a --statistics replays/b116dbg/01starfish-a.json --json
