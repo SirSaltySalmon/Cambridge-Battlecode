@@ -327,6 +327,19 @@ private:
     // near_enemies()' search field and boards, reused so no search allocates.
     std::optional<bc::distance_field> near_field;
     bc::bitboard near_roots, near_reached;
+    // v123 (FIGHT_LOCAL_WALK): the tiles within FIGHT_LOCAL_RANGE walking steps of a tile, kept for two tiles a round
+    // (ours, and the near enemy closest to us); the search reuses near_field. fight_allies: score_mode's assist list.
+    struct LocalReach {
+        std::uint32_t round = 0;
+        vec2 from{};
+        bool valid = false;
+        bc::bitboard tiles;
+    };
+    std::array<LocalReach, 2> local_reach_slots;
+    std::size_t local_reach_next = 0;
+    std::vector<bc::champion> fight_allies;
+    // v124: score_mode's weight per assist-list ally and per near enemy, kept with the cached score.
+    std::vector<double> fight_ally_w, fight_enemy_w;
     // v71: health at the end of our last turn and its round, to spot damage nobody visible dealt; the round
     // the last such hit is remembered until, and the tiles an attacker hidden in a nearby bush can reach.
     int last_health = -1;
@@ -478,11 +491,15 @@ private:
     // for the fight score and fight targets. The list stays valid until the next call.
     const std::vector<bc::champion>& near_enemies();
     const std::vector<bc::champion>& near_by_steps();
+    // v123 (FIGHT_LOCAL): an ally at `ally` can assist a fight at `from` (FIGHT_LOCAL_RANGE tiles, or walking steps).
+    bool assists(vec2 ally, vec2 from);
+    const bc::bitboard& local_reach(vec2 from);
     std::pair<bool, std::string> chase_line(const bc::champion& me, const bc::champion& enemy);
     bool retreat(const bc::champion& me);
     // v77: reads, ages and sends the support ping; answers it on a fight turn with no enemy in sight.
     void update_ping(const bc::champion& me);
     bool answer_ping(const bc::champion& me);
+    void commit_ping(const bc::champion& me);
     // v79: whether this champion may answer the current ping (health, bag, distance, not its own).
     bool can_answer(const bc::champion& champion, int now);
     // v81: our ping is fresh and we are outnumbered: walk toward help (PING_RETREAT).

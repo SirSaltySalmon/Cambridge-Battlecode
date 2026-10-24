@@ -17,10 +17,12 @@ using Camp = bc::camp_type;
 // v94 (balance patch): Varg takes Cassi & Issac's place (splash on cluster-heavy maps), Vesper Vale takes Stellar's.
 // v101: Heart of Ruin takes Stellar's place on five, and Varg's (HOR_SMALL_SWAP 0) or Ren's (1) on three and four.
 // v110 (patch: Ren's stun 1.25 -> 0.75 x Focus): Marcella takes Varg's place and Ryth takes Ren's.
-// v123: Prism takes Marcella's place on five (Varg's too, PRISM_OVER_VARG); four and three are unchanged.
-// (Prism for Ryth on four went 1-15 vs v122: team deaths 19 vs 10 a game without his stun and tanking.)
-constexpr Draft ROSTER_5[] = {Draft::ryth, Draft::heart_of_ruin, Draft::willow, Draft::vesper_vale, Draft::prism};
+// v123 (PRISM_MIN_GEMS_5, PRISM_MIN_GEMS_4): Prism takes Marcella's place on five (Varg's too, PRISM_OVER_VARG) and
+// Ryth's on four, only on maps whose consistent camp gems (prism_gems) reach the bar; three is unchanged.
+constexpr Draft ROSTER_5[] = {Draft::ryth, Draft::heart_of_ruin, Draft::willow, Draft::vesper_vale, Draft::marcella};
+constexpr Draft ROSTER_5_PRISM[] = {Draft::ryth, Draft::heart_of_ruin, Draft::willow, Draft::vesper_vale, Draft::prism};
 constexpr Draft ROSTER_4[] = {Draft::heart_of_ruin, Draft::vesper_vale, Draft::willow, Draft::ryth};
+constexpr Draft ROSTER_4_PRISM[] = {Draft::heart_of_ruin, Draft::vesper_vale, Draft::willow, Draft::prism};
 constexpr Draft ROSTER_3[] = {Draft::heart_of_ruin, Draft::marcella, Draft::vesper_vale};
 // v113: five with Varg in Marcella's place, on maps packed with wolves and gem clusters.
 constexpr Draft ROSTER_5_VARG[] = {Draft::ryth, Draft::heart_of_ruin, Draft::willow, Draft::vesper_vale, Draft::varg};
@@ -35,12 +37,26 @@ bool varg_map() {
     return wolves >= VARG_WOLVES && gems >= VARG_GEM_CLUSTERS;
 }
 
+int prism_gems() {
+    // v123: the gems a map's steady camps give per clear: wolves 4, elks 15, gem clusters 7. Golems and monoliths are
+    // left out (not consistent sources), as are gold clusters.
+    int gems = 0;
+    for (const auto& group : group_data().groups)
+        for (const auto& camp : group.camps()) {
+            if (camp.kind() == Camp::wolf) gems += 4;
+            else if (camp.kind() == Camp::elk) gems += 15;
+            else if (camp.kind() == Camp::gem_cluster) gems += 7;
+        }
+    return gems;
+}
+
 std::span<const Draft> roster(std::uint32_t size) {
     if (size <= 3) return ROSTER_3;
-    if (size == 4) return ROSTER_4;
-    // v123 (PRISM_OVER_VARG): Prism takes the pick on Varg maps too.
-    if (PRISM_OVER_VARG) return ROSTER_5;
+    static const int gems = prism_gems();
+    if (size == 4) return gems >= PRISM_MIN_GEMS_4 ? std::span<const Draft>(ROSTER_4_PRISM) : ROSTER_4;
+    if (gems >= PRISM_MIN_GEMS_5 && PRISM_OVER_VARG) return ROSTER_5_PRISM;
     static const bool varg = varg_map();
+    if (gems >= PRISM_MIN_GEMS_5 && !varg) return ROSTER_5_PRISM;
     return varg ? std::span<const Draft>(ROSTER_5_VARG) : ROSTER_5;
 }
 

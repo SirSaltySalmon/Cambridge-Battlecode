@@ -48,16 +48,23 @@ const std::vector<bc::champion>& Bot::near_by_steps() {
     const auto& me = bc::self();
     std::array<vec2, MAX_UNITS> team, spots;
     std::size_t team_n = 0, spot_n = 0;
+    // v123 (FIGHT_LOCAL): only allies within FIGHT_LOCAL_RANGE of us root the search (one far off, seen through our
+    // ward, has its own fight). The walking-step test (FIGHT_LOCAL_WALK) runs only for an ally that would root it.
+    const vec2 here = me.position();
     for (const auto& ally : seen::champions(Team::ally))
-        if (team_n < MAX_UNITS) team[team_n++] = ally.position();
-    if (me.is_alive() && team_n < MAX_UNITS) team[team_n++] = me.position();
+        if (team_n < MAX_UNITS && (!FIGHT_LOCAL || distance(ally.position(), here) <= FIGHT_LOCAL_RANGE))
+            team[team_n++] = ally.position();
+    if (me.is_alive() && team_n < MAX_UNITS) team[team_n++] = here;
     for (const auto& enemy : enemies)
         if (spot_n < MAX_UNITS) spots[spot_n++] = enemy.position();
     std::array<bool, MAX_UNITS> root{}, near{};
     bool any_close = false;
-    for (std::size_t t = 0; t < team_n; ++t)
-        for (std::size_t e = 0; e < spot_n; ++e)
-            if (distance(team[t], spots[e]) <= FIGHT_STEPS) root[t] = any_close = true;
+    for (std::size_t t = 0; t < team_n; ++t) {
+        for (std::size_t e = 0; e < spot_n && !root[t]; ++e)
+            if (distance(team[t], spots[e]) <= FIGHT_STEPS) root[t] = true;
+        if (root[t] && FIGHT_LOCAL && FIGHT_LOCAL_WALK && team[t] != here && !local_reach(here).is_set(team[t])) root[t] = false;
+        any_close = any_close || root[t];
+    }
     if (any_close) {
         if (!near_field) near_field.emplace();
         near_roots.clear();
@@ -78,6 +85,27 @@ const std::vector<bc::champion>& Bot::near_by_steps() {
             ++far_skipped;
     }
     return near_buf;
+}
+
+bool Bot::assists(vec2 ally, vec2 from) {
+    return distance(ally, from) <= FIGHT_LOCAL_RANGE && (!FIGHT_LOCAL_WALK || local_reach(from).is_set(ally));
+}
+
+const bc::bitboard& Bot::local_reach(vec2 from) {
+    const auto round = bc::round_number();
+    for (const auto& slot : local_reach_slots)
+        if (slot.valid && slot.round == round && slot.from == from) return slot.tiles;
+    auto& slot = local_reach_slots[local_reach_next];
+    local_reach_next ^= 1;
+    if (!near_field) near_field.emplace();
+    near_roots.clear();
+    near_roots.set(from);
+    slot.tiles.clear();
+    near_field->compute(seen::terrain(), near_roots, slot.tiles, FIGHT_LOCAL_RANGE);
+    slot.round = round;
+    slot.from = from;
+    slot.valid = true;
+    return slot.tiles;
 }
 
 bool Bot::fight(const bc::champion& me) {
@@ -189,6 +217,7 @@ bool Bot::fight(const bc::champion& me) {
     if (JOIN_FIRST && !within(me, *target, me.attack_range()) && !channelling(*target) && join_first(me, *target, enemies))
         return true;
     WHY("fight.hit", std::string(pick) + " at " + at(target->position()) + (detail.empty() ? "" : " (chase ring: " + detail + ")"));
+    commit_ping(me);
     engage(me, *target, enemies, false, avoid);
     return true;
 }
@@ -1081,6 +1110,46 @@ void Bot::update_ping(const bc::champion& me) {
     NOTE(format(gather ? "ping s%d: enemy champion in sight, nobody beside us" : "ping s%d: an enemy champion is hurting us, nobody beside us", best));
 }
 
+void Bot::commit_ping(const bc::champion& me) {
+    // v124 (FIGHT_COMMIT_PING): we fight counting an ally that cannot see this fight; call it in. Someone else's fresh
+    // ping stands; our own is refreshed while the fight goes on.
+    if (!FIGHT_COMMIT_PING || route.empty() || !me.is_alive()) return;
+    const int now = static_cast<int>(bc::round_number());
+    const bool own_fresh = ping_mine_round >= now - PING_FRESH;
+    if (ping_slot && !own_fresh) return;
+    const auto position = me.position();
+    const auto& enemies = near_enemies();
+    if (enemies.empty()) return;
+    vec2 front = enemies[0].position();
+    for (const auto& e : enemies)
+        if (distance(e.position(), position) < distance(front, position)) front = e.position();
+    // The allies the fight score counts (FIGHT_LOCAL), free and healthy, beyond our sight of them.
+    int far = 0;
+    for (const auto& a : seen::champions(Team::ally)) {
+        if (a == me || channelling(a) || a.is_teleporting() || a.health() < a.max_health() * RECALL_HEALTH) continue;
+        const vec2 p = a.position();
+        if (distance(p, position) > COMMIT_FAR && (assists(p, position) || assists(p, front))) ++far;
+    }
+    if (far == 0) return;
+    int best = 0;
+    for (int s = 1; s < static_cast<int>(centers.size()); ++s)
+        if (distance(position, centers[s]) < distance(position, centers[best])) best = s;
+    if (best >= 63) return;
+    set_shared_byte(PING_BYTE, (best + 1) | ((now & 3) << 6));
+    ping_slot = best;
+    ping_mine_slot = best;
+    if (own_fresh) return;
+    ping_mine_round = now;
+    ping_mine_health = static_cast<int>(me.health());
+    if (PING_LOG) {
+        int dead = 0;
+        for (const auto& e : seen::roster(Team::enemy))
+            if (!e.is_alive()) ++dead;
+        ping_mine_dead = dead;
+    }
+    NOTE(format("ping s%d: committed to a fight counting %d allies out of sight", best, far));
+}
+
 bool Bot::answer_ping(const bc::champion& me) {
     // A fight-mode champion with no enemy in sight walks to the pinged slot instead of farming on.
     if (!ping_slot) return false;
@@ -1104,10 +1173,12 @@ bool Bot::can_answer(const bc::champion& champion, int now) {
     // walking a big bag into it (a built Ren is the team's carry, so his limit is higher).
     if (!ping_slot || !champion.is_alive() || channelling(champion)) return false;
     if (champion.health() < champion.max_health() * PING_ANSWER_HEALTH) return false;
-    if (distance(champion.position(), centers[*ping_slot]) > PING_ARRIVE) return false;
+    if (distance(champion.position(), centers[*ping_slot]) > (FIGHT_COMMIT_PING ? PING_ARRIVE_COMMIT : PING_ARRIVE)) return false;
     bool built_ren = false;
     try {
         built_ren = champion.champion_name() == Champ::ren && emblem_count(champion) >= REN_CORE_EMBLEMS;
+        // v123 (PRISM_CARRY_FIGHT): Prism answers whatever she carries.
+        if (PRISM_CARRY_FIGHT && champion.champion_name() == Champ::prism) return true;
     } catch (const bc::error&) {
     }
     (void)now;

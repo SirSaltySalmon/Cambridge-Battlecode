@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <iterator>
 #include <tuple>
 
 void Bot::setup() {
@@ -1337,6 +1338,28 @@ bool Bot::collect(const bc::champion&) {
     return true;
 }
 
+namespace {
+// v124 (FIGHT_ALLY_WEIGH, FIGHT_ENEMY_WEIGH): the share of allies that many tiles off who joined a fight within 4 rounds.
+double join_weight(int tiles) {
+    constexpr int last = static_cast<int>(std::size(JOIN_WEIGHT)) - 1;
+    return JOIN_WEIGHT[std::clamp(tiles, 0, last)];
+}
+
+// v124 (FIGHT_ALLY_WEIGH): an ally our own rules keep out of a fight: under RECALL_HEALTH (recalls or dodges), or a
+// carrier the front rule sends back (turn.cpp; never Prism, PRISM_CARRY_FIGHT).
+bool stays_out(const bc::champion& a) {
+    try {
+        const double health = a.health(), top = a.max_health();
+        if (health < top * RECALL_HEALTH) return true;
+        if (PRISM_CARRY_FIGHT && a.champion_name() == Champ::prism) return false;
+        const int gems = static_cast<int>(a.gem_count());
+        return (gems >= ESCORT_GEMS && health < FRONT_HEALTH) || (FIX_CARRIER && gems >= CARRY_GEMS && health < top * CARRY_FRONT_HEALTH);
+    } catch (const bc::error&) {
+        return false;
+    }
+}
+}  // namespace
+
 int Bot::score_mode(std::optional<vec2> origin, int current) {
     // Enemies further from origin (the target, or our own tile) count for less.
     const auto& enemies = near_enemies();
@@ -1368,7 +1391,7 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
             }
         }
     }
-    const auto& allies = FIX_FIGHT_BODIES ? fighters : seen_allies;
+    const auto& allies = FIX_FIGHT_BODIES ? fighters : FIGHT_LOCAL ? fight_allies : seen_allies;
     // v81: everything but the distance and the ping bonus is the same for every origin, so it is worked out once per
     // round and vision list (score_mode runs twice on a leader's fight turn: the shared decision, then step 5) and
     // reused with its reason text. Fight bodies depend on the origin, so they are never cached.
@@ -1377,10 +1400,55 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
     const bool hit = cacheable && score_base.round == round && score_base.enemies == near_src && score_base.allies == &seen_allies
         && score_base.valid;
     if (!hit) {
+        if (FIGHT_LOCAL && !FIX_FIGHT_BODIES) {
+            // v123: allies who can assist us: within FIGHT_LOCAL_RANGE (tiles, or walking steps with FIGHT_LOCAL_WALK)
+            // of us or of the near enemy closest to us, and free. Built only on a cache miss, into a reused vector.
+            // v124 (FIGHT_ALLY_WEIGH): one that stays out (stays_out) does not count; the rest by join_weight.
+            const auto& self = bc::self();
+            const vec2 here = self.position();
+            vec2 front = enemies[0].position();
+            for (const auto& e : enemies)
+                if (distance(e.position(), here) < distance(front, here)) front = e.position();
+            fight_allies.clear();
+            fight_ally_w.clear();
+            for (const auto& a : seen_allies) {
+                if (a == self) {
+                    fight_allies.push_back(a);
+                    fight_ally_w.push_back(1.0);
+                    continue;
+                }
+                if (channelling(a) || a.is_teleporting()) continue;
+                const vec2 p = a.position();
+                if (!assists(p, here) && !assists(p, front)) continue;
+                if (FIGHT_ALLY_WEIGH && stays_out(a)) continue;
+                fight_allies.push_back(a);
+                fight_ally_w.push_back(FIGHT_ALLY_WEIGH ? join_weight(std::min(distance(p, here), distance(p, front))) : 1.0);
+            }
+            // v124 (FIGHT_ENEMY_WEIGH): a busy (channelling) or hurt enemy does not count; the rest by join_weight from
+            // the enemy nearest us (the one we would pick on).
+            fight_enemy_w.clear();
+            for (const auto& e : enemies) {
+                double w = 1.0;
+                if (FIGHT_ENEMY_WEIGH) {
+                    try {
+                        w = channelling(e) || e.is_teleporting() || e.health() < e.max_health() * RECALL_HEALTH
+                                ? 0.0 : join_weight(distance(e.position(), front));
+                    } catch (const bc::error&) {
+                    }
+                }
+                fight_enemy_w.push_back(w);
+            }
+        }
+        const bool local_w = FIGHT_LOCAL && !FIX_FIGHT_BODIES;
+        auto weight = [&](std::size_t i) {
+            if (FIX_FIGHT_BODIES) return i < fighter_weight.size() ? fighter_weight[i] : 1.0;
+            return local_w && i < fight_ally_w.size() ? fight_ally_w[i] : 1.0;
+        };
+        auto enemy_weight = [&](std::size_t j) { return local_w && j < fight_enemy_w.size() ? fight_enemy_w[j] : 1.0; };
         const int ne = static_cast<int>(enemies.size());
-        auto weight = [&](std::size_t i) { return FIX_FIGHT_BODIES && i < fighter_weight.size() ? fighter_weight[i] : 1.0; };
-        double na_w = 0.0;
+        double na_w = 0.0, ne_w = 0.0;
         for (std::size_t i = 0; i < allies.size(); ++i) na_w += weight(i);
+        for (std::size_t j = 0; j < enemies.size(); ++j) ne_w += enemy_weight(j);
         const int na = static_cast<int>(allies.size());
 
         double head = 0.0, tail = 0.0;
@@ -1391,18 +1459,24 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
             joined += text;
         };
         if (far_skipped) LOG(part(head_text, format("%d far enemies left out", far_skipped)););
-        if (na_w > ne) {
+        // v123 (FIGHT_LOCAL): allies in sight (our ward too) but too far or busy to assist.
+        if (FIGHT_LOCAL && !FIX_FIGHT_BODIES && fight_allies.size() < seen_allies.size())
+            LOG(part(head_text, format("%d far allies left out", static_cast<int>(seen_allies.size() - fight_allies.size()))););
+        // v124: weighted heads (FIGHT_ALLY_WEIGH, FIGHT_ENEMY_WEIGH) are logged beside the plain count.
+        if (na_w > ne_w) {
             head += OUTNUMBER_BONUS;
-            LOG(part(head_text, format("bodies +%d %dv%d", OUTNUMBER_BONUS, na, ne)););
+            LOG(part(head_text, format("bodies +%d %dv%d", OUTNUMBER_BONUS, na, ne)
+                                     + (FIGHT_ALLY_WEIGH || FIGHT_ENEMY_WEIGH ? format(" (%.1fv%.1f)", na_w, ne_w) : std::string())););
         } else {
-            const int pen = static_cast<int>(MISSING_BODY_PENALTY * (ne - na_w) + 0.5);
+            const int pen = static_cast<int>(MISSING_BODY_PENALTY * (ne_w - na_w) + 0.5);
             head -= pen;
-            LOG(part(head_text, format("bodies -%d %dv%d", pen, na, ne)););
+            LOG(part(head_text, format("bodies -%d %dv%d", pen, na, ne)
+                                     + (FIGHT_ALLY_WEIGH || FIGHT_ENEMY_WEIGH ? format(" (%.1fv%.1f)", na_w, ne_w) : std::string())););
         }
         PySum ally_hp, enemy_hp;
         // v101: a Heart of Ruin's shield counts as health on either side.
         for (std::size_t i = 0; i < allies.size(); ++i) ally_hp.add((allies[i].health() + hor_shield_hp(allies[i])) * weight(i));
-        for (const auto& e : enemies) enemy_hp.add(e.health() + hor_shield_hp(e));
+        for (std::size_t j = 0; j < enemies.size(); ++j) enemy_hp.add((enemies[j].health() + hor_shield_hp(enemies[j])) * enemy_weight(j));
         const double ally_health = ally_hp.value(), enemy_health = enemy_hp.value();
         // v115 (GRADED_EDGES): by how far ahead or behind, not just which side is.
         auto graded = [](double ours, double theirs) {
@@ -1414,7 +1488,8 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
         LOG(part(head_text, format("health %+.1f", hp_edge)););
         PySum ally_pw, enemy_pw;
         for (std::size_t i = 0; i < allies.size(); ++i) ally_pw.add((static_cast<double>(allies[i].strength()) + allies[i].focus()) * weight(i));
-        for (const auto& e : enemies) enemy_pw.add(static_cast<double>(e.strength()) + e.focus());
+        for (std::size_t j = 0; j < enemies.size(); ++j)
+            enemy_pw.add((static_cast<double>(enemies[j].strength()) + enemies[j].focus()) * enemy_weight(j));
         const double ally_power = ally_pw.value(), enemy_power = enemy_pw.value();
         const double power_edge = GRADED_EDGES ? graded(ally_power, enemy_power)
                                                : ally_power > enemy_power ? POWER_EDGE : -POWER_EDGE;
@@ -1424,7 +1499,7 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
         for (std::size_t i = 0; i < allies.size(); ++i) owned_w += emblem_count(allies[i]) * weight(i);
         // v115 (EMBLEM_RELATIVE): less the near enemies' emblems.
         if (EMBLEM_RELATIVE)
-            for (const auto& e : enemies) owned_w -= emblem_count(e);
+            for (std::size_t j = 0; j < enemies.size(); ++j) owned_w -= emblem_count(enemies[j]) * enemy_weight(j);
         const int emblem_score = static_cast<int>(std::lround(EMBLEM_BONUS * owned_w));
         head += emblem_score;
         if (emblem_score) LOG(part(head_text, format("emblems %+d", emblem_score)););

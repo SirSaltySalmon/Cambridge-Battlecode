@@ -351,7 +351,10 @@ void Bot::play(const bc::champion& me) {
     }
     // v72: any carrier below CARRY_FRONT_HEALTH also stays behind the front, not only a heavy bag.
     const bool hurt_carrier = FIX_CARRIER && gems >= CARRY_GEMS && me.health() < me.max_health() * CARRY_FRONT_HEALTH;
-    if (((gems >= ESCORT_GEMS && me.health() < FRONT_HEALTH) || hurt_carrier) && (now_mode == FIGHT || now_mode == RETREAT)) {
+    // v123 (PRISM_CARRY_FIGHT): Prism fights the same with or without a bag.
+    const bool bag_counts = !(PRISM_CARRY_FIGHT && me.champion_name() == Champ::prism);
+    if (bag_counts && ((gems >= ESCORT_GEMS && me.health() < FRONT_HEALTH) || hurt_carrier)
+        && (now_mode == FIGHT || now_mode == RETREAT)) {
         if (retreat(me)) {
             LOG(branch_name = "front." + branch_name; branch_why = "heavy bag, too hurt for the front; " + branch_why;);
             return;

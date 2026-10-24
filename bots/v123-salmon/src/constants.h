@@ -233,6 +233,32 @@ inline constexpr bool FIX_SPAWN_BANK = true;
 // v75: the fight score counts only allies who can join the fight: not channelling (recall, tribute, teleport)
 // and within FIGHT_ALLY_RANGE of the enemy nearest the fight.
 inline constexpr bool FIX_FIGHT_BODIES = false;
+// v123 (FIGHT_LOCAL): vision includes our ward, so the fight score counted every ally in sight (one 20 tiles off seen
+//   through the ward, or recalling) and every enemy within FIGHT_STEPS of any of them (an enemy the ward saw beside a
+//   far ally deterred us). Now it is local to the champion scoring: allies count only within FIGHT_LOCAL_RANGE tiles of
+//   us or of the near enemy closest to us, and not channelling; enemies are near (near_enemies) only within
+//   FIGHT_STEPS walking steps of us or of an ally within FIGHT_LOCAL_RANGE of us. Wards still serve vision otherwise.
+//   At 8 (FIGHT_ALLY_RANGE): 40-40 / 37-43 vs v122, 58-66 on the non-Prism maps.
+//   At 12: 39-41 / 40-40 vs v122, banked +6.6 / +5.2%, teamfights won 236-204 / 271-177; but allies counted at 9-12
+//   tiles walked in within 4 rounds only 35% of the time (5-8: 73%), no more often than uncounted allies at 13-16.
+//   9 tiles: 73/160, -6.0%. Walking steps 12: 70/160, -10.8%; 9: 77/160, -5.2%; 15: 71/160, -6.1% (README bench 6).
+//   Kept: 12 tiles.
+// FIGHT_LOCAL_WALK: the range is walking steps (a capped search from us, and from the near enemy only when needed).
+inline constexpr bool FIGHT_LOCAL = true, FIGHT_LOCAL_WALK = false;
+inline constexpr int FIGHT_LOCAL_RANGE = 12;
+// v124 (FIGHT_LOCAL on), each switchable:
+// FIGHT_ALLY_WEIGH: an ally our rules keep out of a fight does not count (under RECALL_HEALTH: recalls or dodges; a
+//   carrier the front rule sends back); the rest count by JOIN_WEIGHT of its tiles from us or the near enemy closest
+//   to us: the share of allies that far who joined a fight within 4 rounds (b123y logs, 1-4 tiles = 1).
+// FIGHT_ENEMY_WEIGH: the same for enemies: a channelling (recall, tribute, teleport) or hurt (under RECALL_HEALTH)
+//   enemy does not count, the rest by JOIN_WEIGHT of its tiles from the enemy nearest us.
+// FIGHT_COMMIT_PING: a champion that commits to a fight (fight.hit) whose score counted an ally over COMMIT_FAR tiles
+//   away pings for it, unhurt and in fight mode too; allies answer from PING_ARRIVE_COMMIT tiles (else PING_ARRIVE).
+// Vs v122, 160 games (README bench 7): ally 80, +1.0%; enemy 83, +10.5%; ping 68, -12.1% (far allies farming through
+//   a fight 29% -> 22%, but the team loses its farming); all three 81, +1.2%. Retuned, ally + enemy trailed enemy alone.
+inline constexpr bool FIGHT_ALLY_WEIGH = false, FIGHT_ENEMY_WEIGH = true, FIGHT_COMMIT_PING = false;
+inline constexpr double JOIN_WEIGHT[] = {1, 1, 1, 1, 1, 0.86, 0.78, 0.68, 0.57, 0.47, 0.39, 0.30, 0.23};
+inline constexpr int COMMIT_FAR = 8, PING_ARRIVE_COMMIT = 12;
 // v76: three stuck states from a rushbait_v2 ladder loss: closing from outside on an enemy home in its chase ring
 // (then leaving the ring, forever), a ranged champion holding back from a camp for a tank that never comes (at
 // most HOLD_LIMIT rounds now), and waiting on spawn for full health while enemies keep hitting us.
@@ -627,7 +653,9 @@ inline constexpr int BANK_STEPS_SLACK = 0;
 //   RING_DIV 4: 40-40, banked -2.7%: off (TEAM_CHASE_ROUNDS 3 likewise: 41-39, -2.3%).
 inline constexpr bool RING_SCALE = false;
 inline constexpr int RING_DIV = 4, RING_MIN = 6, RING_MAX = 14;
-inline constexpr int HEALTH_EDGE = 5;
+// v124 (with FIGHT_ENEMY_WEIGH): HEALTH_EDGE 5 -> 2: 93/160 vs v122 + v120 (seed 0), banked +21.6%, teamfights
+//   613-344 (enemy weighting at 5: 83/160, +10.7%, 554-486). README bench 7.
+inline constexpr int HEALTH_EDGE = 2;
 inline constexpr int POWER_EDGE = 5;
 inline constexpr int EMBLEM_BONUS = 3;
 inline constexpr double DISTANCE_PENALTY = 0.5;
@@ -748,10 +776,18 @@ inline constexpr int PRISM_CASH_ROUND = 1800;
 //   still holding 58 gems a game): PRISM_CASH_ENEMY_GEMS: once the enemy has tributed this many she stops holding for
 //   the rest of the game (0: off). PRISM_BAG_CAP: a bag this big is banked whole (the normal bank rules), then she
 //   holds again from zero (0: off).
+// PRISM_CARRY_FIGHT: her bag never changes how she fights: no stepping back from the front with a heavy or hurt bag
+//   (turn.cpp), and she answers pings whatever she carries (can_answer). Her bag is her Focus.
+inline constexpr bool PRISM_CARRY_FIGHT = true;
 inline constexpr int PRISM_CASH_ENEMY_GEMS = 750;
 inline constexpr int PRISM_BAG_CAP = 300;
 // v123: on five-player Varg maps (VARG_WOLVES, VARG_GEM_CLUSTERS) Prism takes the pick instead of Varg.
 inline constexpr bool PRISM_OVER_VARG = true;
+// v123: Prism is drafted only where the map's consistent camp gems (draft.cpp prism_gems: wolves 4, elks 15, gem
+//   clusters 7; no golems or monoliths) reach the bar for its team size; else Marcella (Varg) on five, Ryth on four.
+//   Sweep vs v122 (3 runs, 6 games a map): five-player bars 364-460 all score 79-80/156 (never: 78, always: 72); 380
+//   drafts her on 9 maps; fresh seeds there 19-17, +1.4%. Four-player: she lost 46 of 48 games, on every map: never.
+inline constexpr int PRISM_MIN_GEMS_5 = 380, PRISM_MIN_GEMS_4 = 100000;
 inline constexpr Item PRISM_BUILD[] = {Item::treasure_shard_of_focus, Item::durability_shard_of_health,
     Item::monster_shard_of_health, Item::home_shard_of_health, Item::monster_shard_of_health};
 inline constexpr Item MELEE_FOCUS[] = {Item::treasure_shard_of_focus, Item::jungle_shard_of_focus,

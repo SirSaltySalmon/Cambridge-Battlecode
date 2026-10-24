@@ -1,8 +1,0 @@
-bots/v105 bots/v104 maps/00eight.map26a replays/v105dbg/m/00eight.repl26a --statistics replays/v105dbg/m/00eight.json --json
-bots/v105 bots/v104 maps/00split.map26a replays/v105dbg/m/00split.repl26a --statistics replays/v105dbg/m/00split.json --json
-bots/v105 bots/v104 maps/01the-farm.map26a replays/v105dbg/m/01the-farm.repl26a --statistics replays/v105dbg/m/01the-farm.json --json
-bots/v105 bots/v104 maps/00pilgrimage.map26a replays/v105dbg/m/00pilgrimage.repl26a --statistics replays/v105dbg/m/00pilgrimage.json --json
-bots/v105 bots/v104 maps/00packs.map26a replays/v105dbg/m/00packs.repl26a --statistics replays/v105dbg/m/00packs.json --json
-bots/v105 bots/v104 maps/01shortcut.map26a replays/v105dbg/m/01shortcut.repl26a --statistics replays/v105dbg/m/01shortcut.json --json
-bots/v105 bots/v104 maps/00lanes.map26a replays/v105dbg/m/00lanes.repl26a --statistics replays/v105dbg/m/00lanes.json --json
-bots/v105 bots/v104 maps/01gold-rush.map26a replays/v105dbg/m/01gold-rush.repl26a --statistics replays/v105dbg/m/01gold-rush.json --json
