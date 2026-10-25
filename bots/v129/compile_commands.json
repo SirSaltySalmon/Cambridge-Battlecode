@@ -1,0 +1,104 @@
+[
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/actions.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/actions.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/actions.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/actions.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/board.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/board.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/board.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/board.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/combat.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/combat.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/combat.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/combat.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/draft.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/draft.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/draft.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/draft.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/hor.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/hor.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/hor.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/hor.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/kits.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/kits.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/kits.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/kits.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/log.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/log.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/log.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/log.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/main.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/main.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/main.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/main.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/phase.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/phase.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/phase.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/phase.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/route.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/route.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/route.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/route.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/seen.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/seen.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/seen.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/seen.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/shop.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/shop.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/shop.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/shop.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/state.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/state.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/state.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/state.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/trace.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/trace.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/trace.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/trace.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/tribute.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/tribute.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/tribute.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/tribute.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/turn.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/turn.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/turn.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/turn.cpp.obj"
+  },
+  {
+    "command": "/Users/baotran/Library/Caches/cambc/wasi-sdk-33/bin/clang++ --target=wasm32-wasip1 --sysroot=/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot -DCAMBC_DEBUG -I\"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/sdk/cpp\" -isystem /Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/cmake/../../share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1 -O3 -DNDEBUG -std=c++20 -msimd128 -mbulk-memory -mbulk-memory-opt -fwasm-exceptions -mllvm -wasm-use-legacy-eh=false -o CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/warding.cpp.obj -c \"/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/warding.cpp\" --sysroot=\"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot\" -isystem \"/Users/baotran/Library/Caches/cambc/wasi-sdk-33/share/wasi-sysroot/include/wasm32-wasip1/eh/c++/v1\"",
+    "directory": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/.cambc/build",
+    "file": "/Users/baotran/Battlecode 2026/Cambridge-Battlecode/bots/v129/src/warding.cpp",
+    "output": "CMakeFiles/bot.dir/Users/baotran/Battlecode_2026/Cambridge-Battlecode/bots/v129/src/warding.cpp.obj"
+  }
+]
