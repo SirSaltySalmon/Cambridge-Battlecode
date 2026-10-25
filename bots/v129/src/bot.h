@@ -287,7 +287,6 @@ private:
     // v129 (CAMP_EXIT_ALWAYS): the group farm() last engaged, and when; whether an awake camp of no group of ours hits us.
     int farmed_slot = -1, farmed_round = -1000;
     bool foreign_camp_hit(const bc::champion& me);
-    bc::bitboard awake_tiles, awake_near;
     // v122 (BANK_STEPS): walking steps to each altar's submit tiles, by altar_list() index, built on first use.
     std::vector<std::optional<Walk>> altar_walks;
     bool altar_near(vec2 position, vec2 altar, int range);

@@ -574,16 +574,11 @@ int Bot::camp_heat(const bc::champion& me) {
 }
 
 bool Bot::foreign_camp_hit(const bc::champion& me) {
-    // v129 (CAMP_EXIT_ALWAYS): one host board of the awake camps in sight; with none within the longest camp reach of
-    // us (most turns) no camp is looked at. Camps never move, so their spawn tile is where the board marks them.
-    const auto position = me.position();
-    bc::vision::awake_camp_tiles_into(awake_tiles);
-    fast::around_into(position, static_cast<float>(MONOLITH_REACH), awake_near);
-    awake_near &= awake_tiles;
-    if (awake_near.is_empty()) return false;
+    // v129 (CAMP_EXIT_ALWAYS): only camps in their own reach of us are read (a raw state read, as camp_heat).
     const int round_now = static_cast<int>(bc::round_number());
     const int farm_s = route.empty() ? -1 : slot % static_cast<int>(route.size());
     const int farmed_s = round_now - farmed_round <= FARMED_ROUNDS ? farmed_slot : -1;
+    const auto position = me.position();
     const int own_reach = me.attack_range();
     bool hit = false;
     for (const auto& camp : seen::camps()) {
@@ -598,7 +593,9 @@ bool Bot::foreign_camp_hit(const bc::champion& me) {
             if (gap <= own_reach) return false;
             continue;
         }
-        if (hit || !awake_near.is_set(spot)) continue;
+        if (hit) continue;
+        std::uint32_t state = 0;
+        if (bc::detail::sdk_camp_state(static_cast<std::uint32_t>(static_cast<bc::handle_camp_t>(camp)), &state) != 0 || state != 1) continue;
         bool nearer = false;
         for (const auto& ally : seen::champions(Team::ally))
             if (ally != me && distance(ally.position(), spot) < gap) nearer = true;
