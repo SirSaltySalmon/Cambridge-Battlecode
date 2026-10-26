@@ -75,8 +75,8 @@ inline bool leave_camps(const bc::bitboard& goals, const bc::bitboard* avoid = n
 int exit_turn_steps(const bc::champion& me);
 // v132f/g (WALK_GUARD): awake camp reach every walk and dash keeps out of this turn (set by Bot::build_walk_guard).
 extern const bc::bitboard* walk_guard;
-// v134-move (HOR_DASH_SAFE): tiles a movement dash never lands on this turn (Heart of Ruin: beside camps), or nullptr.
-extern const bc::bitboard* dash_keep_off;
+// v135 (SAFE_LAND): landing tiles barred for this turn's area-landing dash (set by Bot::build_land_bar), or null.
+extern const bc::bitboard* land_bar;
 // Make one basic attack if the target is already in attack range.
 bool attack_if_in_range(const bc::unit& target);
 inline bool attack_if_in_range(const Target& target) { return attack_if_in_range(target.unit()); }

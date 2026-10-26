@@ -283,10 +283,7 @@ void Bot::observe() {
         if (bc::detail::sdk_camp_group_state(handle, &state) != 0 || state < 1 || state > 3) continue;
         std::int32_t timer = 0;
         if (state == 3 && bc::detail::sdk_camp_group_cooldown(handle, &timer) != 0) continue;
-        const bool fresh = state == 3 && ready_at[index] <= now;
         ready_at[index] = state == 3 ? now + timer : 0;
-        // v134-move (CAPTURE_NEWS): a respawn we are the first to see goes to the team.
-        if (fresh) announce_capture(index);
         if (FIX_ALTAR_GATE && state == 1) {
             if (seen_up.size() != route.size()) seen_up.assign(route.size(), -GATE_MEMORY - 1);
             seen_up[index] = now;
@@ -296,53 +293,6 @@ void Bot::observe() {
         else
             rewards.erase(index);
     }
-}
-
-const bc::bitboard& Bot::strong_tiles() {
-    // Static: spawn tiles of every group with a camp that hits back (a cluster in such a group wakes it too).
-    if (!strong_tiles_board) {
-        strong_tiles_board.emplace();
-        for (int s = 0; s < static_cast<int>(route.size()); ++s)
-            if (!clusters_only[s])
-                for (const auto tile : spawn_lists[s]) strong_tiles_board->set(tile);
-    }
-    return *strong_tiles_board;
-}
-
-void Bot::unseen_strong_into(bc::bitboard& out) {
-    bc::vision::visible_tiles_into(out);
-    fast::not_into(out, out);
-    out &= strong_tiles();
-}
-
-void Bot::build_dash_ring() {
-    unseen_strong_into(ring_in);
-    fast::dilate_into(ring_in, ring_tmp, ring_h, unseen_ring);
-    for (const auto& c : seen::camps()) {
-        const int cs = slot_at(c.spawn_position());
-        if (cs < 0 || !clusters_only[cs]) ring_in.set(c.position());
-    }
-    fast::dilate_into(ring_in, ring_tmp, ring_h, dash_ring);
-}
-
-void Bot::announce_capture(int s) {
-    // Only while no claim is open: the collector and claim-round bytes are free then.
-    if (!CAPTURE_NEWS || s < 0 || s >= static_cast<int>(route.size()) || shared_byte(CAPTURE_SLOT_BYTE) != NO_CAPTURE) return;
-    const int start = ready_at[s] - route[s]->max_respawn_timer();
-    set_shared_byte(CAPTURE_SLOT_BYTE + 1, CAPTURED_MARK | (start & CAPTURED_ROUND_MASK));
-    set_shared_byte(CLAIM_ROUND_OFFSET, s);
-}
-
-void Bot::read_capture_news(int collector_byte, int slot_byte) {
-    if (!(collector_byte & CAPTURED_MARK) || slot_byte >= static_cast<int>(route.size())) return;
-    const int now = static_cast<int>(bc::round_number());
-    // The low bits of the round its timer started; news is at most a few rounds old.
-    const int start = now - ((now - (collector_byte & CAPTURED_ROUND_MASK)) & CAPTURED_ROUND_MASK);
-    const int ready = start + route[slot_byte]->max_respawn_timer();
-    if (ready <= now || ready_at[slot_byte] > now) return;
-    ready_at[slot_byte] = ready;
-    rewards.erase(slot_byte);
-    NOTE(format("team news: s%d respawns in %d", slot_byte, ready - now));
 }
 
 int Bot::wait_at(int s, vec2 origin) const {
@@ -483,15 +433,39 @@ int Bot::hard_left(int s) const {
 
 int Bot::hard_free() const {
     int free = HARD_FREE;
-    if (HARD_FREE_TEAM) free += static_cast<int>(seen::roster(Team::ally).size());
+    if (PRESENT_GATE) free += team_present().n;
+    else if (HARD_FREE_TEAM) free += static_cast<int>(seen::roster(Team::ally).size());
     if (HARD_DECAY_ROUNDS > 0) free += static_cast<int>(bc::round_number()) / HARD_DECAY_ROUNDS;
     return free;
+}
+
+Bot::Present Bot::present_near(vec2 at, int range) const {
+    Present p;
+    const auto& allies = seen::champions(Team::ally);
+    const auto& tiles = seen::positions(Team::ally);
+    for (std::size_t i = 0; i < allies.size() && i < tiles.size(); ++i) {
+        if (distance(tiles[i], at) > range) continue;
+        ++p.n;
+        const auto it = emblems.find(cached_ident(allies[i]) - 1);
+        if (it != emblems.end()) p.emblems += it->second;
+    }
+    return p;
+}
+
+const Bot::Present& Bot::team_present() const {
+    const int now = turn_round;
+    if (present_round != now) {
+        present_round = now;
+        present_cache = present_near(seen::self_position(), PRESENT_RANGE);
+        if (present_cache.n == 0) present_cache.n = 1;  // channelling ourselves: still one of us
+    }
+    return present_cache;
 }
 
 bool Bot::hard_ok(int s) const {
     if (!HARD_GATE || s >= static_cast<int>(hard_need.size())) return true;
     const int left = hard_left(s);
-    return left == 0 || left <= std::max(team_emblems(), hard_floor);
+    return left == 0 || left <= std::max(PRESENT_GATE ? team_present().emblems : team_emblems(), hard_floor);
 }
 
 void Bot::drop_hard(Travel& travel) {
@@ -499,7 +473,7 @@ void Bot::drop_hard(Travel& travel) {
     // the ones needing the fewest emblems stay (hard_floor), so the team farms the easiest instead of standing idle.
     hard_floor = -1;
     if (!HARD_GATE) return;
-    const int owned = team_emblems();
+    const int owned = PRESENT_GATE ? team_present().emblems : team_emblems();
     // v133t: the free part once for both passes (hard_left read it per group).
     const int free = hard_free();
     auto left_of = [&](int s) { return std::max(0, hard_need[s] - free); };
@@ -790,7 +764,7 @@ const Bot::Travel& Bot::travel(vec2 origin, int skip) {
     drop_monoliths(result);
     // v86: zones the phase keeps closed, the pair's target (main team) or what the pair may not take, and groups too
     // far from a reward being captured outside the safe zone.
-    if (zones_known || capture_near >= 0)
+    if (zones_known || capture_near >= 0 || TEAM_ABANDON)
         for (int s = 0; s < n; ++s) {
             if (!result.has(s)) continue;
             bool drop = !zone_open(s);
@@ -799,6 +773,7 @@ const Bot::Travel& Bot::travel(vec2 origin, int skip) {
                 && (!pair_ok[s] || zone(s) != ZONE_SAFE || (main_slot >= 0 && distance(centers[s], centers[main_slot]) < SPLIT_APART)))
                 drop = true;
             if (capture_near >= 0 && distance(centers[s], centers[capture_near]) > CAPTURE_NEAR) drop = true;
+            if (abandoned(s)) drop = true;
             if (drop) {
                 result.steps[s] = -1;
                 --result.reachable;
@@ -823,7 +798,7 @@ int Bot::pick_target(int s, vec2 origin, int skip, bool seen_only) {
     // (or close enough that turning aside is cheap). A group already under attack is finished.
     // The group being collected is skipped so everyone else moves on. Monoliths wait until
     // the team is strong enough. With seen_only, only loot this champion can see is offered.
-    if (s != skip && mid_clear(s) && allowed(s)) return s;
+    if (s != skip && mid_clear(s) && allowed(s) && !abandoned(s)) return s;
     auto& loot = visible_loot(skip);
     if (seen_only && loot.empty()) return s;
     const auto& steps = travel(origin, skip);
@@ -972,30 +947,10 @@ void Bot::share_loot(const bc::champion& me) {
     if (pair_split() || pocketed(me)) return;
     const int s = slot % static_cast<int>(route.size());
     const auto position = me.position();
-    // v134-move (SHARE_LOOT_TEAM): only with the team: loot only a straggler sees is not on the team's way.
-    if (SHARE_LOOT_TEAM) {
-        bool with = false;
-        const auto& tiles = seen::positions(Team::ally);
-        const auto& allies = seen::champions(Team::ally);
-        for (std::size_t i = 0; i < allies.size() && !with; ++i)
-            with = allies[i] != me && distance(tiles[i], position) <= TEAM_RANGE && !channelling(allies[i]);
-        if (!with) return;
-    }
     const int pick = pick_target(s, position, capture_slot, true);
     if (pick == s || distance(centers[pick], centers[s]) > distance(position, centers[s])) return;
-    // v134-move (SHARE_LOOT_COOL): we pointed here lately and the team is not on it: the leader steered away.
-    const int now = static_cast<int>(bc::round_number());
-    if (SHARE_LOOT_COOL && pick == loot_pointed && now - loot_pointed_round <= SHARE_LOOT_COOL_ROUNDS) {
-        NOTE(format("sees loot at s%d again, but the leader steered away from it %d rounds ago: follow s%d", pick,
-                    now - loot_pointed_round, s));
-        return;
-    }
-    loot_pointed = pick;
-    loot_pointed_round = now;
     slot = pick;
     set_shared_byte(SLOT_BYTE, slot);
-    hold_slot = slot;
-    hold_since = now;
     NOTE(format("sees loot at s%d on the way: points the team there", slot));
 }
 
@@ -1015,24 +970,34 @@ void Bot::update_capture(const bc::champion& me, int& capture, int& who, int& wh
             if (ally_keys[i] && *ally_keys[i] + 1 == who) return !allies[i].is_alive();
         return false;
     };
-    const int was = capture;
     if (capture != NO_CAPTURE && (capture >= static_cast<int>(route.size()) || ready_at[capture] > now
                                   || ((now - when) & 0xFF) > CAPTURE_TIMEOUT || (FIX_CLAIM && collector_dead())))
         capture = NO_CAPTURE;
-    // v134-move (CAPTURE_NEWS): a claim that ended in a respawn tells the team, in the bytes the claim used.
-    if (CAPTURE_NEWS && capture == NO_CAPTURE && was != NO_CAPTURE && was < static_cast<int>(route.size()) && ready_at[was] > now) {
-        who = CAPTURED_MARK | ((ready_at[was] - route[was]->max_respawn_timer()) & CAPTURED_ROUND_MASK);
-        when = was;
-    }
     if (capture != NO_CAPTURE || rewards.empty()) return;
+    // v135 (COLLECT_FIGHT): no new claim while the team fights (a collector off the reward gives it back then, and a
+    // claim each round re-sent it every round: 01gold-rush r1015-1023).
+    if (COLLECT_FIGHT && mode == FIGHT) return;
 
     const auto position = me.position();
     int s = *rewards.begin();
     for (const int r : rewards)
         if (distance(position, centers[r]) < distance(position, centers[s])) s = r;
+    // v135 (COLLECT_FIGHT): an enemy on the reward is fought first, not claimed.
+    if (COLLECT_FIGHT) {
+        auto held = spawn_board(s);
+        held &= bc::vision::champion_tiles(Team::enemy);
+        if (!held.is_empty()) {
+            NOTE(format("an enemy stands on s%d's reward: no claim until it is gone", s));
+            return;
+        }
+    }
     // Only a fresh sighting can claim this group again, so a stale record can't re-send a collector.
     rewards.erase(s);
-    auto can_walk = [&](const bc::champion& a) { return !FIX_WALK_CLAIM || walkable(s, a.position()); };
+    auto can_walk = [&](const bc::champion& a) {
+        if (!FIX_WALK_CLAIM) return true;
+        if (!DASH_REACH) return walkable(s, a.position());
+        return can_reach(s, a.position(), dash_kind(static_cast<Champ>(cached_ident(a) - 1)));
+    };
     const auto& tiles = spawn_lists[s];
     auto nearest_of = [&](const bc::champion& a) {
         int nearest = 0;
@@ -1105,7 +1070,6 @@ void Bot::update_capture(const bc::champion& me, int& capture, int& who, int& wh
 void Bot::sync_decision(const bc::champion& me) {
     auto shared = read_shared();
     const int now = static_cast<int>(bc::round_number());
-    if (CAPTURE_NEWS && shared.capture_slot == NO_CAPTURE && !route.empty()) read_capture_news(shared.collector, shared.claimed);
     if (shared.mode != mode) mode_changed = now;
     // Only Vesper can read her own items, so she raises the shared flag once her core build is done.
     if (!shared.vesper_done && me.champion_name() == Champ::vesper_vale && emblem_count(me) >= VESPER_CORE_EMBLEMS) {
@@ -1113,7 +1077,7 @@ void Bot::sync_decision(const bc::champion& me) {
         mark_vesper_done();
     }
     vesper_done = shared.vesper_done;
-    const int new_carrier = read_carrier();
+    const int new_carrier = NO_ESCORT ? 0 : read_carrier();
     if (new_carrier != carrier) carrier_since = now;
     carrier = new_carrier;
     int carried = 0;
@@ -1127,11 +1091,6 @@ void Bot::sync_decision(const bc::champion& me) {
     zone_cap = zone_cap_for(phase);
     pair_filter = phase == PHASE_SPLIT ? (in_pair() ? 2 : 1) : 0;
     main_slot = route.empty() ? -1 : shared.slot % static_cast<int>(route.size());
-    // v134-move (TARGET_HOLD): every champion notes when the shared target last changed.
-    if (shared.slot != hold_slot) {
-        hold_slot = shared.slot;
-        hold_since = now;
-    }
     // Without a leader this round, last round's decision stands.
     update_rejoining(me, shared.slot);
     const auto block = lead_block(me, shared.stamp, now, shared.slot);
@@ -1174,6 +1133,7 @@ void Bot::sync_decision(const bc::champion& me) {
     int new_phase = phase;
     std::string phase_why;
     if (!route.empty()) {
+        if (TEAM_ABANDON) update_abandon(me, s);
         update_capture(me, capture, who, when);
         // The escort altar is picked from the target, so the target holds while an escort runs.
         // v86: the phase decides which zones the pick may use (and a split's or a raid's target).
@@ -1184,17 +1144,6 @@ void Bot::sync_decision(const bc::champion& me) {
         } else if (V86_ZONES && zones_known) {
             new_phase = !V86_CENTRE || centre_ok(me, shared.phase) ? PHASE_CENTRE : PHASE_GROUP;
             LOG(phase_why = "phase held for the escort";);
-        }
-        // v134-move (TARGET_HOLD): a new target holds TARGET_HOLD_ROUNDS before another switch, unless the held one went
-        // down, the new one is already being cleared, or a kill raid or split starts (a ping rally below still goes).
-        const int held = shared.slot % static_cast<int>(route.size());
-        if (TARGET_HOLD && !carrier && s != held && now - hold_since < TARGET_HOLD_ROUNDS && ready_at[held] <= now
-            && allowed(held) && !mid_clear(s) && !(new_phase == PHASE_RAID && recent_kill()) && new_phase != PHASE_SPLIT
-            && shared.phase != PHASE_SPLIT) {
-            LOG(phase_why += (phase_why.empty() ? "" : "; ")
-                             + format("holds s%d, chosen %d rounds ago (over s%d)", held, now - hold_since, s););
-            s = held;
-            new_phase = shared.phase;
         }
         // v79 (PING_RALLY): point the team at a fresh ping it can answer; farming champions walk to the target.
         if (FIX_PING && PING_RALLY && ping_slot && !carrier && !spawn_zone.is_set(centers[*ping_slot])) {
@@ -1252,11 +1201,7 @@ void Bot::sync_decision(const bc::champion& me) {
     zone_cap = zone_cap_for(phase);
     pair_filter = phase == PHASE_SPLIT ? (in_pair() ? 2 : 1) : 0;
     main_slot = slot % std::max(1, static_cast<int>(route.size()));
-    write_shared(mode, slot, capture, who, when, shared.vesper_done, aggressive, carrier, phase);
-    if (slot != hold_slot) {
-        hold_slot = slot;
-        hold_since = now;
-    }
+    write_shared(mode, slot, capture, who, when, shared.vesper_done, aggressive, NO_ESCORT ? shared_tank() : carrier, phase);
     // v86: log text only (debug builds; release skips it): ~3k fuel a turn.
     LOG({
         // "lead s6 (13,26) -> fight: <score>", naming the final mode first only when it is not the score's own.
@@ -1270,8 +1215,7 @@ void Bot::sync_decision(const bc::champion& me) {
         if (!tags.empty()) text += " | " + tags;
         // The same decision as the last time we led is not printed again; the score's distance term moves every round,
         // so the comparison leaves the numbers out.
-        // v134-move: the target slot stays in the key, so a change of target is always printed.
-        std::string key = format("s%d|", slot);
+        std::string key;
         for (const char ch : text)
             if (!(ch >= '0' && ch <= '9') && ch != '.' && ch != '-') key += ch;
         if (key != lead_logged) shared_why = text;
@@ -1308,10 +1252,20 @@ void Bot::vesper_claim(const bc::champion& me) {
     // that a first-in-line collector holds, nor one with a first-in-line ally in sight within VESPER_CLAIM_RANGE of us.
     if (!vesper_funnel(me) && !marcella_collects(me) && !(PRISM_CLAIM && me.champion_name() == Champ::prism)) return;
     if (is_collector(me) || under_threat(me) || route.empty()) return;
+    // v135 (COLLECT_FIGHT): the team's fight comes first.
+    if (COLLECT_FIGHT && mode == FIGHT && !near_enemies().empty()) return;
     const auto position = me.position();
+    const bool dasher = dash_kind(me.champion_name());
     auto takes = [&](int r) {
         const int rank = collect_rank(me, r);
         if (rank == 0) return false;
+        // v135 (DASH_REACH): never a reward we cannot get to, on foot or by dash.
+        if (DASH_REACH && !can_reach(r, position, dasher)) return false;
+        if (COLLECT_FIGHT) {
+            auto held = spawn_board(r);
+            held &= bc::vision::champion_tiles(Team::enemy);
+            if (!held.is_empty()) return false;
+        }
         if (rank == 1) return true;
         if (capture_slot != NO_CAPTURE && collector > 0
             && kind_rank(static_cast<Champ>(collector - 1), r, true) == 1) return false;
@@ -1346,6 +1300,7 @@ void Bot::vesper_claim(const bc::champion& me) {
 }
 
 void Bot::self_claim(const bc::champion& me) {
+    if (COLLECT_FIGHT && mode == FIGHT) return;  // v135: the team's fight first
     // The leader only claims what it sees itself, so a reward in our own sight could wait for it to pass by.
     // With no claim open, no enemy near and nobody visible nearer to it, we claim it ourselves; a funnelled
     // Vesper in sight claims her own (vesper_claim()).
@@ -1355,7 +1310,7 @@ void Bot::self_claim(const bc::champion& me) {
     int s = -1;
     for (const int r : rewards)
         if (r < static_cast<int>(route.size()) && distance(position, centers[r]) <= SELF_CLAIM_RANGE
-            && (!FIX_WALK_CLAIM || walkable(r, position))
+            && (!FIX_WALK_CLAIM || (DASH_REACH ? can_reach(r, position, dash_kind(me.champion_name())) : walkable(r, position)))
             && (s < 0 || distance(position, centers[r]) < distance(position, centers[s])))
             s = r;
     if (s < 0) return;
@@ -1398,7 +1353,6 @@ bool Bot::collect(const bc::champion&) {
     if (ready_at[index] > static_cast<int>(bc::round_number())) {
         set_shared_byte(CAPTURE_SLOT_BYTE, NO_CAPTURE);
         capture_slot = NO_CAPTURE;
-        announce_capture(index);
         NOTE(format("claim on s%d over: the group is respawning", index));
         return false;
     }
@@ -1420,7 +1374,8 @@ bool Bot::collect(const bc::champion&) {
     if (FIX_WALK_CLAIM && !walkable(index, position)) {
         int nearest = distance(position, spawn_lists[index].front());
         for (const auto t : spawn_lists[index]) nearest = std::min(nearest, distance(position, t));
-        if (!ability_of(me, Kind::dash) || nearest > WALK_CLAIM_DASH) {
+        const bool dasher = ability_of(me, Kind::dash).has_value();
+        if (DASH_REACH ? !can_reach(index, position, dasher) : (!dasher || nearest > WALK_CLAIM_DASH)) {
             release_claim("no walking path to the reward");
             rewards.erase(index);
             return false;
@@ -1460,8 +1415,90 @@ bool Bot::collect(const bc::champion&) {
         }
     }
     WHY("collect.loot", format("collector of s%d: ", index) + how);
-    move_towards_closest(*goals);
+    // v135 (CLAIM_HANDOFF): a free reward tile we still cannot step toward is a blocked path (every tile taken is
+    // not: whoever stands there captures it).
+    bool free_goal = false;
+    // A stun or a spent walk is not a blocked path (02gemfight r480: a stunned Vesper handed off mid-fight).
+    if (CLAIM_HANDOFF && !tiles.is_set(position) && me.can_move()) {
+        auto open = *goals;
+        open &= ~bc::vision::champion_tiles(Team::ally);
+        open &= ~bc::vision::champion_tiles(Team::enemy);
+        // Tiles the walk guard holds (an awake camp's reach) wait for the camp to sleep: anyone else would wait too.
+        if (walk_guard && !walk_guard->is_set(position)) open &= ~*walk_guard;
+        free_goal = !open.is_empty();
+    }
+    const bool stepped = move_towards_closest(*goals);
+    // v135 (CLAIM_HANDOFF): refused a step turn after turn off the reward: someone nearer takes it.
+    if (CLAIM_HANDOFF && !tiles.is_set(position)) {
+        const int now = static_cast<int>(bc::round_number());
+        const bool blocked = !stepped && free_goal;
+        // Debug only: what cuts the path (terrain, terrain + walk guard, terrain + units), and the goal tiles.
+        LOG(if (!stepped) {
+            bc::bitboard root{bc::uninitialized}, reach{bc::uninitialized}, wall{bc::uninitialized};
+            bc::distance_field f;
+            auto test = [&](const bc::bitboard& walls) {
+                auto w = walls;
+                w &= ~*goals;
+                w.set(position, false);
+                fast::around_into(position, 0, root);
+                f.compute_to(w, *goals, root, reach);
+                return reach.is_set(position);
+            };
+            const bool terrain = test(seen::terrain());
+            wall = seen::terrain();
+            if (walk_guard) wall |= *walk_guard;
+            const bool guard = test(wall);
+            blocked_tiles_into(wall);
+            const bool units = test(wall);
+            std::string g;
+            for (const auto t : goals->positions()) g += " " + at(t);
+            note(format("collect path: terrain %s, +guard %s, +units %s; goals", terrain ? "ok" : "CUT", guard ? "ok" : "CUT",
+                        units ? "ok" : "CUT") + g + (walk_guard && walk_guard->is_set(position) ? "; we stand in the guard" : ""));
+        });
+        collect_stuck = !blocked ? 0 : (collect_stuck_round == now - 1 ? collect_stuck + 1 : 1);
+        collect_stuck_round = now;
+        if (collect_stuck >= CLAIM_STUCK) {
+            collect_stuck = 0;
+            hand_claim(me, index);
+        }
+    }
     return true;
+}
+
+bool Bot::can_reach(int s, vec2 from, bool dasher) {
+    if (walkable(s, from)) return true;
+    if (!DASH_REACH || !dasher || s < 0 || s >= static_cast<int>(route.size()) || bc::fuel_remaining() < HOP_FUEL) return false;
+    return hop_steps(from, spawn_board(s)).has_value();
+}
+
+void Bot::hand_claim(const bc::champion& me, int index) {
+    // The visible ally nearest the reward on foot (the group's walk field), not channelling, and nearer than us (no
+    // hand back and forth between two blocked champions); none: we keep the claim and keep trying.
+    const auto& allies = seen::champions(Team::ally);
+    const auto& tiles = seen::positions(Team::ally);
+    const bool fielded = index < static_cast<int>(goal_fields.size()) && goal_fields[index];
+    int best = -1;
+    unsigned best_steps = fielded ? goal_fields[index]->field.get(seen::self_position())
+                                  : static_cast<unsigned>(distance(seen::self_position(), centers[index]));
+    for (std::size_t i = 0; i < allies.size() && i < tiles.size(); ++i) {
+        if (allies[i] == me || channelling(allies[i])) continue;
+        unsigned steps = static_cast<unsigned>(distance(tiles[i], centers[index]));
+        if (fielded) steps = goal_fields[index]->field.get(tiles[i]);
+        if (steps < best_steps) {
+            best_steps = steps;
+            best = cached_ident(allies[i]);
+        }
+    }
+    if (best < 0) {
+        NOTE(format("refused a step toward s%d's reward, no ally nearer to take it: keep trying", index));
+        return;
+    }
+    const int now = static_cast<int>(bc::round_number());
+    collector = best;
+    claimed = now;
+    set_shared_byte(CAPTURE_SLOT_BYTE + 1, best);
+    set_shared_byte(CLAIM_ROUND_OFFSET, now & 0xFF);
+    NOTE(format("hands the claim on s%d to c%d: refused a step toward the reward %d turns running", index, best - 1, CLAIM_STUCK));
 }
 
 bool Bot::capture_help(const bc::champion& me) {

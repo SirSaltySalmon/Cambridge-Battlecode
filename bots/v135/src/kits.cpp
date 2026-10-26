@@ -193,6 +193,23 @@ bool Bot::should_hold_back(const bc::champion& me, const Target& camp) {
     // Clusters have no strength, so there is nothing to absorb. Willow still takes those.
     if (camp.strength() <= 0) return false;
     if (FIX_ABSORB && camp_tanked(me, camp)) return false;
+    // v135 (TANK_SWAP): a sturdy ally at the camp takes over from a tank stepping back; we keep hitting meanwhile.
+    if (TANK_SWAP) {
+        vec2 spot;
+        int reach;
+        try {
+            spot = camp.position();
+            reach = camp.attack_range();
+        } catch (const std::exception&) {
+            return true;
+        }
+        const auto& allies = seen::champions(Team::ally);
+        const auto& tiles = seen::positions(Team::ally);
+        for (std::size_t i = 0; i < allies.size() && i < tiles.size(); ++i)
+            if (allies[i] != me && distance(tiles[i], spot) <= reach + 2 && allies[i].max_health() >= TANK_HEALTH
+                && allies[i].health() >= allies[i].max_health() * RECALL_HEALTH && !channelling(allies[i]))
+                return false;
+    }
     for (const auto& ally : closer_melees(me, camp))
         if (coming_to_camp(ally, camp)) return false;
     // Other ranged may open a camp with no tank in sight. A melee that then appears,
@@ -417,6 +434,17 @@ void Bot::aoe_scan(const Target& target, bool is_camp) {
     aoe_places.clear();
     aoe_clear.clear();
     const auto s = is_camp ? camp_slot(target) : std::nullopt;
+    // v135 (SAFE_LAND): the same rule as HoR's landing (area_ok): what is not ours to wake stays out of the area.
+    const int farm_s = route.empty() ? -1 : slot % static_cast<int>(route.size());
+    // Short of fuel: v134's rule (every other group kept clear), without the per-group checks.
+    const bool spare = SAFE_LAND && bc::fuel_remaining() >= V135_SPARE_FUEL;
+    const bool engaged = spare && camp_heat(bc::self()) > 0;
+    // area_ok once per group (it reads camps and may run the solo math): 0 unknown, 1 ok, 2 not.
+    aoe_ok_memo.assign(route.size(), 0);
+    auto ok = [&](int g) {
+        if (!aoe_ok_memo[g]) aoe_ok_memo[g] = area_ok(g, farm_s, engaged) ? 1 : 2;
+        return aoe_ok_memo[g] == 1;
+    };
     for (const auto& c : seen::camps()) {
         const int cs = slot_at(c.spawn_position());
         if (s && cs == *s) {
@@ -424,17 +452,34 @@ void Bot::aoe_scan(const Target& target, bool is_camp) {
             continue;
         }
         if (cs >= 0 && clusters_only[cs]) continue;
+        if (spare && cs >= 0 && ok(cs)) continue;
         aoe_clear.push_back(c.position());
     }
-    // v134-move (AOE_MAP_CLEAR): camps out of sight near us (a bush, past a wall) are kept clear too, from the map.
-    if (AOE_MAP_CLEAR) {
-        unseen_strong_into(aoe_unseen);
-        fast::around_into(seen::self_position(), AOE_MAP_NEAR, aoe_near);
-        aoe_unseen &= aoe_near;
-        std::array<vec2, 64> tiles;
-        const auto n = std::min<std::size_t>(aoe_unseen.positions_into(tiles), tiles.size());
-        for (std::size_t i = 0; i < n; ++i)
-            if (!s || slot_at(tiles[i]) != *s) aoe_clear.push_back(tiles[i]);
+    // v135 (SAFE_LAND): live groups' tiles out of sight (a bush, behind a wall) are kept clear too; spells reach 4 and
+    // areas 1, so only tiles within 6 of us matter.
+    if (spare && !route.empty()) {
+        const auto position = seen::self_position();
+        const int now = static_cast<int>(bc::round_number());
+        static bc::bitboard sight{bc::uninitialized};
+        bool read = false;
+        if (group_radius.size() != route.size()) {
+            group_radius.assign(route.size(), 0);
+            for (int g = 0; g < static_cast<int>(route.size()); ++g)
+                for (const auto t : spawn_lists[g]) group_radius[g] = std::max(group_radius[g], distance(centers[g], t));
+        }
+        for (int g = 0; g < static_cast<int>(route.size()); ++g) {
+            if (distance(position, centers[g]) > 6 + group_radius[g]) continue;
+            if ((s && g == *s) || clusters_only[g] || ready_at[g] > now || rewards.count(g)) continue;
+            if (ok(g)) continue;
+            for (const auto t : spawn_lists[g]) {
+                if (distance(position, t) > 6) continue;
+                if (!read) {
+                    bc::vision::visible_tiles_into(sight);
+                    read = true;
+                }
+                if (!sight.is_set(t)) aoe_clear.push_back(t);
+            }
+        }
     }
     if (!is_camp)
         for (const auto& e : seen::champions(Team::enemy))

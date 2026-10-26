@@ -44,7 +44,7 @@ struct MoveScratch {
     bc::bitboard blocked{bc::uninitialized}, goals{bc::uninitialized}, walls{bc::uninitialized}, root{bc::uninitialized},
         reached{bc::uninitialized}, near{bc::uninitialized}, reachable{bc::uninitialized}, landing{bc::uninitialized},
         part{bc::uninitialized}, hop_walls{bc::uninitialized}, hop_reached{bc::uninitialized}, few_reached{bc::uninitialized},
-        walk2{bc::uninitialized}, keep{bc::uninitialized};
+        walk2{bc::uninitialized};
 };
 MoveScratch& scratch() {
     static MoveScratch s;
@@ -70,6 +70,7 @@ std::size_t landings_by_field(vec2 origin, int reach, const bc::bitboard& allowe
     auto& s = scratch();
     fast::around_into(origin, static_cast<float>(reach), s.landing);
     s.landing &= allowed;
+    if (land_bar) s.landing &= ~*land_bar;
     const auto n = tiles_of(s.landing, out);
     std::stable_sort(out.begin(), out.begin() + static_cast<std::ptrdiff_t>(n),
                      [&](vec2 a, vec2 b) { return field.get(a) < field.get(b); });
@@ -130,11 +131,6 @@ const bc::bitboard& few_hop_holes(const bc::bitboard& goals) {
     return cache.back().holes;
 }
 
-// v134-move (HOP_STICKY): the last round a hop route was taken. The planner only wakes with a thin hole within HOP_NEAR,
-// so a route through a farther hole was taken on one tile and dropped on the next (02tangle: 400 bounces).
-int hop_round = -10;
-bool hop_sticky() { return HOP_STICKY && hop_round >= static_cast<int>(bc::round_number()) - 1; }
-
 // v98 (FIX_HOP): a dasher's route through thin holes when it beats walking by HOP_SAVE steps (or walking cannot
 // reach the goal). Dashes across when ready, else walks toward the edge or waits there. Returns whether the hop
 // route was taken: the turn's movement is then decided, waiting included, so the caller's branch keeps the turn
@@ -144,28 +140,17 @@ bool hop_route(const bc::champion& me, vec2 origin, const bc::bitboard& walls, c
                std::optional<bc::ability> dash, bool& acted) {
     auto& s = scratch();
     const auto& thin = thin_holes();
-    if (thin.is_empty() || bc::fuel_remaining() < HOP_FUEL) {
-        LOG(trace::via = "hop: no thin holes or fuel";);
-        return false;
-    }
+    if (thin.is_empty() || bc::fuel_remaining() < HOP_FUEL) return false;
     // Board-level checks only: looping over the goal tiles (thousands on some boards) ran 10x more turns out of fuel.
-    if (walk_reached.is_set(origin) && static_cast<int>(walk.get(origin)) < GO_HOP_SAVE + 2) {
-        LOG(trace::via = "hop: the walk is short";);
-        return false;
-    }
+    if (walk_reached.is_set(origin) && static_cast<int>(walk.get(origin)) < GO_HOP_SAVE + 2) return false;
     fast::around_into(origin, static_cast<float>(HOP_NEAR), s.near);
     s.near &= thin;
-    if (s.near.is_empty() && !hop_sticky()) {
-        LOG(trace::via = "hop: no thin hole near";);
-        return false;
-    }
+    // v135 (HOP_WHEN_CUT): with no walking path at all, the crossing may be anywhere on the route.
+    if (s.near.is_empty() && !(HOP_WHEN_CUT && !walk_reached.is_set(origin))) return false;
     static const bc::bitboard not_thin = ~thin_holes();
     fast::and_into(walls, not_thin, s.hop_walls);
     s.hop.compute_to(s.hop_walls, goals, s.root, s.hop_reached);
-    if (!s.hop_reached.is_set(origin)) {
-        LOG(trace::via = "hop: the hop field never reached us";);
-        return false;
-    }
+    if (!s.hop_reached.is_set(origin)) return false;
     const bc::distance_field* hop = &s.hop;
     const bc::bitboard* hop_reached = &s.hop_reached;
     const bc::bitboard* holes = &thin;
@@ -191,16 +176,9 @@ bool hop_route(const bc::champion& me, vec2 origin, const bc::bitboard& walls, c
     // edge-wait turns, and the hop variant lost a map v97 won 4 of 4).
     std::int64_t recharge = 0;
     if (const auto any = ability_of(me, Kind::dash)) recharge = std::max<std::int64_t>(0, any->cooldown());
-    // v134-move: both routes' lengths, for the log.
-    LOG(trace::via = format("hop %d + recharge %d vs walk %d", static_cast<int>(via_hop), static_cast<int>(recharge),
-                            walk_reached.is_set(origin) ? static_cast<int>(walk.get(origin)) : -1););
     if (walk_reached.is_set(origin)
-        && static_cast<std::int64_t>(via_hop) + recharge + GO_HOP_SAVE > static_cast<std::int64_t>(walk.get(origin))) {
-        LOG(trace::via += ": walk";);
+        && static_cast<std::int64_t>(via_hop) + recharge + GO_HOP_SAVE > static_cast<std::int64_t>(walk.get(origin)))
         return false;
-    }
-    LOG(trace::via += ": hop";);
-    hop_round = static_cast<int>(bc::round_number());
     if (dash) {
         // Land on the standable tile that gains the most ground on the hop route (holes are in blocked).
         fast::not_into(blocked, s.part);
@@ -220,13 +198,7 @@ bool hop_route(const bc::champion& me, vec2 origin, const bc::bitboard& walls, c
                 if (!s.landing.is_empty()) continue;
             }
             // v101: Heart of Ruin's landing hits radius one, which would wake a camp beside the tile.
-            // v134-move (HOR_DASH_SAFE): camps from the map, in sight or not.
-            if (dash_keep_off) {
-                if (dash_keep_off->is_set(tile)) {
-                    LOG(trace::move_failed("hop landing " + at(tile) + " beside a camp: skipped"););
-                    continue;
-                }
-            } else if (me.champion_name() == Champ::heart_of_ruin) {
+            if (me.champion_name() == Champ::heart_of_ruin) {
                 bool beside = false;
                 for (const auto& c : seen::camps())
                     if (distance(tile, c.position()) <= 1) beside = true;
@@ -287,17 +259,9 @@ std::optional<int> hop_steps(vec2 origin, const bc::bitboard& goals) {
 }
 
 const bc::bitboard* walk_guard = nullptr;
-const bc::bitboard* dash_keep_off = nullptr;
+const bc::bitboard* land_bar = nullptr;
 
 namespace {
-
-// v134-move (HOR_DASH_SAFE): drop the keep-off tiles from a dash's landings.
-void keep_off(bc::bitboard& landings) {
-    if (!dash_keep_off) return;
-    auto& s = scratch();
-    fast::not_into(*dash_keep_off, s.keep);
-    landings &= s.keep;
-}
 
 // Land a ready dash on the free tile in its range that gains the most ground on `field` (any gain is worth the
 // cooldown), and none farther than `most` from the goals; `landings` are the tiles allowed.
@@ -326,9 +290,9 @@ bool dash_ranked(const bc::ability& dash, vec2 origin, const Go& opt) {
     if (opt.avoid) s.part |= *opt.avoid;
     if (opt.guard_dash && walk_guard && !walk_guard->is_set(origin)) s.part |= *walk_guard;
     s.part.set(origin, true);
-    if (dash_keep_off) s.part |= *dash_keep_off;
     fast::not_into(s.part, s.walk2);
     s.landing &= s.walk2;
+    if (land_bar) s.landing &= ~*land_bar;
     Tiles tiles;
     const auto n = tiles_of(s.landing, tiles);
     std::array<std::pair<long, vec2>, 64> ranked;
@@ -379,6 +343,7 @@ bool go(const bc::bitboard& goals_in, const Go& opt) {
     }
     auto dash = ability_of(me, Kind::dash);
     if (opt.dash == DashUse::keep) dash.reset();
+    const bool owns_dash = dash.has_value();
 
     // The caller's own landing ranking first; the rest of the move then runs from where it lands.
     if (opt.rank && dash && dash->is_ready()) {
@@ -412,7 +377,6 @@ bool go(const bc::bitboard& goals_in, const Go& opt) {
     // v132f/g (WALK_GUARD): out of awake camps' reach, unless we already stand in it (then this is the walk out).
     const bool guarded = walk_guard && !walk_guard->is_set(origin);
     if (guarded) blocked |= *walk_guard;
-    LOG(if (guarded) trace::guard = "on";);
     const auto& raw = goals_in;
     // goals_in & (~blocked | camp tiles), built in place to skip the temporary boards.
     auto& goals = s.goals;
@@ -431,7 +395,7 @@ bool go(const bc::bitboard& goals_in, const Go& opt) {
     if (FIX_HOP && dash) {
         fast::around_into(origin, static_cast<float>(HOP_NEAR), s.near);
         s.near &= thin_holes();
-        dasher = !s.near.is_empty() || hop_sticky();
+        dasher = !s.near.is_empty();
     }
     if (dash && !dash->is_ready()) dash.reset();
     // v133 (GO_FINISH_PATH): the closing dash goes before the keep rules: it only goes when it ends the approach.
@@ -473,19 +437,17 @@ bool go(const bc::bitboard& goals_in, const Go& opt) {
         if (finish) {
             fast::not_into(blocked, s.part);
             s.part &= reached;
-            keep_off(s.part);
             dashed = dash_along(*dash, origin, field, s.part, opt.finish, opt.aim);
             if (!dashed && kept) dash.reset();
         }
         const bool closed = dashed;
 
+        // v135 (HOP_WHEN_CUT): no walking path at all: a dasher plans the hop route wherever the crossing is.
+        if (HOP_WHEN_CUT && FIX_HOP && owns_dash && !kept && !reached.is_set(origin)) dasher = true;
         if (!dashed && dasher && opt.walk && (!avoid || GO_HOP_AVOID)) {
             bool acted = false;
             if (hop_route(me, origin, walls, goals, raw, blocked, field, reached, dash, acted)) return true;
         }
-        LOG(if (FIX_HOP && ability_of(me, Kind::dash) && trace::via.empty())
-                trace::via = kept ? "hop: dash kept (enemy in sight)" : (avoid && !GO_HOP_AVOID) ? "hop: a keep-out board"
-                           : !opt.walk ? "hop: dash-only move" : !dasher ? "hop: no thin hole near" : "hop: closing dash";);
 
         // Dash whenever it is ready (it leaves the walk free), then walk on from where it lands. v133 (GO_SHORT_DASH):
         // not on a route walk this turn's steps already finish.
@@ -493,7 +455,6 @@ bool go(const bc::bitboard& goals_in, const Go& opt) {
                                  && static_cast<int>(field.get(origin)) <= static_cast<int>(move_speed(me)))) {
             fast::not_into(blocked, s.part);
             s.part &= reached;
-            keep_off(s.part);
             dashed = dash_along(*dash, origin, field, s.part);
         }
         if (dashed) {
@@ -533,20 +494,7 @@ bool go(const bc::bitboard& goals_in, const Go& opt) {
             return false;
         }
         if (dashed) return true;
-        // v134-move: the field around us, for "no closer step" (steps to the goals; # blocked, x off the map, - unreached).
-        LOG({
-            std::string around = format("; field here %d:", static_cast<int>(field.get(origin)));
-            for (int dy = -1; dy <= 1; ++dy)
-                for (int dx = -1; dx <= 1; ++dx) {
-                    if (!dx && !dy) continue;
-                    const vec2 t{origin.x + dx, origin.y + dy};
-                    if (t.x < 0 || t.y < 0 || t.x >= bc::map::width() || t.y >= bc::map::height()) { around += " x"; continue; }
-                    if (blocked.is_set(t)) around += seen::fixed_blocks().is_set(t) ? " #" : " u";
-                    else if (!reached.is_set(t)) around += " -";
-                    else around += format(" %d", static_cast<int>(field.get(t)));
-                }
-            trace::move_failed(no_step_reason(origin, &reached) + around);
-        });
+        LOG(trace::move_failed(no_step_reason(origin, &reached)););
         return false;
     } catch (const bc::error& error) {
         LOG(trace::move_failed(std::string("move error ") + error_text(error)););

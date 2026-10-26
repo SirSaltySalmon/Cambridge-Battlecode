@@ -1,6 +1,91 @@
 // Tunables, shop builds, and the shared-memory layout.
 #pragma once
 #include <cambc.h>
+
+// ---- v135 switches (plan: bots/v135a/PLAN.md) ----
+// F6 NO_ESCORT: no escorted tribute (774 escorts in 260 audit logs, 43 banked, 535 cancelled within 4 rounds by the
+//   carrier's own stale timer). Heavy bags bank by the usual rules; the mode byte's carrier bits go to TANK_ON_DUTY.
+inline constexpr bool NO_ESCORT = true;
+// F1 CAPTURE_STAGE: nobody but the collector targets a group under capture (23.8k turns / 65 games walked onto its
+//   tiles and stepped off: the capture_near table was empty, so pick_target fell back to the capture slot). The pick
+//   is redone without capture_near; the others wait off the reward's tiles, at the CAPTURE_NEAR edge toward the next
+//   group when the reward is outside the safe zone.
+inline constexpr bool CAPTURE_STAGE = true;  // the old ring/edge wait lost (-7.2/-8.6%); on now only to run CAPTURE_MOVE_ON
+// CAPTURE_REPICK: the re-pick part of CAPTURE_STAGE (the next group from the whole table); off keeps v134's pick and
+//   only stops the walk onto the reward's tiles.
+inline constexpr bool CAPTURE_REPICK = true;
+// STAGE_PATH: the staging ring leaves the collector's walking path to the reward free (traced down the group's walk
+//   field from the collector's tile): staged bodies on it deadlocked captures (02fields r725-792: five idle 65+ rounds).
+inline constexpr bool STAGE_PATH = true;
+// CAPTURE_MOVE_ON (user): the collector captures alone (the rules need one champion on one tile); everyone else treats
+//   the group as done: never on its tiles, no waiting ring or edge wait, the team target moves to the next group
+//   (CAPTURE_REPICK when V86_CAPTURE_NEAR's table is empty). With nothing else to farm: off its tiles, stand still.
+inline constexpr bool CAPTURE_MOVE_ON = true;  // with V86_CAPTURE_NEAR off: +10.6% vs v134 (3 seeds), control +8.6%
+// CLAIM_HANDOFF: a collector refused a step CLAIM_STUCK turns running, off the reward, hands the claim to the visible
+//   ally nearest the reward on foot (shared collector byte), else gives it back: a re-claim went to the same blocked
+//   collector (10-21 stalls of 10+ turns per 130 games).
+inline constexpr bool CLAIM_HANDOFF = true;
+inline constexpr int CLAIM_STUCK = 2;
+// PASS_REACH: the free hit on a passing cluster skips one whose reward we cannot walk to (02the-pond: Vesper killed a
+//   gold cluster on an island of holes from the shore, then her claim on it stalled 10+ rounds again and again).
+inline constexpr bool PASS_REACH = true;
+// DASH_REACH: "can it get to the reward" counts a dash: walkable, or for a champion with a dash, reachable by hopping
+//   thin holes (hop_steps). Used by every claim (leader, Vesper/Marcella/Prism funnel, self claim), the collector's
+//   give-back, PASS_REACH and capture staging. 02the-pond: a funnelled Vesper claimed an island cluster no walk or
+//   dash reaches (no standable tile within 2) and stood still on it 16 rounds at a time.
+inline constexpr bool DASH_REACH = true;
+// COLLECT_FIGHT: a fight comes before a reward: a collector gives the claim back when an enemy stands on the reward,
+//   or when the team fights with an enemy near and we are not on a reward tile yet (collection ran before the fight
+//   step and only an enemy in reach of us stopped it: 01gold-rush, Vesper idle 4 turns holding a claim on a tile an
+//   enemy stood on while the team fought it).
+inline constexpr bool COLLECT_FIGHT = true;
+// HOP_WHEN_CUT: go() plans the hop route whenever walking cannot reach the goal at all and we own a dash (it only did
+//   with a thin hole within HOP_NEAR of us: 01shortcut, HoR idle on a reward his dash reaches but the walk does not).
+inline constexpr bool HOP_WHEN_CUT = true;
+// F4 SAFE_LAND: a dash whose landing hits an area (Heart of Ruin) never lands within that area of a camp group we are
+//   not farming now (static spawn tiles, so camps behind walls or in bushes count: 00great-wall monoliths). Farmable
+//   now: clusters only, or the farm target / a group we already hit, when allowed (gate, monolith rules). No legal
+//   landing: no dash. Area spells keep clear of hidden live groups' tiles too. Audit: 243 off-target HoR landings,
+//   17 deaths and 174 camp exits in 65 games.
+inline constexpr bool SAFE_LAND = true;
+// SOLO_LAND (user's rule): a group is farmable for a landing only if HoR alone clears it (his strength with camp-damage
+//   items, plus the landing hit) before its hits (with his camp-damage cuts) take him under FINISH_HEALTH, allies not
+//   counted (they may not follow across a gap). Clusters always pass; unseen camps fail. The farm target (or a group
+//   we already hit) skips the check (user): it passes on the gate and monolith rules. Off: only that exception.
+//   One rule for every area hit (Bot::area_ok): HoR's landing and the area spells' clear list. The solo exception
+//   never applies while awake camps already hit us, so an area never stacks a second group's damage on the first.
+inline constexpr bool SOLO_LAND = true;
+// F5 PRESENT_GATE: the emblem gate counts the champions present, not the roster: free part = allies (and us) within
+//   PRESENT_RANGE of us, emblems = theirs only. Before the first hit on an unstarted elk/golem group a champion
+//   counts who is within PRESENT_STAGE_RANGE of the group: a failed gate holds it just outside the camps' reach
+//   (ladder 00dunes: Ryth took a golem alone r60-71); a passed gate still waits for STAGE_MIN allies there, at most
+//   STAGE_ROUNDS rounds, so the team opens it together (audit: the others' first hit came a median 3 rounds late).
+inline constexpr bool PRESENT_GATE = true;
+inline constexpr int PRESENT_RANGE = 12, PRESENT_STAGE_RANGE = 8, STAGE_MIN = 2, STAGE_ROUNDS = 4;
+// F2 TANK_SWAP: sturdy = max health TANK_HEALTH+ (a health gate: Prism grows into it) and over the recall bar. A hurt
+//   champion farming with a sturdy ally near the group steps behind it (a sturdy ally strictly nearer to every awake
+//   camp reaching the tile) and keeps hitting, leaving only under FINISH_HEALTH, with an enemy near, or when the
+//   hits until the swap would take it there. A sturdy ally over TANK_TAKE_HEALTH steps strictly nearer to a camp of
+//   our group whose nearest champion is a hurt or fragile ally. Ranged hold back only with no sturdy ally there.
+inline constexpr bool TANK_SWAP = true;
+inline constexpr double TANK_HEALTH = 1000, TANK_TAKE_HEALTH = 0.5;
+// SWAP_HIT: the hurt champion stays behind only on a tile it hits a camp from (v135 bench: idle waits behind a tank,
+//   then a recall anyway, lost 175-200; 56 of 628 swap runs idled 12+ turns).
+inline constexpr bool SWAP_HIT = true;
+// F3 TEAM_ABANDON: the leader drops the farm target while its awake camps hit a hurt ally (under BAND_HEALTH) with
+//   no sturdy ally near them: the shared slot moves on, so the walk guard and camp exit take everyone out,
+//   and nobody walks back in until the group is seen asleep (or ABANDON_ROUNDS pass unseen). Audit: 49% of exits
+//   were hit again within 10 rounds, 1,922 of them walking back into the same farm target.
+inline constexpr bool TEAM_ABANDON = false;  // alone +5.0%; with the others -4.6 to -6.2 points (3 seeds, twice)
+inline constexpr int ABANDON_ROUNDS = 6;
+// BANK_KEEP: an idle-bag bank walk (rule 7, target respawning) keeps going while the bag is over IDLE_BANK: walking
+//   toward the altar made the respawn wait on arrival zero, so the walk flipped back to farm.wait and back (v135
+//   audit: bank.walk <-> farm.wait loops, 00ambush Marcella r108-118).
+// V135_SPARE_FUEL: under this much fuel left in the turn, the optional v135 work is skipped (the sturdy ally's step in
+//   front, the area rule's per-group checks in aoe_scan, which then keeps every other group clear as v134 did). v135
+//   doubled out-of-fuel turns on lanes / yellow-brick-road, mostly fight turns with more enemies in sight.
+inline constexpr std::uint64_t V135_SPARE_FUEL = 30000;
+inline constexpr bool BANK_KEEP = false;  // neutral alone (-0.5%, 3 seeds)
 #include <cstdint>
 #include <span>
 
@@ -491,49 +576,6 @@ inline constexpr bool GO_EXIT_DASH = true;
 // v132c (CAMP_WAIT_FARM): farm() no longer keeps out of the camps we left (v131's 20-round keep-out): farming, the only
 // reason to leave a camp is a recall. Camps are still remembered on every exit for the fight wait.
 inline constexpr bool CAMP_WAIT_FARM = false;
-
-// ---------------------------------------------------------------------------------------------------------------------
-// v134-move: movement fixes from the v134 self-play audit (65 maps, debug): 37,980 of 463,850 moves (8%) were undone the
-// next turn. Each switch is one cause found in the logs.
-// CAPTURE_WAIT: a cleared group with a reward (rewards) or an open claim is not "up but out of sight". Claimed by someone
-//   else: wait on the ring off its tiles (the walk onto its tiles and FIX_POCKET's step-off alternated: 2,350 bounces,
-//   00ambush r416-422 four champions for seven rounds). Unclaimed: stand on it (standing captures; no step-off).
-// CAPTURE_NEWS: see CAPTURED_MARK below; readers set their respawn record from it.
-// SHARE_LOOT_COOL: a follower does not point the team again at loot the leader steered away from within
-//   SHARE_LOOT_COOL_ROUNDS (00great-wall: Ryth 11 tiles from the team, s5 <-> s11 for 60 rounds; 2,829 bounce turns).
-// FINISH_TANK: finish_ok counts an ally as the tank only if it is nearer the camps than we would be when hitting them
-//   (our reach), not than we stand now: from outside it said "an ally tanks, finish", from inside "leave" (02the-pond).
-// EXIT_COMMIT: after leaving awake camps (any camp exit), farming keeps out of those camps too, the target group
-//   included, until they are seen asleep or dead (or CAMP_WAIT_ROUNDS): no walking back in while they are still
-//   awake (00elkring: Marcella in, out, in for 9 rounds; fight.exit <-> farm.camp 1,320 bounces).
-// HOR_DASH_SAFE: Heart of Ruin's movement dashes (route, hop, escape, kite, closing) never land within one tile of a
-//   camp spawn tile (from the map: bushes and out-of-sight camps too): the landing's area stun wakes the group. No
-//   landing left: no dash. His deliberate camp dash (HOR_CAMP_DASH) and dive keep their own rules, on the same board.
-// AOE_MAP_CLEAR: area hits keep clear of camps from the map, not only those in sight (a camp in a bush counted as
-//   absent and was woken).
-// EXIT_COMMIT_FIGHT: fighting, the same keep-out lasts EXIT_COMMIT_ROUNDS (was CAMP_WAIT_FIGHT_ROUNDS = 4).
-// OFF: benched vs v134 (390 games, release), all on +9.7% banked, EXIT_COMMIT_FIGHT off +12.0%, both off +19.9% (K/D
-//   6028/5634 vs 5754/6038 with them on): holding out of camps until they sleep loses the fights around them.
-// BANK_OPEN: bank walks skip an altar whose every submit tile in sight is a wall or a living camp (02guardians: 662
-//   bounces, a camp on the one free tile beside the altar; the walk failed one step short and farm.walk stepped back).
-inline constexpr bool BANK_OPEN = true;
-// HOP_STICKY: a dasher that took a hop route keeps planning hops next turn even with no thin hole within HOP_NEAR
-//   (02tangle: the plain walk and the hop route went opposite ways on neighbouring tiles; ~400 bounces).
-inline constexpr bool HOP_STICKY = true;
-// TARGET_HOLD: the leader keeps a new shared target TARGET_HOLD_ROUNDS before switching again (unless the held group went
-//   down, the new one is mid-clear, or a kill raid / split / ping rally starts): 2,249 of 12,162 target changes in the
-//   audit went back within 6 rounds (leaders with different respawn records, vision-edge picks, invasion flips).
-// INVADE_OWN_KEEP: invasions are rated against our current own-side target too, not only the fresh normal pick.
-// SHARE_LOOT_TEAM: a follower points the team at loot only with an ally within TEAM_RANGE.
-inline constexpr bool TARGET_HOLD = true, INVADE_OWN_KEEP = true, SHARE_LOOT_TEAM = true;
-inline constexpr int TARGET_HOLD_ROUNDS = 6;
-inline constexpr bool CAPTURE_WAIT = true, CAPTURE_NEWS = true, SHARE_LOOT_COOL = true, FINISH_TANK = true,
-                      EXIT_COMMIT = false, EXIT_COMMIT_FIGHT = false, HOR_DASH_SAFE = true, AOE_MAP_CLEAR = true;
-inline constexpr int SHARE_LOOT_COOL_ROUNDS = 20;
-// A camp sleeps two rounds after nobody is in its reach; an ally still inside keeps it awake, so the wait has an end.
-inline constexpr int EXIT_COMMIT_ROUNDS = 10;
-// Area spells reach 4 + radius 1: camps out of sight farther than this cannot be hit.
-inline constexpr float AOE_MAP_NEAR = 6;
 // v134 (step 5: the emblem term, +3 per emblem of ours and ~+41 in an average v129 fight decision, outweighed every other
 // term in 69% of fight starts; behind on both health and power, fights started lost 47%, won 3%):
 // EMB_DOUBLE_DEFICIT: behind on health AND power and not outnumbering (weighted bodies), the emblem term is dropped.
@@ -744,7 +786,7 @@ inline constexpr int SPLIT_MAX_WALK = 16;
 inline constexpr int NO_TARGET2 = 63;
 // Capture spacing: while a reward outside the safe zone is being captured, the rest only move on to groups within
 // CAPTURE_NEAR tiles of it, so the collector stays in sight of the team.
-inline constexpr bool V86_CAPTURE_NEAR = true;
+inline constexpr bool V86_CAPTURE_NEAR = false;  // v135: off with CAPTURE_MOVE_ON (kept: +7.9%, off: +10.6%)
 inline constexpr int CAPTURE_NEAR = 6;
 // The 35-60% band (BAND_HEALTH to RECALL_HEALTH), off a fight: a bag of NEAR_BANK_GEMS goes to an altar within
 // BAND_BANK_RANGE; with an ally in sight the champion farms on with the team; alone, it farms a safe group up within
@@ -1132,12 +1174,6 @@ inline constexpr int CAPTURE_SLOT_BYTE = 2;
 inline constexpr int MODE_BYTE = 0;
 inline constexpr int STAMP_BYTE = 4, PHASE_BYTE = 5;
 inline constexpr int PHASE_SHIFT = 6, TARGET2_MASK = 0x3F;
-// v134-move (CAPTURE_NEWS): with no claim open, the collector byte carries CAPTURED_MARK | (round & 0x3F) and the claim
-// round byte the slot: "group s started its respawn timer at that round". Respawn records are private (vision is not
-// shared), so a leader that never saw a capture pointed the team back at the group (00ambush: s0 <-> s11 every 3 rounds).
-inline constexpr int CAPTURED_MARK = 0x80;
-inline constexpr int CAPTURED_ROUND_MASK = 0x3F;
-
 // v86: the one-byte round stamp, never 0.
 inline int stamp_of(int round) { return (round % 255 + 255) % 255 + 1; }
 // v94: the mode byte's top bit records that Vesper finished her core build (Ren's bit from v70 to v93): only she can

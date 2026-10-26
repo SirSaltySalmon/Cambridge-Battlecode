@@ -50,19 +50,6 @@ inline void around_into(vec2 center, float radius, bc::bitboard& out) {
     out.clear();
     out.draw_chebyshev(center, radius);
 }
-// The 8-neighbour dilation of in, into out (tmp and h are scratch; out may be in).
-inline void dilate_into(const bc::bitboard& in, bc::bitboard& tmp, bc::bitboard& h, bc::bitboard& out) {
-    copy_into(in, h);
-    in.shift_right_into(1, tmp);
-    h |= tmp;
-    in.shift_right_into(-1, tmp);
-    h |= tmp;
-    copy_into(h, out);
-    h.shift_up_into(1, tmp);
-    out |= tmp;
-    h.shift_up_into(-1, tmp);
-    out |= tmp;
-}
 // The engine's tile order (what positions() lists): 8x8 chunks, chunk_stride chunks per chunk row, row-major within a
 // chunk (checked against positions() on 50, 60 and 100 wide maps).
 inline std::uint32_t rank(vec2 p) {

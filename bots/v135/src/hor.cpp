@@ -176,7 +176,8 @@ bool Bot::hor_dive(const bc::champion& me) {
     };
     std::array<Spot, 32> spots{};
     std::size_t spot_n = 0;
-    const auto free = tiles_around(origin, static_cast<float>(range)) & ~blocked_tiles();
+    auto free = tiles_around(origin, static_cast<float>(range)) & ~blocked_tiles();
+    if (land_bar) free &= ~*land_bar;
     for (const auto tile : free.positions()) {
         if (spot_n >= spots.size()) break;
         if (tile == origin) continue;
@@ -187,8 +188,6 @@ bool Bot::hor_dive(const bc::champion& me) {
         bool wakes = false;
         for (std::size_t i = 0; i < hor_camp_n; ++i)
             if (!hor_camps[i].awake && distance(tile, hor_camps[i].at) <= 1) wakes = true;
-        // v134-move (HOR_DASH_SAFE): and camps out of sight (a bush, past a wall), from the map.
-        if (dash_keep_off && unseen_ring.is_set(tile)) wakes = true;
         if (wakes) continue;
         const double burst = hor_burst(tile);
         if (health - burst < HOR_BUFFER) continue;
@@ -239,11 +238,10 @@ bool Bot::hor_camp_dash(const bc::champion& me, const Target& target) {
     }
     std::optional<vec2> best;
     double best_value = HOR_CAMP_DASH_VALUE - 1;
-    const auto free = tiles_around(origin, static_cast<float>(range)) & ~blocked_tiles();
+    auto free = tiles_around(origin, static_cast<float>(range)) & ~blocked_tiles();
+    if (land_bar) free &= ~*land_bar;
     for (const auto tile : free.positions()) {
         if (tile == origin) continue;
-        // v134-move (HOR_DASH_SAFE): never beside a camp out of sight.
-        if (dash_keep_off && unseen_ring.is_set(tile)) continue;
         double value = 0;
         bool other = false;
         for (std::size_t i = 0; i < n; ++i)

@@ -51,6 +51,7 @@ inline int tribute_ticks(int gems, Passives p) {
 }
 // A bag whose tribute is long enough to need an escort: ESCORT_TICKS of channel (ITEM_CHANNELS), else ESCORT_GEMS.
 inline bool escort_bag(int gems, Passives p) {
+    if (NO_ESCORT) return false;
     return ITEM_CHANNELS ? gems > 0 && tribute_ticks(gems, p) >= ESCORT_TICKS : gems >= ESCORT_GEMS;
 }
 // Gold sunk into shards and emblems; other champions' purses can't be read.
@@ -87,6 +88,9 @@ void write_target2(int target);
 void mark_vesper_done();
 int read_carrier();
 void write_carrier(int carrier);
+// v135 (NO_ESCORT, TANK_SWAP): the carrier bits name the tank on duty instead: champion id + 1, 0 for none.
+inline int shared_tank() { return read_carrier(); }
+inline void write_tank(int ident) { write_carrier(ident & 0x0F); }
 
 // One shared-memory byte.
 int shared_byte(int offset);

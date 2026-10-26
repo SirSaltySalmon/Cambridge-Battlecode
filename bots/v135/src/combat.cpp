@@ -603,7 +603,6 @@ bool Bot::stray_exit(const bc::champion& me, int s, const std::vector<bc::camp>&
     // of s and is out of theirs, else one step out of theirs (they sleep after two rounds with nobody in reach), else
     // toward the nearest such tile. The farm turn goes on after the step (a melee still swings at what it reaches).
     if (!stray_heat(me, s) || !stray_hit || exit_turn_steps(me) <= 0) return false;
-    if (EXIT_COMMIT && CAMP_WAIT) remember_hitting_camps(me);
     const auto position = me.position();
     const int reach = me.attack_range();
     fast::not_into(stray_reach, stray_out);
@@ -691,16 +690,11 @@ const bc::bitboard* Bot::camp_wait_avoid(const bc::champion& me, const bc::bitbo
     wait_zone.clear();
     bool any = false;
     const auto& enemies = seen::champions(Team::enemy);
-    // v134-move (EXIT_COMMIT): a camp tile in sight with no living camp on it is dead: nothing to wait for.
-    if (EXIT_COMMIT) bc::vision::visible_tiles_into(wait_seen);
     for (auto it = wait_camps.begin(); it != wait_camps.end();) {
         // The group we farm is ours to engage - unless an enemy champion is near: we left it because of that enemy and the
         // camp together, and walking back in only repeats the exit (v131 debug: 576 fight.exit and 494 retreat.exit loops).
-        // v134-move (EXIT_COMMIT): never exempt; the target group waits like any other, for EXIT_COMMIT_ROUNDS at most.
         const int cs = slot_at(it->spot);
-        const bool ours = cs >= 0 && (cs == farm_s || cs == farmed_s);
-        if (ours && !EXIT_COMMIT && (!CAMP_WAIT_TARGET_FIGHT || near_enemies().empty())) { ++it; continue; }
-        if (ours && EXIT_COMMIT && now - it->round > EXIT_COMMIT_ROUNDS) { ++it; continue; }
+        if (cs >= 0 && (cs == farm_s || cs == farmed_s) && (!CAMP_WAIT_TARGET_FIGHT || near_enemies().empty())) { ++it; continue; }
         bool seen_camp = false, awake = true;
         for (const auto& camp : seen::camps()) {
             if (camp.spawn_position() != it->spot) continue;
@@ -710,31 +704,15 @@ const bc::bitboard* Bot::camp_wait_avoid(const bc::champion& me, const bc::bitbo
             break;
         }
         if (seen_camp && !awake) { it = wait_camps.erase(it); continue; }  // asleep again: free to go back
-        if (EXIT_COMMIT && !seen_camp && wait_seen.is_set(it->spot)) { it = wait_camps.erase(it); continue; }
         bool on_enemy = false;
-        // v134-move (EXIT_COMMIT): an enemy inside it frees it no longer: walking back in beside that enemy is the loop
-        // (00dunes: Marcella out and in for 10+ rounds, the enemy at the camp's edge).
-        if (!EXIT_COMMIT)
-            for (const auto& e : enemies)
-                if (distance(e.position(), it->spot) < it->reach) on_enemy = true;  // it hits them, not us at its edge
+        for (const auto& e : enemies)
+            if (distance(e.position(), it->spot) < it->reach) on_enemy = true;  // it hits them, not us at its edge
         if (!on_enemy) {
             wait_zone.draw_chebyshev(it->spot, static_cast<float>(it->reach));
             any = true;
         }
         ++it;
     }
-    LOG({
-        if (!any && !wait_camps.empty()) note(format("camp wait: %d remembered camps, none held", static_cast<int>(wait_camps.size())));
-        else if (any && wait_zone.is_set(me.position())) {
-            std::string which;
-            for (const auto& w : wait_camps)
-                if (distance(w.spot, me.position()) <= w.reach)
-                    which += format(" %s (reach %d, %d away, left r%d)", at(w.spot).c_str(), w.reach, distance(w.spot, me.position()), w.round);
-            note("camp wait: we stand inside the camps we left, no keep-out:" + which);
-        }
-    });
-    // v134-move (EXIT_COMMIT): an exit is often several steps; farm() finishes it rather than turning back in.
-    wait_inside = any && wait_zone.is_set(me.position());
     if (!any || wait_zone.is_set(me.position())) return avoid;
     wait_avoid = wait_zone;
     if (avoid) wait_avoid |= *avoid;
@@ -746,7 +724,6 @@ void Bot::build_walk_guard(const bc::champion& me) {
     // v132f/g (WALK_GUARD): read once a turn after vision. Reacting to an enemy, every awake camp in sight; otherwise
     // those no ally stands in, leaving out the groups we farm. A raw state read (a camp hidden in a bush fails it).
     guard_zone.clear();
-    LOG(guard_list.clear(););
     const bool react = !near_enemies().empty();
     const int now = static_cast<int>(bc::round_number());
     const int farm_s = route.empty() ? -1 : slot % static_cast<int>(route.size());
@@ -772,9 +749,90 @@ void Bot::build_walk_guard(const bc::champion& me) {
         if (bc::detail::sdk_camp_state(static_cast<std::uint32_t>(static_cast<bc::handle_camp_t>(camp)), &state) != 0 || state != 1) continue;
         guard_zone.draw_chebyshev(spot, static_cast<float>(reach));
         guard_any = true;
-        LOG(guard_list += (guard_list.empty() ? "" : " ") + at(spot););
     }
     walk_guard = guard_any ? &guard_zone : nullptr;
+}
+
+bool Bot::area_ok(int s, int farm_s, bool engaged) {
+    // v135: the one rule for what an area hit (HoR's landing, an area spell) may touch. Clusters cannot hit back.
+    if (clusters_only[s]) return true;
+    // The farm target (or a group we already hit) passes on the team's rules: gate and monolith rules.
+    if (!(is_monolith(s) && monolith_delegated()) && (s == farm_s || mid_clear(s)) && allowed(s)) return true;
+    // v135 (SOLO_LAND, user): any other group only if we beat it alone, and never while awake camps already hit us:
+    // a second group's damage would stack on the first.
+    return SOLO_LAND && !engaged && solo_win(s);
+}
+
+bool Bot::solo_win(int s) {
+    const auto& me = bc::self();
+    // Every live camp of the group must be in sight (an unseen one is unknown: no landing beside it).
+    static bc::bitboard sight{bc::uninitialized};
+    bc::vision::visible_tiles_into(sight);
+    for (const auto t : spawn_lists[s])
+        if (!sight.is_set(t)) return false;
+    double left = 0, strength = 0;
+    for (const auto& c : seen::camps()) {
+        if (slot_at(c.spawn_position()) != s) continue;
+        left += c.health();
+        strength += c.strength();
+    }
+    if (strength <= 0) return true;
+    const auto mine = owned_of(me).passives;
+    const double hit = me.strength() * camp_dmg_mult(mine);
+    if (hit <= 0) return false;
+    double landing = 0;
+    if (const auto dash = ability_of(me, Kind::dash)) landing = spell_damage(dash) * camp_dmg_mult(mine);
+    const double rounds = std::ceil(std::max(0.0, left - landing) / hit);
+    const double take = strength * rounds * camp_taken_mult(mine);
+    double shield = 0;
+    try {
+        const auto buffs = me.buffs();
+        if (buffs.has_shield()) shield = buffs.get<bc::buff_shield>().value;
+    } catch (const std::exception&) {
+    }
+    return me.health() + shield - take >= me.max_health() * FINISH_HEALTH;
+}
+
+void Bot::build_land_bar(const bc::champion& me) {
+    // Only with the dash ready, and only groups whose tiles a landing can touch: the far ones cost no read.
+    const auto dash = ability_of(me, Kind::dash);
+    if (!dash || !dash->is_ready()) return;
+    const int radius = static_cast<int>(ability_radius(*dash));
+    if (radius <= 0 || route.empty()) return;
+    const int span = static_cast<int>(ability_range(*dash)) + radius;
+    const auto position = seen::self_position();
+    const int now = static_cast<int>(bc::round_number());
+    const int farm_s = slot % static_cast<int>(route.size());
+    const bool engaged = camp_heat(me) > 0;
+    static bc::bitboard sight{bc::uninitialized}, held{bc::uninitialized};
+    bool read = false, any = false;
+    land_bar_board.clear();
+    if (group_radius.size() != route.size()) {
+        group_radius.assign(route.size(), 0);
+        for (int s = 0; s < static_cast<int>(route.size()); ++s)
+            for (const auto t : spawn_lists[s]) group_radius[s] = std::max(group_radius[s], distance(centers[s], t));
+    }
+    for (int s = 0; s < static_cast<int>(route.size()); ++s) {
+        if (distance(position, centers[s]) > span + group_radius[s]) continue;
+        if (clusters_only[s] || ready_at[s] > now || rewards.count(s) || s == capture_slot) continue;
+        bool near = false;
+        for (const auto t : spawn_lists[s])
+            if (distance(position, t) <= span) { near = true; break; }
+        if (!near || area_ok(s, farm_s, engaged)) continue;
+        if (!read) {
+            bc::vision::visible_tiles_into(sight);
+            bc::vision::camp_tiles_into(held);
+            read = true;
+        }
+        // A tile in sight with no camp on it is a dead camp: nothing there to wake.
+        for (const auto t : spawn_lists[s])
+            if (!sight.is_set(t) || held.is_set(t)) {
+                land_bar_board.draw_chebyshev(t, static_cast<float>(radius));
+                any = true;
+            }
+    }
+    land_bar = any ? &land_bar_board : nullptr;
+    if (any) NOTE("safe landing: the dash keeps its area off groups we are not farming");
 }
 
 bool Bot::ally_tanked_camp(const bc::champion& me) {
@@ -815,9 +873,7 @@ bool Bot::camp_wait_fight(const bc::champion& me) {
             break;
         }
         if (asleep) { it = wait_camps.erase(it); continue; }
-        // v134-move (EXIT_COMMIT_FIGHT): the fight wait lasts as long as the farm's.
-        const int hold = EXIT_COMMIT_FIGHT ? EXIT_COMMIT_ROUNDS : CAMP_WAIT_FIGHT_ROUNDS;
-        if (now - it->round > hold) { ++it; continue; }  // v132b: farm() may still keep out of it
+        if (now - it->round > CAMP_WAIT_FIGHT_ROUNDS) { ++it; continue; }  // v132b: farm() may still keep out of it
         fight_wait.draw_chebyshev(it->spot, static_cast<float>(it->reach));
         any = true;
         ++it;
@@ -920,14 +976,6 @@ bool Bot::camp_exit(const bc::champion& me, const std::vector<bc::champion>& ene
         return false;
     };
     if (CAMP_WAIT) remember_hitting_camps(me);
-    // v134-move: what set it off, read before the step (enemies may leave sight after it).
-    std::string cause;
-    LOG({
-        int gap = -1;
-        for (const auto& e : enemies)
-            if (gap < 0 || distance(position, e.position()) < gap) gap = distance(position, e.position());
-        cause = format("exit: nearest enemy %d away, team %s, camp heat on us %d", gap, MODE_NAMES[mode], heat_hit);
-    });
     const bool hit_first = swing();
     if (!(GO_EXIT_DASH ? leave_camps(exit_goal) : get_away(exit_goal))) {
         NOTE(std::string("camp exit (") + passed + "): no step found");
@@ -936,7 +984,6 @@ bool Bot::camp_exit(const bc::champion& me, const std::vector<bc::champion>& ene
     const bool hit_after = !hit_first && swing();
     WHY(stem + ".exit", std::string("awake camps hit us: leave them first (") + passed + ")"
                             + (hit_first || hit_after ? ", hit back on the way" : ""));
-    NOTE(cause);
     return true;
 }
 
@@ -984,6 +1031,142 @@ int Bot::walk_target(const bc::champion& me, int s) {
     if (best >= 0) NOTE(format("no walking path to s%d: farm s%d instead", s, best));
     else if (pocket) NOTE(format("in a hole pocket, nothing up here: back out to s%d", s));
     return best;
+}
+
+bool Bot::clear_collector_path(const bc::champion& me, int cs, bc::bitboard& goal) {
+    // The collector's walking path to the reward: down the group's walk field (terrain steps to its spawn tiles) from
+    // the collector's tile. Those tiles leave the waiting ring, so our bodies never stand between it and the reward.
+    if (cs >= static_cast<int>(goal_fields.size()) || !goal_fields[cs]) return false;
+    const auto& field = goal_fields[cs]->field;
+    const auto& allies = seen::champions(Team::ally);
+    const auto& tiles = seen::positions(Team::ally);
+    std::optional<vec2> from;
+    for (std::size_t i = 0; i < allies.size() && i < tiles.size(); ++i)
+        if (allies[i] != me && cached_ident(allies[i]) == collector) from = tiles[i];
+    if (!from) return false;
+    auto at = *from;
+    auto steps = field.get(at);
+    if (steps == bc::distance_field::unreachable) return false;
+    const int w = static_cast<int>(bc::map::width()), h = static_cast<int>(bc::map::height());
+    bool cut = false;
+    for (int guard = 0; guard < 40 && steps > 0; ++guard) {
+        std::optional<vec2> next;
+        for (int dx = -1; dx <= 1 && !next; ++dx)
+            for (int dy = -1; dy <= 1 && !next; ++dy) {
+                if (!dx && !dy) continue;
+                const vec2 t{at.x + dx, at.y + dy};
+                if (t.x < 0 || t.y < 0 || t.x >= w || t.y >= h) continue;
+                if (field.get(t) == steps - 1) next = t;
+            }
+        if (!next) break;
+        at = *next;
+        steps = field.get(at);
+        if (goal.is_set(at)) {
+            goal.set(at, false);
+            cut = true;
+        }
+    }
+    return cut;
+}
+
+bool Bot::stage_capture(const bc::champion& me, int s, bool no_camps, const bc::bitboard* avoid, const std::string& stem) {
+    const int cs = capture_slot;
+    if (cs == NO_CAPTURE || cs >= static_cast<int>(route.size()) || is_collector(me)) return false;
+    const auto position = me.position();
+    if (CAPTURE_MOVE_ON) {
+        // Only when the team target is still the captured group (nothing else up): keep off its tiles, stay put.
+        if (s != cs || !no_camps) return false;
+        const auto& tiles = spawn_board(cs);
+        if (tiles.is_set(position)) {
+            bc::bitboard off;
+            off.draw_chebyshev(position, 1);
+            off &= ~tiles;
+            WHY(stem + ".moveon", format("s%d is the collector's: step off its tiles", cs));
+            if (!move_towards_closest(off, avoid)) move_towards_closest(off);
+        } else {
+            WHY(stem + ".moveon", format("s%d is the collector's and nothing else is up: stay off it", cs));
+        }
+        return true;
+    }
+    // A reward the collector cannot walk to is not being captured: nothing to wait for (02the-pond: an island cluster).
+    if (STAGE_PATH && cs < static_cast<int>(goal_fields.size()) && goal_fields[cs]) {
+        const auto& allies = seen::champions(Team::ally);
+        const auto& tiles = seen::positions(Team::ally);
+        for (std::size_t i = 0; i < allies.size() && i < tiles.size(); ++i)
+            if (cached_ident(allies[i]) == collector && goal_fields[cs]->field.get(tiles[i]) == bc::distance_field::unreachable
+                && !(DASH_REACH && can_reach(cs, tiles[i], dash_kind(static_cast<Champ>(collector - 1)))))
+                return false;
+    }
+    bc::bitboard goal;
+    const char* why = nullptr;
+    if (s == cs && no_camps) {
+        // Off its tiles, within WAIT_RANGE of them: the reward is captured from there by the collector alone.
+        for (const auto tile : spawn_lists[cs]) goal.draw_chebyshev(tile, WAIT_RANGE);
+        goal &= ~spawn_board(cs);
+        why = "is being captured by an ally: wait off its tiles";
+        if (STAGE_PATH && clear_collector_path(me, cs, goal)) why = "is being captured by an ally: wait off its tiles and its path";
+    } else if (s != cs && zones_known && zone(cs) != ZONE_SAFE && distance(position, centers[cs]) <= CAPTURE_NEAR + 2) {
+        // The next group is beyond CAPTURE_NEAR: wait on the reward's edge nearest it, so the walk on is shortest.
+        const int apart = distance(centers[cs], centers[s]);
+        if (apart <= CAPTURE_NEAR) return false;
+        goal.draw_chebyshev(centers[cs], static_cast<float>(CAPTURE_NEAR));
+        bc::bitboard toward;
+        toward.draw_chebyshev(centers[s], static_cast<float>(apart - CAPTURE_NEAR));
+        goal &= toward;
+        goal &= ~spawn_board(cs);
+        why = "is being captured outside the safe zone: wait at its edge toward the next group";
+    } else {
+        return false;
+    }
+    if (goal.is_empty()) return false;
+    if (goal.is_set(position)) {
+        WHY(stem + ".stage", format("s%d ", cs) + why + " (here)");
+        return true;
+    }
+    WHY(stem + ".stage", format("s%d ", cs) + why);
+    if (!move_towards_closest(goal, avoid)) move_towards_closest(goal);
+    return true;
+}
+
+bool Bot::stage_group(const bc::champion& me, int s, const std::vector<bc::camp>& camps, const bc::bitboard* avoid,
+                      const std::string& stem) {
+    if (!HARD_GATE || s >= static_cast<int>(hard_need.size()) || hard_need[s] <= 0 || mid_clear(s)) return false;
+    const auto position = me.position();
+    if (distance(position, centers[s]) > PRESENT_STAGE_RANGE) return false;
+    const auto p = present_near(centers[s], PRESENT_STAGE_RANGE);
+    const int n = std::max(1, p.n);
+    const int left = std::max(0, hard_need[s] - (HARD_FREE + n));
+    const bool pass = left == 0 || left <= std::max(p.emblems, hard_floor);
+    const int now = static_cast<int>(bc::round_number());
+    if (stage_slot != s || now - stage_last > 2) {
+        stage_slot = s;
+        stage_since = now;
+    }
+    stage_last = now;
+    int living = 0;
+    for (const auto& a : seen::roster(Team::ally))
+        if (a.is_alive()) ++living;
+    const bool gathered = n >= std::min(STAGE_MIN, std::max(1, living));
+    if (pass && (gathered || now - stage_since >= STAGE_ROUNDS)) return false;
+    // Just outside every camp's reach: the camps stay asleep until we open them together.
+    bc::bitboard danger, ring;
+    for (const auto& c : camps) {
+        const int reach = camp_kind_reach(c.kind());
+        if (reach <= 0) continue;
+        danger.draw_chebyshev(c.spawn_position(), static_cast<float>(reach));
+        ring.draw_chebyshev(c.spawn_position(), static_cast<float>(reach + 1));
+    }
+    ring &= ~danger;
+    const std::string why = pass ? format("s%d: waits for the team before opening it (%d here)", s, n)
+                                 : format("s%d: the %d of us here fall short of its emblem gate: wait outside it", s, n);
+    if (ring.is_empty()) return false;
+    if (ring.is_set(position)) {
+        WHY(stem + ".stage", why + " (here)");
+        return true;
+    }
+    WHY(stem + ".stage", why);
+    if (!move_towards_closest(ring, avoid)) move_towards_closest(ring);
+    return true;
 }
 
 bool Bot::pocketed(const bc::champion& me) {
@@ -1038,20 +1221,7 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
         }
     }
     // v131 (CAMP_WAIT): keep out of awake camps we just stepped out of until they sleep or turn on an enemy.
-    // v134-move (EXIT_COMMIT): the target group too.
-    const bc::bitboard* before_wait = avoid;
-    wait_inside = false;
-    if (CAMP_WAIT && (CAMP_WAIT_FARM || EXIT_COMMIT)) avoid = camp_wait_avoid(me, avoid);
-    const bool committed = EXIT_COMMIT && avoid != before_wait;
-    // v134-move (EXIT_COMMIT): still inside awake camps we started leaving: keep leaving (00elk-arena: the exit took one of
-    // three steps, then the farm turn walked back in, 984 fight.exit <-> farm.camp bounces).
-    if (EXIT_COMMIT && wait_inside && exit_turn_steps(me) > 0) {
-        fast::not_into(wait_zone, wait_out);
-        if (leave_camps(wait_out, avoid)) {
-            WHY(stem + ".leave", "still inside awake camps we left: finish leaving, back when they sleep");
-            return;
-        }
-    }
+    if (CAMP_WAIT && CAMP_WAIT_FARM) avoid = camp_wait_avoid(me, avoid);
     int s = slot % static_cast<int>(route.size());
     auto camps = camps_at(s);
     // v122 (FARM_KEEP): our planned group is out of sight, but the camps of the group we were just farming dropped out
@@ -1090,6 +1260,9 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
             }
         }
     }
+    // v135 (CAPTURE_STAGE): a reward someone else collects is not ours to walk onto (a body on its tiles adds nothing
+    // and the walk/step-off loop cost 23.8k turns in 65 games); outside the safe zone the team waits at its edge.
+    if (CAPTURE_STAGE && stage_capture(me, s, camps.empty(), avoid, stem)) return;
     if (FIX_WALK_TARGET) {
         const int other = walk_target(me, s);
         if (other >= 0) {
@@ -1137,6 +1310,7 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
         if (c.strength() <= 0 && within(me, c, reach) && can_take_camp(c)) {
             const int cs = slot_at(c.spawn_position());
             if (PASS_FIX && cs >= 0 && cs != s && !clusters_only[cs]) continue;
+            if (PASS_REACH && cs >= 0 && !(DASH_REACH ? can_reach(cs, me.position(), dash_kind(me.champion_name())) : walkable(cs, me.position()))) continue;
             passing.push_back(c);
         }
     bool slot_in_reach = false;
@@ -1157,16 +1331,6 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
             bc::bitboard ring;
             for (const auto tile : spawn_lists[s]) ring.draw_chebyshev(tile, WAIT_RANGE);
             move_towards_closest(ring & ~tiles, avoid);
-        } else if (CAPTURE_WAIT && capture_slot == s && !is_collector(me)) {
-            // v134-move: an ally is collecting it; another body on it only splits the reward.
-            WHY(stem + ".capwait", format("s%d ", s) + at(center) + format(" is c%d's to capture: wait %d off its tiles", collector - 1, WAIT_RANGE));
-            bc::bitboard ring;
-            for (const auto tile : spawn_lists[s]) ring.draw_chebyshev(tile, WAIT_RANGE);
-            move_towards_closest(ring & ~tiles, avoid);
-        } else if (CAPTURE_WAIT && rewards.count(s)) {
-            // v134-move: cleared with nobody on it: standing on a tile captures it, so stay on (no FIX_POCKET step-off).
-            WHY(stem + ".capture", format("s%d ", s) + at(center) + " is cleared and unclaimed: stand on its reward");
-            if (!tiles.is_set(me.position())) move_towards_closest(tiles, avoid);
         } else if (FIX_POCKET && tiles.is_set(me.position())) {
             // v103: due but not here: our own body on a spawn tile holds the group down (islands: two dashers stood on
             // a pocket pair's tiles for 296 rounds, each "walking to it"). Stepping off lets it respawn.
@@ -1205,18 +1369,13 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
         for (const auto& c : camps)
             if (distance(me.position(), c.position()) < distance(me.position(), target->position())) target = c;
     }
-    // v134-move (EXIT_COMMIT): we left this group's awake camps: hold outside their reach until they sleep (a hit from
-    // outside it, where our reach allows, is still free).
-    if (committed && in_reach.empty()
-        && std::any_of(camps.begin(), camps.end(), [&](const bc::camp& c) { return wait_zone.is_set(c.position()); })) {
-        WHY(stem + ".commit", format("s%d camp ", s) + at(target->position())
-                                  + ": we left its awake camps; hold outside their reach until they sleep");
-        return;
-    }
     if (FARM_KEEP) {
         keep_slot = s;
         keep_round = round_now;
     }
+    // v135 (PRESENT_GATE): an unstarted elk/golem group waits for enough of us (gate counted over who is there).
+    if (PRESENT_GATE && stage_group(me, s, camps, avoid, stem)) return;
+    if (TANK_SWAP && swap_tank_step(me, s)) SUB(".tank", "steps in front of a camp hitting a hurt ally");
     farmed_slot = s;
     farmed_round = round_now;
     WHY(stem + ".camp", format("s%d camp ", s) + at(target->position()) + tile_flags(target->position())

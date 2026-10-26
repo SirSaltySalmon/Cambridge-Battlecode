@@ -8,6 +8,7 @@
 // Wording rules: say why, briefly; no health, gold, item or champion stats; tiles and slots are fine.
 #include "bot.h"
 #include "trace.h"
+#include "seen.h"
 
 void Bot::branch(const std::string& name, const std::string& why) {
     branch_name = name;
@@ -94,10 +95,47 @@ void Bot::log_turn(const bc::champion& me) {
         + (branch_why.empty() ? "no reason recorded" : branch_why);
     if (me.is_alive())
         for (const auto& chunk : outcome_chunks(me)) line += " | " + chunk;
-    // v134-move: a walk that went around the walk guard names the guarded camps.
-    if (!trace::guard.empty()) line += " | guard " + guard_list;
-    if (!trace::via.empty()) line += " | " + trace::via;
     say(prefix, line);
+    // v135a audit: health, target and claim, every awake camp whose reach holds us (kind, tile, who is nearest: us, an
+    // ally c#, an enemy E; = marks a tie), and the sturdy allies (max health 1000+, over the recall bar) inside reach.
+    if (me.is_alive()) {
+        const auto pos = me.position();
+        std::string a = format("@s hp %d/%d mode %d slot %d cap %d/c%d", static_cast<int>(me.health()), static_cast<int>(me.max_health()),
+                               mode, route.empty() ? -1 : slot % static_cast<int>(route.size()), capture_slot, collector - 1);
+        std::string camps, tanks;
+        for (const auto& c : seen::camps()) {
+            const int reach = camp_kind_reach(c.kind());
+            if (reach <= 0) continue;
+            const auto spot = c.spawn_position();
+            const int gap = distance(pos, spot);
+            if (gap > reach) continue;
+            std::uint32_t s = 0;
+            if (bc::detail::sdk_camp_state(static_cast<std::uint32_t>(static_cast<bc::handle_camp_t>(c)), &s) != 0 || s != 1) continue;
+            int best = gap;
+            std::string who = "me", ties;
+            bool tie = false;
+            for (const auto& x : seen::champions(Team::ally)) {
+                if (x == me) continue;
+                const int d = distance(x.position(), spot);
+                if (d > reach) continue;
+                if (x.max_health() >= 1000 && x.health() >= x.max_health() * RECALL_HEALTH
+                    && tanks.find(format("c%d", cached_ident(x) - 1)) == std::string::npos)
+                    tanks += format(" c%d", cached_ident(x) - 1);
+                if (d < best) best = d, who = format("c%d", cached_ident(x) - 1), tie = false, ties.clear();
+                else if (d == best) tie = true, ties += format("c%d", cached_ident(x) - 1);
+            }
+            for (const auto& x : seen::champions(Team::enemy)) {
+                const int d = distance(x.position(), spot);
+                if (d <= reach && d < best) best = d, who = "E", tie = false, ties.clear();
+            }
+            const char* k = c.kind() == bc::camp_type::wolf ? "w" : c.kind() == bc::camp_type::elk ? "e" : c.kind() == bc::camp_type::golem ? "g" : "M";
+            camps += format(" %s(%d,%d)>%s%s", k, spot.x, spot.y, who.c_str(), tie ? ("=" + ties).c_str() : "");
+        }
+        if (!camps.empty()) a += " awake" + camps;
+        if (!tanks.empty()) a += " tanks" + tanks;
+        say("  ", a);
+    }
+    for (const auto& text : trace::audit) say("  ", text);
     if (!shared_why.empty()) say("  ", shared_why);
     if (!local_why.empty()) say("  ", local_why);
     for (const auto& text : notes) say("  - ", text);

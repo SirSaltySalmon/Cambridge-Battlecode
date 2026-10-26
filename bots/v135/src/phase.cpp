@@ -157,10 +157,7 @@ std::optional<int> Bot::invade_target(const bc::champion& me, int s, int normal,
     const auto& steps = travel(position, capture);
     zone_cap = saved_cap;
     if (!steps.has(normal)) return std::nullopt;
-    double own = route_rate_steps(normal, steps.at(normal), now);
-    // v134-move (INVADE_OWN_KEEP): our current own-side target counts too: a loot pick that only shows from some tiles
-    // lowered `normal` there and flipped the team between invading and not (02tangle: every round for 100+ rounds).
-    if (INVADE_OWN_KEEP && s != normal && !enemy_side(s) && steps.has(s)) own = std::max(own, route_rate_steps(s, steps.at(s), now));
+    const double own = route_rate_steps(normal, steps.at(normal), now);
     const bool ahead = allies_alive() > enemies_alive();
     std::optional<int> best;
     double best_rate = 0;
@@ -438,6 +435,16 @@ int Bot::choose_phase(const bc::champion& me, int s, int shared_phase, int& targ
     zone_cap = zone_cap_for(ph);
     pair_filter = 0;
     target = pick_target(s, position, capture);
+    // v135 (CAPTURE_STAGE): no group near the reward left the table empty and handed back the reward itself; the next
+    // group is picked from the whole table instead, and farm() keeps the team at the reward's edge meanwhile.
+    if (CAPTURE_STAGE && CAPTURE_REPICK && capture != NO_CAPTURE && target == capture && capture_near >= 0) {
+        capture_near = -1;
+        const int next = pick_target(s == capture ? capture : s, position, capture);
+        if (next != capture) {
+            LOG(why += (why.empty() ? "" : "; ") + format("reward s%d is captured: the next group s%d, waiting at its edge", capture, next););
+            target = next;
+        }
+    }
     capture_near = -1;
     // v104 (INVADE): aggressive, the centre open, and invading not reverted: a priced enemy-side group.
     if (INVADE && aggressive && centre && !win_tribute && now >= invade_off_until)
@@ -591,8 +598,6 @@ bool Bot::finish_ok(const bc::champion& me, std::string& why) {
         my_gap = std::min(my_gap, distance(position, c.position()));
     }
     if (!started) return false;
-    // v134-move (FINISH_TANK): the gap we will have while hitting, so stepping in does not turn the answer around.
-    if (FINISH_TANK) my_gap = std::min(my_gap, static_cast<int>(me.attack_range()));
     // Our damage and that of allies near the group; the camps hit the nearest champion, so a closer ally tanks.
     // v134 (ITEM_DAMAGE): Monster and Collectors add to camp damage; Jungle and Durability cut what the camps hit us for.
     const auto mine = owned_of(me).passives;

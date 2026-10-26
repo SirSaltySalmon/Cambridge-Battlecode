@@ -62,17 +62,13 @@ void Bot::play(const bc::champion& me) {
         priority_set = true;
     }
     walk_guard = nullptr;
+    land_bar = nullptr;
+    turn_round = static_cast<int>(bc::round_number());
     guard_any = false;
-    dash_keep_off = nullptr;
     if (me.is_alive()) {
         observe();
         if (WALK_GUARD) build_walk_guard(me);
-        // v134-move (HOR_DASH_SAFE): built only on turns his dash is ready.
-        if (HOR_DASH_SAFE && me.champion_name() == Champ::heart_of_ruin)
-            if (const auto dash = ability_of(me, Kind::dash); dash && dash->is_ready()) {
-                build_dash_ring();
-                dash_keep_off = &dash_ring;
-            }
+        if (SAFE_LAND && cached_ident(me) == champ_id(Champ::heart_of_ruin) + 1) build_land_bar(me);
         if (GO_KITE) track_enemies();
         if (FIX_HIDDEN) check_hidden(me);
     }
@@ -218,6 +214,8 @@ void Bot::play(const bc::champion& me) {
     if (!banded) exit_hurt = false;
     const bool exit_due = V93_CAMP_EXIT && !under_bar && banded && (exit_hurt || me.health() <= camp_exit_cost(me));
     if (exit_due) exit_hurt = true;
+    // v135 (TANK_SWAP): a sturdy ally can take the camps: stay behind it rather than leave.
+    if ((under_bar || exit_due) && swap_hurt(me)) return;
     std::string finish_why;
     const bool finishing = V86_FINISH && (under_bar || exit_due) && finish_ok(me, finish_why);
     if (finishing) NOTE(finish_why);
@@ -288,8 +286,6 @@ void Bot::play(const bc::champion& me) {
         out.walk = !dodged;
         out.guard_dash = GO_GUARD_DASH;
         out.rank = escape_rank(me, zone);
-        // v134-move (EXIT_COMMIT): the awake camps we dodge out of are not walked back into until they sleep.
-        if (EXIT_COMMIT && CAMP_WAIT) remember_hitting_camps(me);
         if (!dodged || out.rank) go(~zone, out);
         // v101: the shield allows walking; unless the dash took the turn's cast, it goes up on the way out.
         if (me.champion_name() == Champ::heart_of_ruin) hor_shield(me);
@@ -320,6 +316,16 @@ void Bot::play(const bc::champion& me) {
         // v101 (WILLOW_CLAIM_DROP): any enemy champion in her sight.
         else if (WILLOW_CLAIM_DROP && is_collector(me) && me.champion_name() == Champ::willow && !seen::champions(Team::enemy).empty())
             release_claim("willow: enemy champion in sight, a sturdier ally collects");
+        // v135 (COLLECT_FIGHT): an enemy on the reward, or the team fighting with an enemy near before we stand on it.
+        if (COLLECT_FIGHT && is_collector(me) && capture_slot < static_cast<int>(route.size())) {
+            const auto& tiles = spawn_board(capture_slot);
+            auto held = tiles;
+            held &= bc::vision::champion_tiles(Team::enemy);
+            if (!held.is_empty())
+                release_claim("an enemy stands on the reward: fight first");
+            else if (!tiles.is_set(position) && mode == FIGHT && !near_enemies().empty())
+                release_claim("the team fights an enemy near us before we reach the reward: fight first");
+        }
         if (is_collector(me) && (FIX_CAMP_COLLECT ? enemy_threat(me) : under_threat(me))) {
             NOTE(format("collector of s%d: under threat, leaves it", capture_slot));
             if (FIX_CLAIM) release_claim("collector under threat");
@@ -435,20 +441,6 @@ void Bot::play(const bc::champion& me) {
         }
         bank_altar.reset();
     }
-    // v134-move: why a bag that could bank near did not (01shortcut: Vesper banked from one tile, farmed from the next).
-    LOG({
-        if (FIX_NEAR_BANK && !holding && gems >= NEAR_BANK_GEMS)
-            for (const auto altar : seen::altar_list())
-                if (distance(position, altar) <= NEAR_BANK_RANGE + 2) {
-                    std::string why;
-                    if (now_mode == FIGHT || now_mode == RETREAT) why = std::string("mode ") + MODE_NAMES[now_mode];
-                    else if (under_threat(me)) why = "under threat";
-                    else if (!altar_near(position, altar, NEAR_BANK_RANGE)) why = format("%d tiles but out of walking range", distance(position, altar));
-                    else why = "the walk failed: " + trace::stall;
-                    note("near bank at " + at(altar) + " skipped: " + why);
-                    break;
-                }
-    });
 
     // v72: enemy champions in sight hunt bags: a carrier cashes in rather than farming on.
     if (FIX_CARRIER && !holding && gems >= CARRY_GEMS && now_mode != FIGHT && !seen::champions(Team::enemy).empty()
@@ -477,7 +469,10 @@ void Bot::play(const bc::champion& me) {
         // v123 (PRISM_HOLD): no bank.
     } else if (!building && escort_bag(gems, owned_of(me).passives) && carrier != mine) {
         if (!solo_altars.empty() && bank_gems(me, solo_altars, "bank.solo")) return;
-    } else if (!building && (gems >= GEM_BANK || (idle && gems >= IDLE_BANK)) && bank_gems(me)) {
+    } else if (!building && (gems >= GEM_BANK || (idle && gems >= IDLE_BANK)
+                             || (BANK_KEEP && gems >= IDLE_BANK && bank_walk_round >= static_cast<int>(bc::round_number()) - 1))
+               && bank_gems(me)) {
+        bank_walk_round = static_cast<int>(bc::round_number());
         return;
     }
 

@@ -297,25 +297,6 @@ private:
     struct WaitCamp { vec2 spot; int reach; int round; };
     std::vector<WaitCamp> wait_camps;
     bc::bitboard wait_zone, wait_avoid;
-    // v134-move (EXIT_COMMIT): this turn's vision, to drop remembered camps seen dead.
-    bc::bitboard wait_seen{bc::uninitialized}, wait_out{bc::uninitialized};
-    bool wait_inside = false;
-    // v134-move (SHARE_LOOT_COOL): the loot we last pointed the team at, and when.
-    int loot_pointed = -1, loot_pointed_round = -1000;
-    // v134-move (TARGET_HOLD): the shared target as last read or written, and the round it changed.
-    int hold_slot = -1, hold_since = -1000;
-    // v134-move (CAPTURE_NEWS): tell the team a group's respawn timer started (see CAPTURED_MARK); read the news.
-    void announce_capture(int s);
-    void read_capture_news(int collector_byte, int slot_byte);
-    // v134-move (HOR_DASH_SAFE / AOE_MAP_CLEAR): spawn tiles of groups whose camps hit back, out of sight now.
-    const bc::bitboard& strong_tiles();
-    std::optional<bc::bitboard> strong_tiles_board;
-    void unseen_strong_into(bc::bitboard& out);
-    // Heart of Ruin, each turn his dash is ready: dash_ring = within one of every camp that hits back (out of sight or
-    // in it), unseen_ring = within one of those out of sight only (the dive and camp dash judge visible camps themselves).
-    bc::bitboard dash_ring{bc::uninitialized}, unseen_ring{bc::uninitialized}, ring_in{bc::uninitialized},
-        ring_tmp{bc::uninitialized}, ring_h{bc::uninitialized};
-    void build_dash_ring();
     void remember_hitting_camps(const bc::champion& me);
     const bc::bitboard* camp_wait_avoid(const bc::champion& me, const bc::bitboard* avoid);
     // v132 (CAMP_WAIT_FIGHT): the reach of every remembered camp not seen asleep, into fight_wait; false when there is
@@ -326,19 +307,19 @@ private:
     bool ally_tanked_camp(const bc::champion& me);
     // v132f/g (WALK_GUARD): the awake camp reach walks keep out of this turn; whether it holds any.
     bc::bitboard guard_zone;
-    // v134-move: the camps guarded this turn (log only).
-    std::string guard_list;
     bool guard_any = false;
     void build_walk_guard(const bc::champion& me);
+    // v135 (SAFE_LAND): the barred landings of an area-landing dash this turn (sets the global land_bar).
+    void build_land_bar(const bc::champion& me);
+    bool area_ok(int s, int farm_s, bool engaged);
+    std::vector<char> aoe_ok_memo;  // v135: aoe_scan's area_ok per group
+    bool solo_win(int s);  // v135 (SOLO_LAND)
+    std::vector<int> group_radius;  // v135: farthest spawn tile from each group centre
+    bc::bitboard land_bar_board;
     bool foreign_camp_hit(const bc::champion& me);
     // v122 (BANK_STEPS): walking steps to each altar's submit tiles, by altar_list() index, built on first use.
     std::vector<std::optional<Walk>> altar_walks;
     bool altar_near(vec2 position, vec2 altar, int range);
-    // v134-move (BANK_OPEN): whether a submit tile can be stood on (see tribute.cpp).
-    bool altar_usable(vec2 altar);
-    bc::bitboard bank_seen{bc::uninitialized}, bank_camps{bc::uninitialized}, bank_free{bc::uninitialized};
-    int bank_seen_round = -1;
-    std::uint64_t bank_seen_gen = 0;
     // v122 (BANK_STICKY): the altar bank.near last walked to, and when.
     std::optional<vec2> bank_altar;
     int bank_round = -1000;
@@ -440,6 +421,36 @@ private:
     int hard_left(int slot) const;
     // v133t: hard_left's free part (it read the roster and the round on every call, in loops over every group).
     int hard_free() const;
+    // v135 (PRESENT_GATE): visible allies (us included) not channelling within `range` of `at`, and their emblems.
+    struct Present {
+        int n = 0, emblems = 0;
+    };
+    Present present_near(vec2 at, int range) const;
+    const Present& team_present() const;
+    mutable Present present_cache;
+    mutable int present_round = -1, present_gen = -1;
+    // v135 (PRESENT_GATE): the group a champion is staging outside of, and since when.
+    int stage_slot = -1, stage_since = 0, stage_last = -10;
+    // v135 (TANK_SWAP): see swap.cpp.
+    struct AwakeCamp {
+        vec2 at;
+        int reach, strength;
+        bool ours;
+    };
+    std::size_t awake_near(vec2 at, int margin, int s, std::array<AwakeCamp, 16>& out) const;
+    bool swap_hurt(const bc::champion& me);
+    // v135 (TEAM_ABANDON): per slot, the round until which the group is off the table (0: not abandoned).
+    std::vector<int> abandon_until;
+    int bank_walk_round = -10;  // v135 (BANK_KEEP): last round rule 7 walked a bag to an altar
+    // turn_round: this turn's round, read once at the start of play() (no engine read per group or per call).
+    int turn_round = 0;
+    bool abandoned(int s) const {
+        return TEAM_ABANDON && s >= 0 && s < static_cast<int>(abandon_until.size()) && abandon_until[s] > turn_round;
+    }
+    void update_abandon(const bc::champion& me, int s);
+    bool swap_tank_step(const bc::champion& me, int s);
+    bool stage_group(const bc::champion& me, int s, const std::vector<bc::camp>& camps, const bc::bitboard* avoid,
+                     const std::string& stem);
     bool monolith_grouped(int slot);
     // No route group but the monoliths carries gems: the monoliths are the game, not a last resort.
     bool gem_starved = false;
@@ -487,6 +498,13 @@ private:
     bool is_collector(const bc::champion& me) const;
     // v71: gives our claim back so the leader can hand the reward to someone free.
     void release_claim(const char* why);
+    void hand_claim(const bc::champion& me, int index);  // v135 (CLAIM_HANDOFF)
+    // v135 (DASH_REACH): walkable, or (a dasher) reachable by hopping thin holes.
+    bool can_reach(int s, vec2 from, bool dasher);
+    static bool dash_kind(Champ kind) {
+        return kind == Champ::vesper_vale || kind == Champ::ren || kind == Champ::issac || kind == Champ::vendetta
+            || kind == Champ::heart_of_ruin;
+    }
     // v71: an enemy champion (seen, or hidden and hitting us) can reach us.
     bool enemy_threat(const bc::champion& me) const;
     void vesper_claim(const bc::champion& me);
@@ -580,6 +598,10 @@ private:
     int walk_target(const bc::champion& me, int s);
     // v103 (FIX_POCKET): a dasher in a hole pocket recalls out when hopping to target s is slower; whether it did.
     bool pocket_recall(const bc::champion& me, int s, const std::string& stem);
+    // v135 (CAPTURE_STAGE): a non-collector waits off the reward being captured (or at its edge); true when handled.
+    bool clear_collector_path(const bc::champion& me, int cs, bc::bitboard& goal);
+    int collect_stuck = 0, collect_stuck_round = -10;  // v135 (CLAIM_HANDOFF)
+    bool stage_capture(const bc::champion& me, int s, bool no_camps, const bc::bitboard* avoid, const std::string& stem);
     // v103 (FIX_POCKET): in a hole pocket while an ally that cannot dash lives: we then neither lead nor point the
     // team at loot, since our walking reach is the pocket's.
     bool pocketed(const bc::champion& me);
@@ -635,7 +657,6 @@ private:
     // v120 (AOE_CLEAN): what an area hit on `target` should cover (its group's camps, or the enemy champions) and the
     // camps it must keep clear of (other groups that hit back). Pooled lists, filled in one pass over the camps.
     std::vector<vec2> aoe_places, aoe_clear;
-    bc::bitboard aoe_unseen{bc::uninitialized}, aoe_near{bc::uninitialized};
     void aoe_scan(const Target& target, bool is_camp);
     bool clear_of(vec2 center, int radius) const;
     // v120 (STRAY_EXIT): awake camps of groups other than the farm slot (round, vision, slot cached), their reach, and

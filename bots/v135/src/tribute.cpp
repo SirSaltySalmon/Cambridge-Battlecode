@@ -27,20 +27,8 @@ bool Bot::bank_gems(const bc::champion& me, const std::vector<vec2>& altars, con
             }
         }
         if (channel_cut && in_range && !held) held = altar;
-        if (BANK_OPEN && !altar_usable(altar)) {
-            NOTE("altar " + at(altar) + ": every submit tile is a wall or a living camp: not walked to");
-            continue;
-        }
         goals |= tiles_around(altar, static_cast<float>(range));
     }
-    // v134-move (BANK_OPEN): a camp on a submit tile is no goal: go() seeds its field from camp tiles (to close on camps),
-    // which led bank walks one step short of an unstandable tile (01shortcut: 755 bounces).
-    if (BANK_OPEN && !goals.is_empty()) {
-        altar_usable(spots.front());  // refreshes bank_camps for this vision
-        fast::not_into(bank_camps, bank_free);
-        goals &= bank_free;
-    }
-    if (goals.is_empty()) return false;
     if (held)
         WHY(stem + ".walk", "tribute just cancelled: walk rather than restart it at " + at(*held));
     else
@@ -57,31 +45,6 @@ bool Bot::bank_gems(const bc::champion& me, const std::vector<vec2>& altars, con
         return true;
     }
     return move_towards_closest(goals);
-}
-
-bool Bot::altar_usable(vec2 altar) {
-    // v134-move (BANK_OPEN): a submit tile in sight that is neither a wall nor a living camp; with none in sight, the
-    // gate record (altar_open). 02guardians: a camp on the one free tile beside an altar, and Vesper walked up to it
-    // and away again for 300 rounds.
-    const int range = bc::constants::submit_gems_range;
-    const int width = bc::map::width(), height = bc::map::height();
-    if (bank_seen_round != static_cast<int>(bc::round_number()) || bank_seen_gen != seen::generation()) {
-        bc::vision::visible_tiles_into(bank_seen);
-        bc::vision::camp_tiles_into(bank_camps);
-        bank_seen_round = static_cast<int>(bc::round_number());
-        bank_seen_gen = seen::generation();
-    }
-    bool unseen = false;
-    for (int dy = -range; dy <= range; ++dy)
-        for (int dx = -range; dx <= range; ++dx) {
-            const vec2 tile{altar.x + dx, altar.y + dy};
-            if (tile.x < 0 || tile.y < 0 || tile.x >= width || tile.y >= height || seen::fixed_blocks().is_set(tile)) continue;
-            if (!bank_seen.is_set(tile))
-                unseen = true;
-            else if (!bank_camps.is_set(tile))
-                return true;
-        }
-    return unseen && altar_open(altar);
 }
 
 bool Bot::altar_near(vec2 position, vec2 altar, int range) {
@@ -130,6 +93,7 @@ void Bot::update_carrier(const bc::champion& me) {
         }
         return;
     }
+    if (NO_ESCORT) return;
     // v123 (PRISM_HOLD): a holding Prism asks for no escort: she is not going to an altar.
     const bool building = (me.champion_name() == Champ::ren && emblem_count(me) >= REN_CORE_EMBLEMS) || prism_holds(me);
     if (!carrier && escort_bag(gems, owned_of(me).passives) && !building && !home && !rejoining && !me.is_recalling() && solo_altars.empty()) {
