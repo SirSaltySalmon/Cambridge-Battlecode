@@ -774,6 +774,8 @@ inline constexpr double VARG_CLASS_BONUS = 0;
 inline constexpr int VARG_REPICK = 4, VARG_WAIT_MAX = 20;
 // The paired Vesper stays within VARG_FOLLOW of Varg while he is in sight.
 inline constexpr int VARG_FOLLOW = 4;
+// His picks are compact groups (the pairs): no spawn tile further than this from the centre (a road of clusters is not).
+inline constexpr int VARG_SPREAD = 4;
 // Gems his pick prices per point of health a group costs him (the draft's DAMAGE_COST).
 inline constexpr double VARG_DAMAGE_COST = 0.01;
 inline constexpr int VARG_RECALL_MARK = 62;

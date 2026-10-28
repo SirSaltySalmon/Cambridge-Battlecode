@@ -17,7 +17,19 @@ Plan: `~/.claude/plans/lexical-watching-piglet.md`.
 - Varg: shield before the first hit, recall at 30%, banks at 45, own fight score -5, allies answer his pings from 20.
 - Shared memory: his group rides in TARGET2 (byte 5 bits 0-5, unused since no roster drafts Cassi & Issac).
 
-## Results (22 plan maps, both sides, release; non-plan maps play as the base)
+## Spawn loops fixed (after the first bench; the user saw Varg and Vesper stuck at spawn)
+Found with an idle check on release stats (alive, no camp or champion damage, gold or gem change) and debug replays:
+- 01yellow-brick-road: Varg priced s0, a road of 30 gold clusters (radius 15) whose end tile touches our spawn, at
+  ~1 step. spawn.leave stepped onto that tile, farm.off ("due, we stand on its spawn") stepped back onto our spawn:
+  ~150 rounds for both. Fix: VARG_SPREAD 4 (his picks are compact groups only; every pair is radius <= 2), and an apart
+  champion's step-off never lands on our spawn.
+- 01the-farm (v148-145): the bank-after-shop rule held only on spawn: one step toward the altar, then the off-spawn
+  bar (45) sent him back across a spawn tile to farm, every round for 450+ rounds. Fix: varg_bank_due holds the bank
+  off spawn too until his bag is empty.
+After both, only 01boss-battle shows long stalls (the whole team, also in the base: the monolith trap).
+Seed 0 after the fixes: v148-147 vs v147 9-33-2, -48.3%; v148-145 vs v145 11-32-1, -44.4%.
+
+## Results before the fixes (22 plan maps, both sides, release; non-plan maps play as the base)
 | vs base | Record | Banked | K/D (ours vs theirs) |
 |---|---|---|---|
 | v148-147 vs v147, 3 seeds | 26-96-10 | -49.9% | 959/2761 vs 2564/1138 |

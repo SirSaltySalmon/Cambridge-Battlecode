@@ -1503,6 +1503,8 @@ void Bot::farm(const bc::champion& me, const bc::bitboard* avoid, const std::str
             WHY(stem + ".off", format("s%d ", s) + at(center) + " is due but we stand on its spawn: step off");
             bc::bitboard ring;
             for (const auto tile : spawn_lists[s]) ring.draw_chebyshev(tile, WAIT_RANGE);
+            // v148 (VARG_PLAN): never back onto our spawn, whose leave step walks us onto the tile again.
+            if (apart) ring &= ~seen::ally_spawn();
             move_towards_closest(ring & ~tiles, avoid);
         } else {
             WHY(stem + ".walk", format("s%d ", s) + at(center) + tile_flags(center) + " is up but out of sight: walk to it");

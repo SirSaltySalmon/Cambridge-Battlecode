@@ -126,9 +126,11 @@ void Bot::setup() {
     if (varg_plan) {
         varg_classes.reserve(route.size());
         half_ours.reserve(route.size());
-        for (const auto* group : route) {
-            varg_classes.push_back(static_cast<signed char>(draft::varg_class(*group)));
-            half_ours.push_back(draft::safe_half(*group) ? 1 : 0);
+        for (std::size_t s = 0; s < route.size(); ++s) {
+            int spread = 0;
+            for (const auto tile : spawn_lists[s]) spread = std::max(spread, distance(centers[s], tile));
+            varg_classes.push_back(static_cast<signed char>(spread > VARG_SPREAD ? -1 : draft::varg_class(*route[s])));
+            half_ours.push_back(draft::safe_half(*route[s]) ? 1 : 0);
         }
         LOG(say(format("setup: varg plan on (%d of us)", team_size)););
     }

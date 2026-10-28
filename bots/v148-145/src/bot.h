@@ -232,6 +232,8 @@ private:
     double self_penalty = 0;
     // The bag that sends this champion to an altar (GEM_BANK; Varg apart VARG_BANK_GEMS).
     int bank_bar(const bc::champion& me) const;
+    // Varg left the shop with a bag: it goes to an altar before he farms on (cleared once his bag is empty).
+    bool varg_bank_due = false;
     // v86 per-champion steps.
     bool band_step(const bc::champion& me, int now_mode);
     bool finish_ok(const bc::champion& me, std::string& why);

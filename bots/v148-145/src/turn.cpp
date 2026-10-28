@@ -358,6 +358,7 @@ void Bot::play(const bc::champion& me) {
     // in our own sight are scored here too. A carrier too hurt for the front line stays behind.
     const int gems = static_cast<int>(me.gem_count());
     if (gems > 0) tributed = false;
+    if (gems == 0) varg_bank_due = false;
     // v123 (PRISM_HOLD): Prism keeps her bag; none of the bank steps below apply to her until she may cash in.
     const bool holding = prism_holds(me);
     // v70: Ren rushes his core build first; afterwards he is the team's carry.
@@ -558,7 +559,8 @@ void Bot::play(const bc::champion& me) {
 
 int Bot::bank_bar(const bc::champion& me) const {
     // v148 (VARG_BANK_GEMS): Varg apart banks every VARG_BANK_GEMS; paired, he goes along (any bag) once Vesper's bag in
-    // sight is at hers, so the two walk to the altar together.
+    // sight is at hers, so the two walk to the altar together. Out of the shop any bag goes in first (varg_bank_due).
+    if (varg_plan && varg_bank_due && cached_ident(me) == champ_id(Champ::varg) + 1) return 1;
     if (!(apart && varg_plan && cached_ident(me) == champ_id(Champ::varg) + 1)) return GEM_BANK;
     for (const auto& a : seen::champions(Team::ally))
         if (cached_ident(a) == champ_id(Champ::vesper_vale) + 1 && static_cast<int>(a.gem_count()) >= GEM_BANK) return 1;
@@ -587,10 +589,12 @@ bool Bot::bank_from_spawn(const bc::champion& me) {
     if (building) return false;
     const int mine = cached_ident(me);
     if (escort_bag(gems, owned_of(me).passives) && carrier != mine) return !solo_altars.empty() && bank_gems(me, solo_altars, "spawn.bank.solo");
-    // v148 (VARG_PLAN): out of the shop Varg banks whatever he carries first.
-    if (varg_plan && VARG_STRATEGY && me.champion_name() == Champ::varg && owned_of(me).emblems >= VARG_CORE_EMBLEMS
-        && bank_gems(me, {}, "spawn.bank.varg"))
-        return true;
+    // v148 (VARG_PLAN): out of the shop Varg banks whatever he carries first, and keeps to it off spawn (bank_bar):
+    // a rule held on spawn only walked him off toward the altar and back onto the spawn on his farm path, every round.
+    if (varg_plan && VARG_STRATEGY && me.champion_name() == Champ::varg && owned_of(me).emblems >= VARG_CORE_EMBLEMS) {
+        varg_bank_due = true;
+        if (bank_gems(me, {}, "spawn.bank.varg")) return true;
+    }
     const bool idle = !route.empty() && wait_at(slot % static_cast<int>(route.size()), position) > 0;
     return (gems >= bank_bar(me) || (idle && gems >= IDLE_BANK)) && bank_gems(me, {}, "spawn.bank");
 }
