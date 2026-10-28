@@ -1,0 +1,2 @@
+bots/v145 bots/v144 maps/01corridors.map26a replays/sm145/01corridors-a.repl26a --statistics replays/sm145/01corridors-a.json --json
+bots/v144 bots/v145 maps/01corridors.map26a replays/sm145/01corridors-b.repl26a --statistics replays/sm145/01corridors-b.json --json

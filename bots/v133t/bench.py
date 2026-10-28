@@ -2,7 +2,7 @@
 
   python bots/v133t/bench.py seed BOT N        copy bots/BOT to bots/BOT-sN with N*300 fuel burnt at turn end
   python bots/v133t/bench.py variant BASE NAME FLAG=VALUE...   copy bots/BASE to bots/NAME with those constants.h values
-  python bots/v133t/bench.py manifest OUT OLD BOT[,BOT...]   rows for every maps/0*.map26a, both sides, into
+  python bots/v133t/bench.py manifest OUT OLD BOT[,BOT...]   rows for every maps/*.map26a, both sides, into
                                                 replays/OUT/<bot>/<map>-a|b (team A of -a is the bot under test)
   python bots/v133t/bench.py summary DIR[,DIR...] [DIR[,DIR...] ...]   one line per comma group: record, banked,
                                                 kills / deaths, camp deaths, out-of-fuel turns (ours vs theirs)
@@ -42,7 +42,7 @@ def variant(base, name, sets):
 
 
 def manifest(out, old, bots):
-    maps = sorted(glob.glob("maps/0*.map26a"))
+    maps = sorted(glob.glob("maps/*.map26a"))
     rows = []
     for bot in bots:
         d = "replays/b%s/%s" % (out, bot)
