@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>evotune</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --band: rgba(42,120,214,0.16); --ref: #898781;
+  --good: #0ca30c; --warn: #fab219; --bad: #d03b3b; --good-text: #006300;
+  --accent: #2a78d6; --accent-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --band: rgba(57,135,229,0.22); --good-text: #0ca30c;
+    --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --band: rgba(57,135,229,0.22); --good-text: #0ca30c;
+  --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 2; }
+header h1 { font-size: 16px; margin: 0 8px 0 0; }
+main { max-width: 1280px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+@media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; min-width: 0; }
+.card h2 { font-size: 13px; margin: 0 0 10px; color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.stack { display: grid; gap: 16px; align-content: start; min-width: 0; }
+label { display: grid; gap: 2px; font-size: 12px; color: var(--ink-2); }
+input, select, textarea, button { font: inherit; color: var(--ink); background: var(--page); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; min-width: 0; }
+button { cursor: pointer; background: var(--surface); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+button:disabled { opacity: .45; cursor: default; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pill { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--border); color: var(--ink-2); }
+.pill.running::before { content: "● "; color: var(--good); }
+.pill.error::before { content: "▲ "; color: var(--bad); }
+.pill.paused::before, .pill.stopped::before { content: "■ "; color: var(--warn); }
+.progress { flex: 1 1 220px; min-width: 160px; }
+.bar { height: 6px; background: var(--grid); border-radius: 3px; overflow: hidden; }
+.bar > div { height: 100%; background: var(--s1); width: 0; transition: width .4s; }
+.phase { font-size: 12px; color: var(--ink-2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.err { color: var(--bad); white-space: pre-wrap; font-size: 12px; }
+.note { color: var(--muted); font-size: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 4px 4px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th { color: var(--ink-2); font-weight: 600; }
+td.num, th.num { text-align: right; }
+.up { color: var(--good-text); } .down { color: var(--bad); }
+.scroll { overflow-x: auto; }
+.chart { position: relative; height: 240px; }
+.multiples { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.mini { border: 1px solid var(--grid); border-radius: 6px; padding: 8px; }
+.mini .t { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini .v { font-size: 12px; color: var(--ink-2); }
+.mini .c { position: relative; height: 90px; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 600px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { border: 1px solid var(--grid); border-radius: 6px; padding: 8px 10px; }
+.tile .k { font-size: 12px; color: var(--ink-2); }
+.tile .x { font-size: 20px; font-weight: 600; }
+.maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 12px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.maps span.W { color: var(--good-text); font-weight: 600; } .maps span.L { color: var(--bad); font-weight: 600; } .maps span.D { color: var(--muted); }
+pre.log { margin: 0; max-height: 260px; overflow: auto; font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--ink-2); white-space: pre-wrap; }
+textarea { width: 100%; min-height: 220px; font: 12px/1.4 ui-monospace, Consolas, monospace; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); margin-bottom: 6px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>evotune</h1>
+  <select id="runSel" aria-label="Run"><option value="">new run…</option></select>
+  <span id="pill" class="pill">idle</span>
+  <div class="progress"><div class="bar"><div id="barFill"></div></div><div id="phase" class="phase">—</div></div>
+  <button id="pauseBtn" title="Finish the current iteration, then stop">Pause after iteration</button>
+  <button id="stopBtn" title="Kill the batch now; finished games are kept and a resume continues">Stop now</button>
+</header>
+<main>
+  <div class="stack">
+    <section class="card">
+      <h2>Run</h2>
+      <div class="stack" style="gap:8px">
+        <div class="row"><label style="flex:1">Bot folder (with evo_constants.h)<input id="base" placeholder="bots/v149"></label><button id="inspectBtn">Inspect</button></div>
+        <label>Run name<input id="name" placeholder="v149-fight1"></label>
+        <div class="grid2">
+          <label>Weight vs last best<input id="w_best" type="number" step="0.5"></label>
+          <label>Weight vs base<input id="w_base" type="number" step="0.5"></label>
+          <label>Parallel games<input id="jobs" type="number"></label>
+          <label>Map share / iteration<input id="map_fraction" type="number" step="0.1" min="0.1" max="1"></label>
+          <label>Checkpoint every<input id="checkpoint_every" type="number"></label>
+          <label>Checkpoint seeds<input id="checkpoint_seeds" type="number" min="1"></label>
+          <label>Max iterations (0 = ∞)<input id="max_iterations" type="number"></label>
+          <label>Learning rate a₀<input id="lr" type="number" step="1"></label>
+        </div>
+        <div class="row"><button id="startBtn" class="primary">Start</button><span id="startNote" class="note"></span></div>
+        <div id="runErr" class="err"></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Parameters</h2>
+      <div id="paramErr" class="err"></div>
+      <div class="scroll"><table id="paramTable"></table></div>
+      <div id="fixedNote" class="note" style="margin-top:6px"></div>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <div class="row">
+        <label style="flex:1">Values from<select id="exportSel"></select></label>
+        <button id="exportBtn">Show file</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label style="flex:1">New bot folder<input id="newBot" placeholder="v150"></label>
+        <button id="makeBtn">Create bots/…</button>
+      </div>
+      <div id="exportMsg" class="note" style="margin-top:6px"></div>
+      <div id="exportBox" style="display:none;margin-top:8px">
+        <textarea id="exportText" readonly></textarea>
+        <button id="copyBtn" style="margin-top:6px">Copy</button>
+      </div>
+    </section>
+  </div>
+  <div class="stack">
+    <section class="card">
+      <h2>Now</h2>
+      <div id="tiles" class="tiles"></div>
+    </section>
+    <section class="card">
+      <h2>Center vs base at checkpoints (wins + draws/2, all maps)</h2>
+      <div class="legend"><span><i style="background:var(--s1)"></i>score</span><span><i style="background:var(--band);height:8px"></i>95% interval</span><span><i style="background:var(--ref)"></i>50% = level with base</span></div>
+      <div class="chart"><canvas id="ckChart" aria-label="Checkpoint score vs base"></canvas></div>
+      <p id="ckEmpty" class="note">No checkpoint yet (first one after the first few iterations).</p>
+    </section>
+    <section class="card">
+      <h2>Iteration scores (weighted f for θ+ and θ−)</h2>
+      <div class="legend"><span><i style="background:var(--s1)"></i>θ+</span><span><i style="background:var(--s2)"></i>θ−</span></div>
+      <div class="chart"><canvas id="itChart" aria-label="Iteration scores"></canvas></div>
+    </section>
+    <section class="card">
+      <h2>Parameter paths (center value per iteration; dashed = base)</h2>
+      <div id="multiples" class="multiples"></div>
+    </section>
+    <section class="card">
+      <h2>Out-of-fuel turns per game at checkpoints (boss-battle left out)</h2>
+      <div class="legend"><span><i style="background:var(--s1)"></i>center</span><span><i style="background:var(--s2)"></i>base (same games)</span></div>
+      <div class="chart"><canvas id="fuelChart" aria-label="Out-of-fuel turns per game"></canvas></div>
+    </section>
+    <section class="card">
+      <h2 id="mapsTitle">Latest checkpoint by map</h2>
+      <div id="maps" class="maps"></div>
+    </section>
+    <section class="card">
+      <h2>Log</h2>
+      <pre id="log" class="log"></pre>
+    </section>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const CFG_KEYS = ["w_best", "w_base", "jobs", "map_fraction", "checkpoint_every", "checkpoint_seeds", "max_iterations", "lr"];
+let defaults = {}, view = null, viewKey = "", charts = {}, status = {};
+
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = (v, d = 3) => v == null ? "—" : (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : (+v).toFixed(d).replace(/0+$/, "").replace(/\.$/, ""));
+const pct = v => (100 * v).toFixed(1) + "%";
+
+function baseOpts(yfmt) {
+  const grid = css("--grid"), muted = css("--muted"), ink = css("--ink");
+  return {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: css("--surface"), titleColor: ink, bodyColor: ink, borderColor: css("--axis"), borderWidth: 1, callbacks: {} } },
+    scales: {
+      x: { grid: { display: false }, border: { color: css("--axis") }, ticks: { color: muted, maxTicksLimit: 10 }, title: { display: true, text: "iteration", color: muted } },
+      y: { grid: { color: grid }, border: { display: false }, ticks: { color: muted, callback: yfmt } }
+    },
+    elements: { line: { borderWidth: 2, tension: 0 }, point: { radius: 0, hoverRadius: 5, hitRadius: 10 } }
+  };
+}
+function draw(id, config) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), config); }
+
+function renderParams(params, fixed, center, lastCk) {
+  const t = $("paramTable");
+  const head = "<tr><th>name</th><th class=num>base</th><th class=num>delta</th><th class=num>range</th>" + (center ? "<th class=num>center</th><th class=num>last ck</th>" : "") + "</tr>";
+  t.innerHTML = head + params.map(p => {
+    const c = center ? center[p.name] : null, k = lastCk ? lastCk.values[p.name] : null;
+    const cls = v => v == null || v === p.base ? "" : v > p.base ? "up" : "down";
+    return `<tr><td>${p.name}</td><td class=num>${fmt(p.base)}</td><td class=num>${fmt(p.delta)}</td><td class=num>${fmt(p.min)}..${fmt(p.max)}</td>` +
+      (center ? `<td class="num ${cls(c)}">${fmt(c)}</td><td class="num ${cls(k)}">${fmt(k)}</td>` : "") + "</tr>";
+  }).join("");
+  $("fixedNote").textContent = fixed && fixed.length ? "Fixed: " + fixed.map(f => `${f.name} (${f.why})`).join(", ") : "";
+}
+
+function renderView() {
+  const v = view, cfg = v.config, J = v.journal;
+  const its = J.filter(r => r.type === "iter"), cks = J.filter(r => r.type === "checkpoint");
+  const lastCk = cks[cks.length - 1];
+  renderParams(cfg.params, cfg.fixed, v.center, lastCk);
+  // export choices
+  const sel = $("exportSel"), keep = sel.value;
+  sel.innerHTML = `<option value="center">current center (iteration ${v.k})</option>` +
+    cks.slice().reverse().map(c => `<option value="${c.k}">checkpoint ${c.k}: ${pct(c.score)} ± ${pct(c.ci)} (${c.w}-${c.l}-${c.d})</option>`).join("");
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+  // tiles
+  const best = cks.reduce((b, c) => !b || c.score > b.score ? c : b, null);
+  const avgTime = its.length ? its.slice(-5).reduce((s, r) => s + r.time, 0) / Math.min(5, its.length) : null;
+  const tiles = [
+    ["iterations", v.k],
+    ["latest checkpoint", lastCk ? pct(lastCk.score) : "—", lastCk ? `± ${pct(lastCk.ci)} · ${lastCk.w}-${lastCk.l}-${lastCk.d}` : ""],
+    ["best checkpoint", best ? pct(best.score) : "—", best ? `iteration ${best.k} · noisy, re-bench before trusting` : ""],
+    ["fuel at latest", lastCk ? fmt(lastCk.fuel.us, 1) : "—", lastCk ? `out-of-fuel/game vs base ${fmt(lastCk.fuel.them, 1)}` : ""],
+    ["iteration time", avgTime ? Math.round(avgTime / 6) / 10 + " min" : "—", `${cfg.params.length} params · ${cfg.map_count} maps`],
+    ["weights", `${cfg.w_best} : ${cfg.w_base}`, "vs last best : vs base"]
+  ];
+  $("tiles").innerHTML = tiles.map(t => `<div class="tile"><div class="k">${t[0]}</div><div class="x">${t[1]}</div><div class="note">${t[2] || ""}</div></div>`).join("");
+
+  const s1 = css("--s1"), s2 = css("--s2");
+  // checkpoint chart: CI band + score + 50% reference
+  $("ckEmpty").style.display = cks.length ? "none" : "";
+  const ckO = baseOpts(v => pct(v));
+  ckO.plugins.tooltip.filter = i => i.datasetIndex === 2;
+  ckO.plugins.tooltip.callbacks.label = i => { const c = cks[i.dataIndex]; return `score ${pct(c.score)} ± ${pct(c.ci)}  (${c.w}-${c.l}-${c.d}, ${c.n} games)`; };
+  draw("ckChart", { type: "line", data: { labels: cks.map(c => c.k), datasets: [
+    { data: cks.map(c => c.score + c.ci), borderColor: "transparent", pointRadius: 0, fill: false },
+    { data: cks.map(c => c.score - c.ci), borderColor: "transparent", backgroundColor: css("--band"), pointRadius: 0, fill: "-1" },
+    { data: cks.map(c => c.score), borderColor: s1, backgroundColor: s1, pointRadius: 4, pointBorderColor: css("--surface"), pointBorderWidth: 2 },
+    { data: cks.map(() => 0.5), borderColor: css("--ref"), borderDash: [4, 4], borderWidth: 1, pointRadius: 0, pointHitRadius: 0 }
+  ] }, options: ckO });
+
+  // iteration f+ / f-
+  const itO = baseOpts(v => pct(v));
+  itO.plugins.tooltip.callbacks.label = i => `${i.datasetIndex ? "θ−" : "θ+"} ${pct(i.raw)}`;
+  draw("itChart", { type: "line", data: { labels: its.map(r => r.k), datasets: [
+    { data: its.map(r => r.f_plus), borderColor: s1, backgroundColor: s1 },
+    { data: its.map(r => r.f_minus), borderColor: s2, backgroundColor: s2 }
+  ] }, options: itO });
+
+  // parameter small multiples
+  const mult = $("multiples");
+  if (mult.dataset.key !== cfg.params.map(p => p.name).join()) {
+    mult.innerHTML = cfg.params.map((p, i) => `<div class="mini"><div class="t" title="${p.name}">${p.name}</div><div class="v" id="pv${i}"></div><div class="c"><canvas id="pc${i}"></canvas></div></div>`).join("");
+    mult.dataset.key = cfg.params.map(p => p.name).join();
+  }
+  cfg.params.forEach((p, i) => {
+    const series = [p.base].concat(its.map(r => r.center_after[p.name]));
+    const labels = [0].concat(its.map(r => r.k + 1));
+    const now = v.center[p.name];
+    $("pv" + i).innerHTML = `${fmt(now)} <span class="note">(base ${fmt(p.base)})</span>`;
+    const o = baseOpts(x => fmt(x, 2));
+    o.scales.x.title.display = false; o.scales.x.ticks.maxTicksLimit = 4; o.scales.y.ticks.maxTicksLimit = 4;
+    o.plugins.tooltip.filter = t => t.datasetIndex === 0;
+    o.plugins.tooltip.callbacks.label = t => `${p.name} ${fmt(t.raw)}`;
+    draw("pc" + i, { type: "line", data: { labels, datasets: [
+      { data: series, borderColor: s1, backgroundColor: s1, stepped: p.int },
+      { data: labels.map(() => p.base), borderColor: css("--ref"), borderDash: [4, 4], borderWidth: 1, pointRadius: 0, pointHitRadius: 0 }
+    ] }, options: o });
+  });
+
+  // fuel
+  const fO = baseOpts(x => fmt(x, 1));
+  fO.plugins.tooltip.callbacks.label = i => `${i.datasetIndex ? "base" : "center"} ${fmt(i.raw, 2)} per game`;
+  draw("fuelChart", { type: "line", data: { labels: cks.map(c => c.k), datasets: [
+    { data: cks.map(c => c.fuel.us), borderColor: s1, backgroundColor: s1, pointRadius: 3 },
+    { data: cks.map(c => c.fuel.them), borderColor: s2, backgroundColor: s2, pointRadius: 3 }
+  ] }, options: fO });
+
+  // per-map
+  if (lastCk) {
+    $("mapsTitle").textContent = `Checkpoint ${lastCk.k} by map (a / b side per seed)`;
+    const by = {};
+    lastCk.per_map.forEach(([m, side, res, seed]) => { (by[m] = by[m] || {})[seed + side] = res; });
+    const seeds = Object.keys(lastCk.seeds).sort();
+    $("maps").innerHTML = Object.keys(by).sort().map(m => `<div title="${m}">${m.length > 16 ? m.slice(0, 15) + "…" : m} ` +
+      seeds.map(s => ["a", "b"].map(sd => { const r = by[m][s + sd] || "·"; return `<span class="${r}">${r}</span>`; }).join("")).join(" ") + "</div>").join("");
+  } else { $("maps").innerHTML = '<span class="note">—</span>'; }
+}
+
+async function loadRuns() {
+  const r = await api("/api/runs");
+  defaults = r.defaults;
+  const sel = $("runSel"), cur = sel.value;
+  sel.innerHTML = '<option value="">new run…</option>' + r.runs.map(x => `<option value="${x.name}">${x.name} · ${x.base} · it ${x.k}</option>`).join("");
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+  return r.runs;
+}
+function fillForm(cfg) {
+  CFG_KEYS.forEach(k => { $(k).value = cfg[k] ?? ""; });
+  $("base").value = cfg.base || "";
+  const resume = !!view;
+  ["w_best", "w_base", "map_fraction", "lr", "base", "name"].forEach(k => $(k).disabled = resume);
+  $("startBtn").textContent = resume ? "Resume" : "Start";
+  $("startNote").textContent = resume ? "resume may change jobs, checkpoints and max iterations" : "";
+}
+async function selectRun(name) {
+  view = null; viewKey = "";
+  $("runErr").textContent = "";
+  if (!name) { fillForm(defaults); $("name").value = ""; $("paramTable").innerHTML = ""; $("fixedNote").textContent = ""; clearCharts(); return; }
+  view = await api("/api/run?name=" + encodeURIComponent(name));
+  $("name").value = name;
+  fillForm(view.config);
+  renderView();
+}
+function clearCharts() { Object.values(charts).forEach(c => c.destroy()); charts = {}; $("multiples").innerHTML = ""; $("multiples").dataset.key = ""; $("tiles").innerHTML = ""; $("maps").innerHTML = ""; $("exportSel").innerHTML = ""; }
+
+async function poll() {
+  try {
+    status = await api("/api/status");
+    const st = status.busy ? "running" : status.state;
+    $("pill").className = "pill " + st; $("pill").textContent = status.run ? `${st} · ${status.run}` : st;
+    const frac = status.total ? status.done / status.total : 0;
+    $("barFill").style.width = (100 * frac) + "%";
+    const eta = status.eta ? ` · ~${Math.ceil(status.eta / 60)} min left` : "";
+    $("phase").textContent = (status.phase || "—") + (status.total ? ` · ${status.done}/${status.total} games${eta}` : "");
+    $("pauseBtn").disabled = $("stopBtn").disabled = !status.busy;
+    $("startBtn").disabled = status.busy;
+    $("log").textContent = status.log.join("\n");
+    if (status.run && status.busy && !$("runSel").value) { await loadRuns(); $("runSel").value = status.run; await selectRun(status.run); }
+    if (view && $("runSel").value) {
+      const v = await api("/api/run?name=" + encodeURIComponent($("runSel").value));
+      const key = v.journal.length + ":" + v.k;
+      if (key !== viewKey) { view = v; viewKey = key; renderView(); }
+    }
+  } catch (e) { $("phase").textContent = "dashboard: " + e.message; }
+}
+
+$("runSel").onchange = e => selectRun(e.target.value).catch(x => $("runErr").textContent = x.message);
+$("inspectBtn").onclick = async () => {
+  $("paramErr").textContent = "";
+  try { const r = await api("/api/inspect", { base: $("base").value.trim() }); renderParams(r.params, r.fixed); $("fixedNote").textContent = r.file + (r.fixed.length ? " · fixed: " + r.fixed.map(f => `${f.name} (${f.why})`).join(", ") : ""); }
+  catch (e) { $("paramTable").innerHTML = ""; $("paramErr").textContent = e.message; }
+};
+$("startBtn").onclick = async () => {
+  $("runErr").textContent = "";
+  const config = { base: $("base").value.trim() };
+  CFG_KEYS.forEach(k => { if ($(k).value !== "") config[k] = $(k).value; });
+  const name = $("name").value.trim();
+  try { await api("/api/start", { name, config }); await loadRuns(); $("runSel").value = name; await selectRun(name); }
+  catch (e) { $("runErr").textContent = e.message; }
+};
+$("pauseBtn").onclick = () => api("/api/pause", {});
+$("stopBtn").onclick = () => { if (confirm("Kill the running batch now? Finished games are kept; resume continues the iteration.")) api("/api/stop", {}); };
+$("exportBtn").onclick = async () => {
+  try { const r = await api("/api/export", { name: $("runSel").value, which: $("exportSel").value }); $("exportText").value = r.text; $("exportBox").style.display = ""; $("exportMsg").textContent = "Paste over the new version's evo_constants.h, or create the folder below."; }
+  catch (e) { $("exportMsg").textContent = e.message; }
+};
+$("copyBtn").onclick = () => { navigator.clipboard.writeText($("exportText").value); $("copyBtn").textContent = "Copied"; setTimeout(() => $("copyBtn").textContent = "Copy", 1200); };
+$("makeBtn").onclick = async () => {
+  try { const r = await api("/api/make", { name: $("runSel").value, which: $("exportSel").value, bot: $("newBot").value.trim() }); $("exportMsg").textContent = `Created ${r.path} (base bot + these values).`; }
+  catch (e) { $("exportMsg").textContent = e.message; }
+};
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => view && renderView());
+
+(async () => {
+  if (typeof Chart === "undefined") { document.body.insertAdjacentHTML("afterbegin", '<p class="err" style="padding:8px 16px">Chart.js did not load (offline?) - charts are off, controls still work.</p>'); window.Chart = function () { return { destroy() {} }; }; }
+  const rs = await loadRuns();
+  fillForm(defaults);
+  if (rs.length) { $("runSel").value = rs[rs.length - 1].name; await selectRun($("runSel").value); }
+  poll(); setInterval(poll, 2500);
+})();
+</script>
+</body>
+</html>

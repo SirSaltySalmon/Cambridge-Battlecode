@@ -2018,21 +2018,9 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
         // v134: the cached counts (update_emblems, the enemy sightings, our own shop), not an item read per champion.
         for (std::size_t i = 0; i < allies.size(); ++i) owned_w += owned_of(allies[i]).emblems * weight(i);
         // v115 (EMBLEM_RELATIVE): less the near enemies' emblems.
-        if (EMBLEM_RELATIVE && !EMBLEM_RATIO)
+        if (EMBLEM_RELATIVE)
             for (std::size_t j = 0; j < enemies.size(); ++j) owned_w -= owned_of(enemies[j]).emblems * enemy_weight(j);
         int emblem_score = static_cast<int>(std::lround(EMBLEM_BONUS * owned_w));
-        // v149-ratio (EMBLEM_RATIO): by the ratio of the two sides' emblems, so a one-emblem gap counts less late.
-        // EMBLEM_RATIO_ADD keeps the flat term (capped at EMBLEM_RATIO_CAP when that is over 0) and adds the ratio.
-        if (EMBLEM_RATIO) {
-            double theirs_w = 0.0;
-            for (std::size_t j = 0; j < enemies.size(); ++j) theirs_w += owned_of(enemies[j]).emblems * enemy_weight(j);
-            const int ratio = static_cast<int>(std::lround(
-                EMBLEM_RATIO_WEIGHT * std::log((owned_w + EMBLEM_RATIO_SMOOTH) / (theirs_w + EMBLEM_RATIO_SMOOTH))));
-            int flat = EMBLEM_RATIO_ADD ? emblem_score : 0;
-            if (EMBLEM_RATIO_CAP > 0) flat = std::min(flat, EMBLEM_RATIO_CAP);
-            emblem_score = flat + ratio;
-            LOG(part(head_text, format("emblems %.1f v %.1f: flat %+d ratio %+d", owned_w, theirs_w, flat, ratio)););
-        }
         // v134: behind on both health and power (with the edges as scored), the emblems do not carry the fight.
         const bool behind_both = hp_edge < 0 && power_edge < 0;
         if (EMB_DOUBLE_DEFICIT && behind_both && !(na_w > ne_w) && emblem_score > 0) {

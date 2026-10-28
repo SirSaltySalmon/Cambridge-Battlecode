@@ -1,6 +1,7 @@
 // Tunables, shop builds, and the shared-memory layout.
 #pragma once
 #include <cambc.h>
+#include "evo_constants.h"  // fight-score numbers tools/evotune varies
 
 // ---- v135 switches (plan: bots/v135a/PLAN.md) ----
 // F6 NO_ESCORT: no escorted tribute (774 escorts in 260 audit logs, 43 banked, 535 cancelled within 4 rounds by the
@@ -1099,13 +1100,9 @@ inline constexpr int AGGRESSIVE_WARD_DETOUR_RANGE = 12;
 // Only enemies within this many walking steps of us or a visible ally count for fight decisions;
 // one further off (say, seen through a ward) is information only.
 inline constexpr int FIGHT_STEPS = 10;
-inline constexpr int FIGHT_THRESHOLD = 5;
 // Indecision guard: once fighting, the team only retreats when the score falls this far below the
 // threshold, and a switch between fight and retreat holds for at least this many rounds.
-inline constexpr int FIGHT_HYSTERESIS = 10;
-inline constexpr int MIN_HOLD = 3;
-inline constexpr int OUTNUMBER_BONUS = 10;
-inline constexpr int MISSING_BODY_PENALTY = 5;
+// FIGHT_THRESHOLD, FIGHT_HYSTERESIS, MIN_HOLD, OUTNUMBER_BONUS, MISSING_BODY_PENALTY: src/evo_constants.h.
 // Prefer farming during the respawn window after enough enemy champions are down (team size -> dead).
 inline int kill_window_dead_enemies(std::size_t team) { return team == 3 || team == 4 ? 2 : team == 5 ? 3 : -1; }
 inline constexpr int KILL_WINDOW_FIGHT_PENALTY = 20;
@@ -1191,11 +1188,8 @@ inline constexpr int RING_DIV = 4, RING_MIN = 6, RING_MAX = 14;
 //   613-344 (enemy weighting at 5: 83/160, +10.7%, 554-486). README bench 7.
 // v128 screen: HEALTH_EDGE 1: 78/160, -1.7%; 0: 79, +3.0%; GRADED_EDGES (EDGE_WEIGHT 5): 81, +4.4%;
 //   FIGHT_THRESHOLD 10: 83, +9.1%. 2 is a sharp peak (5: 83/160): part of its edge may be this seed.
-inline constexpr int HEALTH_EDGE = 2;
-inline constexpr int POWER_EDGE = 5;
+// HEALTH_EDGE, POWER_EDGE, DISTANCE_PENALTY, OVEREXTEND_PENALTY: src/evo_constants.h.
 inline constexpr int EMBLEM_BONUS = 3;
-inline constexpr double DISTANCE_PENALTY = 0.5;
-inline constexpr int OVEREXTEND_PENALTY = 10;
 // v115 (EMBLEM_RELATIVE, off): the emblem term is EMBLEM_BONUS x (our fighters' emblems - the near enemies' emblems); it
 //   is ours alone, so a lone built Vesper scores +30 and stays in 1v2 fights (fragment). On it lost 34-46 vs v114 (alone)
 //   and 28-52 with the Vesper switches: the team retreats more and gets run down (Vesper died more, not less).
@@ -1205,7 +1199,7 @@ inline constexpr bool EMBLEM_RELATIVE = false;
 //   EMBLEM_BONUS x ours. One emblem of difference counts less as both sides build: 1v0 +6.9, 4v2 +5.1, 10v5 +6.1,
 //   10v9 +1.0, 0v3 -13.9; level sides 0.
 inline constexpr bool EMBLEM_RATIO = true;
-inline constexpr double EMBLEM_RATIO_WEIGHT = 10.0, EMBLEM_RATIO_SMOOTH = 1.0;
+// EMBLEM_RATIO_WEIGHT, EMBLEM_RATIO_SMOOTH: src/evo_constants.h.
 // EMBLEM_RATIO_ADD: the flat EMBLEM_BONUS x ours stays and the ratio is added (v149-add); EMBLEM_RATIO_CAP > 0 caps that
 //   flat part first (v149-cap: 20). Both off = the ratio alone (v149-ratio: 50-86-4, banked -23.4% vs v148-normal).
 inline constexpr bool EMBLEM_RATIO_ADD = false;

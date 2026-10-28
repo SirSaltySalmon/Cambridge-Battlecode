@@ -11,3 +11,7 @@ tuner/*.sqlite-journal
 tuner/*.sqlite-wal
 tuner/*.sqlite-shm
 __pycache__/
+
+# evotune runs (tools/evotune)
+evo_runs/
+.gstack/

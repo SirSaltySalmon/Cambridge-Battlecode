@@ -25,3 +25,5 @@ The bar is the strongest lever found: lower starts more fights; a wider stay-in 
 
 Replays: `replays/b150sweep/v148n-thrm5` (same code as this folder) and the other `v148n-*` folders; test bots
 `bots/v148n-*`.
+
+Fight-score numbers (with the emblem-ratio ones) live in `src/evo_constants.h`, included from `src/constants.h` with the same values; `// evo:` comments give tools/evotune each one's step and range.

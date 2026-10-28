@@ -52,3 +52,5 @@ Results: `results/results-v149-add-vs-v148-normal.txt`, `results/results-v149-ca
 `replays/b149b*`, debug `replays/b149dbg`. Same failure as EMBLEM_RELATIVE in v115 (34-46): with the flat term
 gone, even fights score near the bar, the team breaks off more and gets run down (deaths +42%, kills -30%).
 Replays: `replays/b149ratio/v149`; summary in `results/results-v149-ratio-vs-v148-normal.txt`.
+
+Fight-score numbers (with the emblem-ratio ones) live in `src/evo_constants.h`, included from `src/constants.h` with the same values; `// evo:` comments give tools/evotune each one's step and range.
