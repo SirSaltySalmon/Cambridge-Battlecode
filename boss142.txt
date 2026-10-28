@@ -1,0 +1,6 @@
+bots/v141 bots/v141 maps/01boss-battle.map26a replays/s142/bossr2/m141.repl26a --statistics replays/s142/bossr2/m141.json --json
+bots/v141 bots/v142 maps/01boss-battle.map26a replays/s142/bossr2/x142.repl26a --statistics replays/s142/bossr2/x142.json --json
+bots/v142 bots/v142 maps/01boss-battle.map26a replays/s142/bossr2/m142.repl26a --statistics replays/s142/bossr2/m142.json --json
+bots/v142 bots/v141 maps/01boss-battle.map26a replays/s142/bossr2/x141.repl26a --statistics replays/s142/bossr2/x141.json --json
+bots/v140 bots/v141 maps/01boss-battle.map26a replays/s142/bossr2/o141.repl26a --statistics replays/s142/bossr2/o141.json --json
+bots/v140 bots/v142 maps/01boss-battle.map26a replays/s142/bossr2/o142.repl26a --statistics replays/s142/bossr2/o142.json --json
