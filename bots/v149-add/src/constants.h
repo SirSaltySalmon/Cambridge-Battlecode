@@ -1200,14 +1200,14 @@ inline constexpr int OVEREXTEND_PENALTY = 10;
 //   is ours alone, so a lone built Vesper scores +30 and stays in 1v2 fights (fragment). On it lost 34-46 vs v114 (alone)
 //   and 28-52 with the Vesper switches: the team retreats more and gets run down (Vesper died more, not less).
 inline constexpr bool EMBLEM_RELATIVE = false;
-// v149 (EMBLEM_RATIO, user): the emblem term is EMBLEM_RATIO_WEIGHT x ln((ours + EMBLEM_RATIO_SMOOTH) / (theirs +
+// v149-ratio (EMBLEM_RATIO, user): the emblem term is EMBLEM_RATIO_WEIGHT x ln((ours + EMBLEM_RATIO_SMOOTH) / (theirs +
 //   EMBLEM_RATIO_SMOOTH)), our fighters' emblems against the near enemies' (both weighted like the bodies), instead of
 //   EMBLEM_BONUS x ours. One emblem of difference counts less as both sides build: 1v0 +6.9, 4v2 +5.1, 10v5 +6.1,
 //   10v9 +1.0, 0v3 -13.9; level sides 0.
 inline constexpr bool EMBLEM_RATIO = true;
 inline constexpr double EMBLEM_RATIO_WEIGHT = 10.0, EMBLEM_RATIO_SMOOTH = 1.0;
 // EMBLEM_RATIO_ADD: the flat EMBLEM_BONUS x ours stays and the ratio is added (v149-add); EMBLEM_RATIO_CAP > 0 caps that
-//   flat part first (v149-cap: 20). Both off = the ratio alone (v149: 50-86-4, banked -23.4% vs v148-normal).
+//   flat part first (v149-cap: 20). Both off = the ratio alone (v149-ratio: 50-86-4, banked -23.4% vs v148-normal).
 inline constexpr bool EMBLEM_RATIO_ADD = true;
 inline constexpr int EMBLEM_RATIO_CAP = 0;
 // v115 (GRADED_EDGES, off): health and power count EDGE_WEIGHT x (ours - theirs) / the larger side, instead of

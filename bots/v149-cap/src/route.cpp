@@ -2021,7 +2021,7 @@ int Bot::score_mode(std::optional<vec2> origin, int current) {
         if (EMBLEM_RELATIVE && !EMBLEM_RATIO)
             for (std::size_t j = 0; j < enemies.size(); ++j) owned_w -= owned_of(enemies[j]).emblems * enemy_weight(j);
         int emblem_score = static_cast<int>(std::lround(EMBLEM_BONUS * owned_w));
-        // v149 (EMBLEM_RATIO): by the ratio of the two sides' emblems, so a one-emblem gap counts less late.
+        // v149-ratio (EMBLEM_RATIO): by the ratio of the two sides' emblems, so a one-emblem gap counts less late.
         // EMBLEM_RATIO_ADD keeps the flat term (capped at EMBLEM_RATIO_CAP when that is over 0) and adds the ratio.
         if (EMBLEM_RATIO) {
             double theirs_w = 0.0;
