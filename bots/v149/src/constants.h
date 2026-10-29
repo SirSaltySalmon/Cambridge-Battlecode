@@ -220,9 +220,11 @@ inline constexpr Item STELLAR_BUILD[] = {Item::treasure_shard_of_focus, Item::mo
     Item::bruiser_shard_of_health};
 inline constexpr Item STELLAR_FALLBACK[] = {Item::power_shard_of_focus};
 // Vendetta.
-inline constexpr Item VENDETTA_BUILD[] = {Item::treasure_shard_of_strength, Item::jungle_shard_of_strength,
-    Item::monster_shard_of_strength};
-inline constexpr Item VENDETTA_FALLBACK[] = {Item::power_shard_of_strength};
+inline constexpr Item VENDETTA_BUILD[] = {Item::monster_shard_of_strength, Item::jungle_shard_of_strength,
+    Item::skirmish_shard_of_health, Item::capture_shard_of_strength, Item::durability_emblem_of_health,
+    Item::treasure_shard_of_strength, Item::power_shard_of_strength, Item::hunter_shard_of_health,
+    Item::collectors_shard_of_strength, Item::home_shard_of_strength};
+inline constexpr Item VENDETTA_FALLBACK[] = {Item::bruiser_shard_of_strength};
 // Marcella: v110 tanks camps and hits with Strength; she gains 2 gold per gem tributed.
 inline constexpr Item MARCELLA_BUILD[] = {Item::prospector_shard_of_focus, Item::tribute_shard_of_focus,
     Item::jungle_shard_of_health, Item::durability_shard_of_health};
