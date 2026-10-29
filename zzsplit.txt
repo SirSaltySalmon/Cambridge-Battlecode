@@ -1,0 +1,4 @@
+bots/zz-sp2 bots/v149 maps/00collision.map26a replays/zzsplit/collision.repl26a
+bots/zz-sp2 bots/v149 maps/02stalactites.map26a replays/zzsplit/stalactites.repl26a
+bots/zz-sp2 bots/v149 maps/02the-pack.map26a replays/zzsplit/pack.repl26a
+bots/zz-sp2 bots/v149 maps/01hooks.map26a replays/zzsplit/hooks.repl26a

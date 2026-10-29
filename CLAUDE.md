@@ -1,5 +1,7 @@
 Bot developer note: Fuel is always an important factor to consider. When implementing new features, make use of available prebuilt functions, and adhere to best C++ standards to optimize for instructions. Benchmarking a version against another should factor in and report back changes in fuel usage.
 
+When building a new feature, make sure you understand the entire codebase - everything is in place for a reason, so that we can get an edge from our opponent and exploit what we know. So you must make sure implementations does not clash or break with older features. On games, investigate logs and make sure your feature works, but isn't causing any behavioral freezes, loops, combat failures, or bot errors.
+
 # CAMBC Game Rules
 
 Event: cambc2026a. Exported from the current handbook, including all published champion specifications. Interactive diagrams are represented as text.
