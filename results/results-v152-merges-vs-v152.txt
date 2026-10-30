@@ -1,0 +1,63 @@
+v152 merges vs v152 (opponent copy bots/v152-bench), 2026-10-30
+140 games each: all 70 maps x both sides, release, seed 0. Manifest b152m.txt, replays replays/b152m/<bot>/.
+All four = v152 + v151-tc builds + v151-mapfix fixes (v152-tm is only that), plus:
+  v152-jfe  Jack v151-jack: Optuna fight trial 43 + economy trial 77 (GEM_BANK 50, IDLE_BANK 15)
+  v152-jf   Jack v150: Optuna fight trial 43 only
+  v152-cap  Salmon v149-cap emblem ratio term (weight 10, smooth 1, cap 20), threshold stays -5
+
+bot        record    banked   collected  gold     fuel/turn          out-of-fuel turns (ours / v152)
+v152-tm    73-63-4   +9.5%    +7.3%      +10.0%   34.1k vs 33.0k +3.3%   2060 / 1766
+v152-jf    74-64-2   +8.1%    +9.8%      +13.9%   33.9k vs 32.9k +2.9%   1730 / 1858
+v152-jfe   75-63-2   +7.5%    +8.0%      +13.6%   33.8k vs 33.0k +2.6%   1719 / 1856
+v152-cap   70-67-3   +3.6%    +5.8%      +8.1%    34.2k vs 33.4k +2.4%   1645 / 2265
+
+"bot error: unit is not in vision" lines (ours / v152 side): tm 62/34, jf 36/52, jfe 34/60, cap 53/59: already in v152.
+
+replays/b152m/v152-tm: 140 games  73-63-4
+  banked gems        98261 vs    89753  (+9.5%)
+  gems collected    129209 vs   120398  (+7.3%)
+  gold earned      1050371 vs   955160  (+10.0%)
+  K/D             2480/2338 vs 2245/2562
+  fuel per turn   ours mean  34099  out-of-fuel  2060 | theirs mean  33003  out-of-fuel  1766  (+3.3%)
+  worst: 02stalactites-a -1072, 01elk-arena-b -1067, 00vault-b -1033, 01concentrated-wealth-b -1017, 00stampede-b -1011, 02treasure-box-b -1002
+  best:  adgato-gemcombat5-b +1078, 00dunes-a +1061, 00crater-a +1022, 01starfish-a +1019, 00breadcrumbs-a +1015, 01hooks-a +1012
+replays/b152m/v152-jf: 140 games  74-64-2
+  banked gems        97103 vs    89854  (+8.1%)
+  gems collected    137613 vs   125343  (+9.8%)
+  gold earned      1085554 vs   952962  (+13.9%)
+  K/D             2497/2391 vs 2300/2571
+  fuel per turn   ours mean  33854  out-of-fuel  1730 | theirs mean  32903  out-of-fuel  1858  (+2.9%)
+  worst: adgato-gemcombat5-b -1297, 01elk-arena-b -1066, 00the-line-b -1046, 01concentrated-wealth-b -1042, 00vault-b -1037, 00crater-b -1004
+  best:  00ribs-a +1066, 00the-line-a +1044, 00breadcrumbs-a +1022, 00eight-b +1016, 01hooks-a +1012, 00stampede-a +1011
+replays/b152m/v152-jfe: 140 games  75-63-2
+  banked gems        97046 vs    90294  (+7.5%)
+  gems collected    132184 vs   122391  (+8.0%)
+  gold earned      1058095 vs   931674  (+13.6%)
+  K/D             2431/2296 vs 2211/2518
+  fuel per turn   ours mean  33815  out-of-fuel  1719 | theirs mean  32964  out-of-fuel  1856  (+2.6%)
+  worst: adgato-gemcombat5-b -1081, 01elk-arena-b -1066, 00the-line-b -1046, 01concentrated-wealth-b -1042, 00vault-b -1037, 00crater-b -1020
+  best:  00the-line-a +1044, 00breadcrumbs-a +1022, 01shortcut-a +1020, 00oasis-a +1014, 01hooks-a +1012, 00stampede-a +1011
+replays/b152m/v152-cap: 140 games  70-67-3
+  banked gems        96530 vs    93210  (+3.6%)
+  gems collected    137958 vs   130430  (+5.8%)
+  gold earned      1071579 vs   991347  (+8.1%)
+  K/D             2506/2387 vs 2309/2580
+  fuel per turn   ours mean  34192  out-of-fuel  1645 | theirs mean  33399  out-of-fuel  2265  (+2.4%)
+  worst: 01hooks-b -1012, 00dunes-b -1009, 01concentrated-wealth-b -1007, 00crater-b -1005, 01starfish-b -1001, 00quarry-b -996
+  best:  00the-line-b +1086, 01starfish-a +1028, 00breadcrumbs-a +1015, 00ribs-b +1014, 01hooks-a +1012, 00the-line-a +1010
+
+=== Seeds (2026-10-31): fuel-burn copies bots/v152-tm-s1/-s2, v152-jf-s1/-s2 (main.cpp sink loop), manifest b152s.txt, replays/b152s/
+bot        seed 0    seed 1    seed 2    3 seeds        banked   collected  gold
+v152-tm    +9.5%     +8.0%     +1.9%     217-193-10     +6.4%    +6.6%      +8.5%
+v152-jf    +8.1%     +4.8%    +16.2%     218-194-8      +9.6%    +8.8%      +12.3%
+Fuel on seed 0 (no sink): tm 34.1k vs 33.0k (+3.3%), jf 33.9k vs 32.9k (+2.9%). jf ahead on all three totals: the combined bot.
+
+=== Evotune on v152 (2026-10-31): manifest b152e.txt, replays/b152e/ (seed copies -s1/-s2 as above)
+  v152-evo   = v152-cap + bots/v151 evo_constants.h exactly (evotune fight + emblem-ratio numbers)
+  v152-evof  = v152-tm + evotune fight numbers only (threshold 2, hyst 13, hold 1, body 3, dist 0.45, overext 9; EMBLEM_BONUS 3, no ratio)
+bot        seed 0    seed 1    seed 2    3 seeds        banked   collected  gold     fuel seed 0
+v152-evo   +6.2%     +1.5%     -4.9%     199-210-11     +0.9%    +5.3%      +11.0%   34.4k vs 33.1k +4.0%
+v152-evof  +9.0%     +5.9%     -0.6%     210-203-7      +4.7%    +6.2%      +10.8%   34.3k vs 33.2k +3.4%
+v152-tm    +9.5%     +8.0%     +1.9%     217-193-10     +6.4%    +6.6%      +8.5%
+v152-jf    +8.1%     +4.8%    +16.2%     218-194-8      +9.6%    +8.8%      +12.3%
+Evotune numbers: no gain over v152's own (-5 threshold) on this base; with the ratio term -5.5 points. v152-jf stays best.
