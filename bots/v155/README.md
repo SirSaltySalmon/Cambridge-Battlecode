@@ -1,4 +1,4 @@
-# v152-jf
+# v155 (was v152-jf)
 
 v152 + Jack's fight-only tuned bot `v150` (origin/jack-claude, Optuna fight trial 43, `src/evo_constants.h`:
 FIGHT_THRESHOLD -14, FIGHT_HYSTERESIS 15, MIN_HOLD 1, OUTNUMBER_BONUS 0, MISSING_BODY_PENALTY 7, HEALTH_EDGE 7,
