@@ -1,0 +1,204 @@
+v158 = v155 + hoarding Prism team (Prism, HoR, Marcella, Ryth, Vendetta) where over 70% of camps are gem clusters.
+Prism takes every gem reward and holds to 1000, with two safety starts (round limit, enemy pace). See bots/v158/README.md.
+Local release runs, cambc 4.0.0, both sides per map, one run (a re-run of the same manifest gave identical results).
+
+RULE MAPS (9 maps, 18 games): 00galaxy, 00gem-fields, 00quadrants, 00vault, adgato-gemcombat1-5
+matchup                               record  banked   K/D      fuel/turn vs opponent     out-of-fuel turns  Prism deaths
+v158 vs v155                          6-12    -47.8%   139/169  31614 vs 33474 (-5.6%)    124 vs 105         30
+v158 without the hold vs v155         6-12    -26.4%   152/228  30748 vs 33651 (-8.6%)    107 vs 140         43
+v157 (Vesper Prism team) vs v155      9-9     +2.2%    206/176  33441 vs 32705 (+2.2%)    125 vs 154         29
+Bot faults: 0. Failed games: 0. Banked understates a hoarder only while the game runs; these are final totals.
+
+PER MAP, v158 vs v155 (wins of 2, banked)
+00vault              2/2   2710 v 515     Prism's best map
+00gem-fields         1/2   1050 v 1511
+adgato-gemcombat2    1/2   1069 v 1214
+adgato-gemcombat3    1/2   1210 v 1553
+adgato-gemcombat5    1/2   1050 v 1057
+00galaxy             0/2     57 v 2045    K/D 4/55: fights lost, with or without the hold
+00quadrants          0/2    256 v 2021    K/D 0/0: race lost, ended holding 692 and 761
+adgato-gemcombat1    0/2    105 v 2777
+adgato-gemcombat4    0/2    182 v 2037    race lost, ended holding 980 and 840
+
+PLAN CHECKS (18 games)
+Gems collected: Prism 11155, allies 4580 (71% to Prism). Monster or Jungle bought: 0.
+Prism's emblems: Durability in 11 of 18 games, Prospector in 9. Allies with a Prospector emblem: 26 of 62.
+Gems Prism lost on death: 3531. Games lost with 300+ gems still in her bag: 4 of 12 losses.
+
+OTHER 61 MAPS (122 games; no Prism team, same strategy as v155)
+v158 vs v155   63-59   +7.1%   fuel/turn 33515 vs 33122 (+1.2%)   out-of-fuel turns 1819 vs 1475   Prism deaths 50
+Treat this as noise from timing shifts, not a gain.
+
+v159 = v158 + Prism makes no shop recall while the team's gem target has live camps in her sight. Same maps, one run per side.
+matchup          record  banked   K/D      fuel/turn vs opponent     out-of-fuel turns  Prism deaths
+v159 vs v155     6-12    -48.6%   148/169  31173 vs 33442 (-6.8%)    123 vs 106         30
+v159 vs v158     7-11    -28.0%   155/240  31152 vs 32739 (-4.8%)    117 vs 125         52
+Bot faults: 0. Prism's unspent gold at game end, 18 games: 2354 (v158: 659).
+
+v160 = v159 + PRISM_MOVE_WITH, PRISM_FIGHT_NEAR, PRISM_EARLY_CASH, PRISM_WILLOW, plus the Prism team ignoring the fixed FRONT_HEALTH bar.
+Same 9 maps, one run per side, against v155. The "alone" rows were run before the FRONT_HEALTH fix.
+variant                  record  banked   K/D      fuel/turn vs opponent     out-of-fuel turns  Prism deaths
+v159 (baseline)          6-12    -48.6%   148/169  31173 vs 33442 (-6.8%)    123 vs 106         30
+move with her alone      6-12    -25.0%   234/181  30997 vs 31310 (-1.0%)    98 vs 93           32
+no fights away alone     4-14    -55.1%   207/182  31933 vs 32580 (-2.0%)    101 vs 100         33
+early start alone        6-12    -52.9%   132/169  31478 vs 33582 (-6.3%)    130 vs 100         31
+Willow alone             8-10    -33.2%   242/149  32054 vs 31993 (+0.2%)    121 vs 121         26
+all four, before the fix 7-11    -43.8%   244/139  32288 vs 31602 (+2.2%)    124 vs 118         18
+v160                     9-9     -19.3%   315/113  32799 vs 30629 (+7.1%)    119 vs 116         12
+Tribute starts by length in logged v160 games: 1-50 turns 3 of 3 finished; 51-80 4 of 8; 81-120 5 of 52; 121+ 0 of 15.
+
+v161 = v160 + PRISM_PICKERS: Marcella and HoR take gem rewards under the map's gem-weighted median (under twice it while Prism is busy) and bank them. Prism still deposits only at 1000.
+matchup          record  banked   K/D      fuel/turn vs opponent     out-of-fuel turns  Prism deaths
+v161 vs v155     11-7    +18.6%   162/142  33424 vs 33349 (+0.2%)    141 vs 120         28
+v161 vs v160     8-10    -15.0%   248/245  30788 vs 30944 (-0.5%)    159 vs 201         53
+v161 vs v157     12-6    +66.1%   192/92   34799 vs 32301 (+7.7%)    139 vs 100         16
+Tribute starts in logged v161 games: 1-50 turns 3 of 5 finished; 51-80 5 of 11; 81-120 1 of 9.
+
+v162 = v161 with a bag ceiling in place of the size rule: Prism takes gem rewards to 400, then Marcella and HoR take them and bank.
+matchup          record  banked   K/D      fuel/turn vs opponent     out-of-fuel turns  Prism deaths
+v162 vs v155     10-8    +10.0%   223/119  34593 vs 32489 (+6.5%)    149 vs 134         21
+v162 vs v161     12-6    +38.7%   264/164  32606 vs 30414 (+7.2%)    199 vs 139         32
+v162 vs v157     8-10    -14.6%   209/211  32166 vs 32504 (-1.0%)    139 vs 109         38
+Tribute starts in logged v162 games: 1-50 turns 13 of 16 finished; 51-80 7 of 11; 81-120 0 of 2.
+Prism's peak bag, 18 games: median about 635, highest 801; the 400 ceiling is often passed.
+Other 61 maps: same totals as v161 (64-58, +1.9%, fuel +0.5%, out-of-fuel turns 1758 vs 1633).
+
+TRIBUTE IDEAS (v163 = v161 with TRIB_* switches off; base seed 0 matches v161 game for game). Vs v155, same 9 maps. Seeds burn fuel, so seed > 0 fuel is inflated.
+variant             games  record  banked   K/D        Prism deaths  seed 0 fuel/turn  seed 0 out-of-fuel
+ceil + stun first   108    65-43   +18.1%   1470/705   125           +6.3%             148 vs 134
+ceiling 400         108    63-45   +13.2%   1460/744   126           +6.5%             149 vs 134
+ceil + lock         108    60-48   +9.5%    1385/758   133           +6.1%             148 vs 126
+v161 (base)         108    57-51   +10.9%   1245/840   142           +0.2%             141 vs 120
+ceil + endgame      108    55-53   +10.5%   1452/701   122           +10.4%            145 vs 117
+ceil+endgame+lock   108    52-56   +2.9%    1371/741   136           +10.0%            150 vs 117
+endgame             108    51-57   +2.0%    1207/838   153           +2.6%             150 vs 132
+Three seeds only (54 games), compare with v161's 28-26, +5.2%: stun first 28-26, altar 28-26, stay 28-26, window 28-26, lock 28-26, emblem 28-26, restart 27-27, willow 27-27, marcella 27-27, guard 27-27.
+Altar and stay matched the base exactly: they changed no game in these runs.
+
+LADDER, unranked, 2026-10-31 (platform v163 = local v161; 15 games on Prism team maps; no baseline run; Prism drafted in 15 of 15)
+opponent (rank)         map                  side  result  gems         K/D    Prism deaths
+Patient Builder (158)   00galaxy             a     win     1043-405     24/2   0
+Patient Builder (158)   00gem_fields         b     loss    980-1025     12/8   0
+Patient Builder (158)   00quadrants          a     loss    992-1023     2/3    0
+Patient Builder (158)   00vault              b     loss    343-1130     2/9    3
+Patient Builder (158)   adgato_gemcombat1    a     win     1000-637     13/5   0
+:3 (100)                adgato_gemcombat2    b     loss    0-1008       3/11   2
+:3 (100)                adgato_gemcombat3    a     win     1308-917     25/5   0
+:3 (100)                adgato_gemcombat4    b     loss    633-1029     14/6   0
+:3 (100)                adgato_gemcombat5    a     loss    126-1029     6/11   3
+:3 (100)                00galaxy             b     win     1034-463     29/7   0
+an iq too high (45)     00gem_fields         a     win     1010-938     15/14  0
+an iq too high (45)     00quadrants          b     loss    150-1075     4/17   4
+an iq too high (45)     00vault              a     loss    0-1161       0/9    3
+an iq too high (45)     adgato_gemcombat3    b     loss    435-1020     10/4   1
+an iq too high (45)     adgato_gemcombat5    a     loss    0-1036       3/6    1
+Total 5-10, banked 9,054 v 13,896 (-34.8%), K/D 162/117, Prism deaths 17, out-of-fuel turns 123 v 58, bot faults 0.
+
+v164 = ceiling 400 + stun priority + farm first (until Prism's bag reaches 200 or round 500). Vs v155, 9 maps, 108 games (6 seeds). Compare ceil + stun first above: 65-43, +18.1%, K/D 1470/705, Prism deaths 125.
+variant                  record  banked   K/D        Prism deaths  seed 0 fuel/turn  seed 0 out-of-fuel
+farm first (bar +20)     49-59   -25.5%   1292/556   101           +4.6%             107 vs 97
+pickier only (bar +20)   30-78   -40.1%   1335/1061  198
+safe side only           64-44   +4.8%    1615/534   81
+farm first, bar +10      59-49   -6.3%    1520/488   69
+farm first, bar +30      37-71   -45.5%   1086/516   85
+Before round 300, per game: ceil + stun K/D 3.5/2.2, collected 338 v 312; farm first K/D 1.4/1.1, collected 267 v 458.
+Direct, one seed, 18 games: v164 vs ceil + stun 5-13, -64.4%; v164 vs v157 7-11, -20.9%.
+
+v165 = ceiling 400 + stun priority + Tribute as Prism's third emblem + no Treasure on the Prism team. Vs v155, 9 maps, 108 games (6 seeds).
+variant                  record  banked   K/D        Prism deaths  seed 0 fuel/turn  seed 0 out-of-fuel
+items + safe side (v165) 65-43   +12.6%   1357/517   75            +8.4%             110 vs 100
+items, no safe side      61-47   +8.9%    1367/777   130           +5.5%             155 vs 127
+Without the item changes: ceil + stun first 65-43, +18.1%, Prism deaths 125; safe side only 64-44, +4.8%, Prism deaths 81.
+Purchases: nobody bought Treasure in 216 games. Prism finished Tribute in 157 of 216 games.
+
+LADDER, unranked, 2026-10-31 (platform v164 = local v165; same 15 maps, sides and opponent bots as local v161's ladder run; Prism drafted in 15 of 15)
+opponent (rank)         v161 record, banked      v165 record, banked
+Patient Builder (158)   2-3, 4358 v 4220         2-3, 2714 v 4748
+:3 (100)                2-3, 3101 v 4446         0-5, 2621 v 5059
+an iq too high (45)     1-4, 1595 v 5230         0-5, 2112 v 5342
+Total                   5-10, -34.8%, K/D 162/117, Prism deaths 17, out-of-fuel 123 v 58
+v165 total              2-13, -50.8%, K/D 122/71, Prism deaths 11, out-of-fuel 116 v 57, bot faults 0
+
+LADDER, unranked, 2026-10-31 (platform v165 = local v166: v161 + Tribute third on Prism, no Treasure; same 15 maps, sides and opponent bots)
+opponent (rank)         v161 (5-10, -34.8%)   v165 (2-13, -50.8%)   v166 (6-9, -37.7%)
+Patient Builder (158)   2-3, 4358 v 4220      2-3, 2714 v 4748      4-1, 4236 v 3872
+:3 (100)                2-3, 3101 v 4446      0-5, 2621 v 5059      2-3, 2910 v 4073
+an iq too high (45)     1-4, 1595 v 5230      0-5, 2112 v 5342      0-5, 1081 v 5255
+v166: K/D 150/99, Prism deaths 19, out-of-fuel turns 136 v 94, bot faults 0. Prism finished Tribute in 9 of 15; nobody bought Treasure.
+Correction: v165 finished Tribute in 9 of 15 games, not 8.
+
+LADDER, unranked, 2026-11-01 (same 15 maps, sides and opponent bots as local v161's run; platform v166 = local v167, platform v167 = local v168)
+v167 = v166 + Prism picks gems like a funnelled Vesper (no pickers) + Willow follows Prism. v168 = v167 + our side first.
+opponent (rank)         v161 (5-10, -34.8%)   v166 (6-9, -37.7%)    v167 (9-6, +8.9%)     v168 (9-6, +0.1%)
+Patient Builder (158)   2-3, 4358 v 4220      4-1, 4236 v 3872      4-1, 4345 v 3633      3-2, 3194 v 4284
+:3 (100)                2-3, 3101 v 4446      2-3, 2910 v 4073      4-1, 5367 v 2797      3-2, 4433 v 4023
+an iq too high (45)     1-4, 1595 v 5230      0-5, 1081 v 5255      1-4, 2200 v 4511      3-2, 4631 v 3941
+K/D                     162/117               150/99                177/66                166/53
+Prism deaths            17                    19                    10                    6
+Collected by r300       228 v 394             233 v 394             282 v 364             316 v 388
+Collected by r500       428 v 667             411 v 685             571 v 574             584 v 607
+Out-of-fuel turns       123 v 58              136 v 94              137 v 55              95 v 56
+Bot faults 0 for all. v158 has not played this set, so none of this compares with the current ladder entry.
+
+LADDER, unranked, 2026-11-01: platform v158 (the live bot, not local bots/v158) on the same 15 maps, sides and opponent bots. Groups 5fb96325, 59244265, d5fe33ac.
+opponent (rank)         platform v158 (2-13, -57.2%)  local v168 (9-6, +0.1%)
+Patient Builder (158)   2-3, 3090 v 4572              3-2, 3194 v 4284
+:3 (100)                0-5, 1126 v 5123              3-2, 4433 v 4023
+an iq too high (45)     0-5, 2145 v 5176              3-2, 4631 v 3941
+K/D 100/152 v 166/53. Collected by r300 229 v 433 and 316 v 388; by r500 399 v 773 and 584 v 607. Out-of-fuel turns 88 v 55 and 95 v 56. Bot faults 0.
+
+LADDER, unranked, 2026-11-01: local v168 (platform v167) against 3 new opponents, same maps and sides as the set above. Groups fbc82e6b, 5e1926eb, fc7ece12. We were rank 133.
+opponent (rank)     record  banked         K/D    Prism deaths
+WYYL (134)          3-2     4302 v 3763    35/18  4
+Tzunami (100)       3-2     4305 v 3567    54/22  4
+Zarzorki (45)       1-4     3483 v 4633    33/41  8
+Total               7-8     +1.1%          122/81 16
+Collected by r300 306 v 372; by r500 592 v 603. Out-of-fuel turns 127 v 47. Bot faults 0. Losses with 300+ gems in her bag: 0. v158 has not played these opponents.
+
+LADDER, unranked, 2026-11-01: platform v158 against the 3 new opponents' same bots, same maps and sides. Groups 1805af6f, 0a1d031c, f98556e2.
+opponent (rank)     platform v158 (4-11, -40.4%)   local v168 (7-8, +1.1%)
+WYYL (134)          2-3, 3264 v 3369, K/D 29/32    3-2, 4302 v 3763, K/D 35/18
+Tzunami (100)       1-4, 2133 v 4176, K/D 28/64    3-2, 4305 v 3567, K/D 54/22
+Zarzorki (45)       1-4, 2055 v 4957, K/D 25/56    1-4, 3483 v 4633, K/D 33/41
+K/D 82/152 v 122/81. Collected by r300 298 v 356 and 306 v 372; by r500 485 v 662 and 592 v 603. Out-of-fuel turns 116 v 51 and 127 v 47. Bot faults 0.
+Both sets, 30 games: v168 16-14, v158 6-24; v168 also won all 6 games v158 won.
+
+v168's 30 ladder games by outcome (averages per game):
+type          games  K/D    collected    camp damage     gold         emblems  Prism peak bag
+win           16     13/3   1172 v 846   22907 v 23692   1769 v 1020  6 v 4    754
+lost race     8      6/3    861 v 1155   26827 v 42508   1263 v 1878  4 v 8    563
+lost fights   6      4/10   408 v 1139   12048 v 27844   709 v 2409   3 v 10   106
+By map: 00galaxy 4/4, 00gem_fields 0/4, 00quadrants 2/4, 00vault 2/4, adgato_gemcombat1 1/2, 2 1/2, 3 2/4, 4 1/2, 5 3/4. 4 of the 6 fight losses were on teams with no Willow.
+
+LADDER, unranked, 2026-11-01: v168's ideas on the 30-game set (6 opponents, same bots, maps and sides as v168's 2 sets).
+v169 = v168 + Willow replaces Ryth on 4 picks + bare Prism (max health under 1000) stays behind melee allies. Platform v170.
+v170 = v169 + Capture Health as Prism's 4th emblem + allies open with Durability, no Prospector. Platform v171.
+version                     record  banked   K/D      Prism deaths  4-pick games  lost fights/race  out-of-fuel turns
+v168 (platform v167)        16-14   +0.6%    288/134  22            5 of 10       6/8               222 v 103
+Willow on 4 picks alone     16-14   +1.4%    312/143  23            5 of 10       5/9               235 v 132
+Stay back alone             13-17   -28.6%   277/178  27            1 of 10       11/6              211 v 112
+v169 (both)                 20-10   +24.7%   312/127  13            8 of 10       5/5               210 v 81
+v170 (both + items)         18-12   +11.2%   293/130  15            8 of 10       5/7               213 v 122
+Collected by r300: v168 311 v 380, v169 334 v 299, v170 348 v 304. By r500: v168 588 v 604, v169 594 v 504, v170 621 v 523.
+Bot faults 0 for all. All of 00gem_fields lost in every version here (0 of 4 each).
+Same 30 games for every version, tuned on repeatedly: expect some of this to be fitted to these opponents. Platform v158 on these games: 6-24.
+
+LADDER, unranked, 2026-11-01: local v169 (platform v170) against 3 opponents it had not played. Groups b6dd220b, 1130f9e4, d95747b2. We were rank 157.
+opponent (rank)         record  banked         K/D    Prism deaths
+The something (158)     4-1     4718 v 2989    48/3   0
+Gem_alert (100)         2-3     3047 v 5021    71/37  6
+naviepstokes (45)       3-2     3848 v 3723    22/14  1
+Total                   9-6     -1.0%          141/54 7
+Out-of-fuel turns 166 v 781. Bot faults 0.
+
+LADDER, unranked, 2026-11-01: single ideas from v169 on the 45-game set (9 opponents, same bots, maps and sides).
+version                                   platform  record  banked   K/D      Prism deaths  gold        ally emblems  out-of-fuel
+v169                                      v170      29-16   +15.1%   453/181  20            1423 v 1358 1.6           376 v 862
+v171: golem groups need 1 emblem          v172      28-17   +15.2%   433/189  21            1377 v 1389 1.6           368 v 946
+v172: allies take gold-rich rewards       v173      26-19   +14.4%   464/195  22            1511 v 1400 2.7           382 v 874
+v173: allies farm during deposits         v174      26-19   +10.8%   446/194  21            1430 v 1425 1.6           374 v 848
+Bot faults 0 for all. 00quadrants: v169 4/6, v171 3/6, v172 1/6, v173 4/6. 00gem_fields 0/6 in all.
+v171 changed the result of adgato_gemcombat5 games, a map with no golems, so games can flip from small timing shifts alone. Differences of a few wins here are noise.
+Ranked results by UTC hour on 2026-11-01: 11:00 14-16, 12:00 17-13, 13:00 11-19, while test versions were live for part of 12:00 and 13:00. Our rank went from 133 to 157 between about 12:37 and 14:04.
+
+RENAMED, 2026-11-01: local v169 above is now bots/v170, matching its platform number v170. The local v170 above (v169 + item changes, platform v171) was deleted.
