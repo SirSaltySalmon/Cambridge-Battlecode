@@ -1,0 +1,67 @@
+v170 SUMMARY
+
+v170 is v155 plus a dedicated Prism team on gem-cluster maps. It only changes play on maps where over 70% of
+camps are gem clusters, which is 9 of the 70 local maps. Every other map uses v155's strategy.
+Folder: bots/v170. Platform version: v170. It was called local v169 during testing.
+
+
+THE MAIN ISSUE
+
+On those maps, v158 and the earlier Prism versions died early, fell behind on farming, and lost races while
+holding unbanked gems. v158 went 6-24 on 30 test games there.
+
+
+PROBLEMS AND WHAT V170 DOES
+
+1. Wrong roster for these maps
+   Evidence: later ladder tests went from 5-10 to 9-6 as the team was rebuilt around Prism.
+   Change: drafts Prism, Heart of Ruin, Marcella, Ryth and Willow, with Willow replacing Ryth on 4 picks.
+
+2. Gems weren't building up on Prism, whose Focus grows with her bag
+   Evidence: bags were split, and allies who stood on rewards took gems.
+   Change: she's first in line within 8 tiles, like a funnelled Vesper, and an ally can take a reward she's
+   far from.
+
+3. Prism's deposit took too long or got broken
+   Evidence: tributes of 81+ turns rarely finished, 5 of 67 in one version.
+   Change: she holds until tributed + bag reaches 1000, but starts earlier if the round limit, the enemy's pace
+   or the team's income calls for it, and allies guard her.
+
+4. Team drifted away from her and fought without her
+   Evidence: allies were near her only 60% of the time, and 39% of their fight turns were far from her.
+   Change: the team stays with her during captures, allies leave fights away from her unless caught, and Willow
+   stays within 3 tiles.
+
+5. Fragile Prism died early
+   Evidence: first deaths came as early as rounds 46-92, with no items.
+   Change: until she has about 1000 max health, she stays behind melee allies.
+
+6. Team cleared the wrong camps
+   Evidence: the plan ignored who was closer, and half its groups were on the enemy side.
+   Change: groups we reach no later than the enemy come first, and gem clusters are valued highest.
+
+7. Items didn't suit the plan
+   Evidence: Monster, Jungle and Treasure were in builds meant for other strategies.
+   Change: Prism buys Durability, Prospector, Tribute, then Power Health, and the team buys no Monster, Jungle
+   or Treasure.
+
+
+RESULTS ON THE LADDER (THOSE 9 MAPS ONLY)
+
+Overall:         29-16 over 45 games, with banked gems up 15.1%.
+New opponents:   9-6 against 3 teams it had never played.
+Against v158:    on the same 30 games, v170 went 20-10 and v158 went 6-24.
+Biggest gains:   v168's changes took it from 6-9 to 9-6, and Willow on 4 picks plus Prism staying back then took
+                 it from 16-14 to 20-10.
+
+
+WHAT IT DOESN'T SOLVE
+
+00gem_fields:     0 of 6, likely from early fights around spawns that sit very close together.
+Gold:             Prism takes most of the team's gold while allies stay under-equipped, and the first fix tried
+                  didn't help.
+Top-50 teams:     still the hardest level, at 7-8 across the three rank 45 opponents.
+Other 61 maps:    v170 hasn't been compared with v158 there, so it isn't proven as a live replacement.
+
+
+Full numbers: results/results-v158-vs-v155.txt

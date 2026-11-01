@@ -1,0 +1,17 @@
+v156 vs v155, 2026-10-31. All 70 maps x both sides = 140 games per row, release, one seed, cambc 4.0.0.
+One seed swings about +-5-10% banked, so differences inside that are noise. Parts switched by V156_COMPS, V156_PASSIVE, V156_SQUADS.
+
+variant                     record    win    banked   K/D vs K/D of v155         camp deaths  fuel/turn (vs v155)  out-of-fuel turns
+v156 (all three)            49-88-3   35.0%  -30.2%   2103/3368 vs 2711/2182     198 vs 79    33058 vs 34036 -2.9%  4652 vs 2189
+comps only                  45-91-4   32.1%  -28.3%   2172/3860 vs 3076/2251     228 vs 79    31862 vs 34148 -6.7%  2638 vs 2184
+passive and squads          59-77-4   42.1%  -10.8%   2298/2337 vs 2246/2387     91 vs 89     34740 vs 33532 +3.6%  3656 vs 1854
+passive only                71-65-4   50.7%   -1.7%   2223/2201 vs 2125/2302     76 vs 79     33920 vs 33549 +1.1%  1948 vs 1898
+squads only                 70-66-4   50.0%   +2.7%   2644/2557 vs 2475/2719     82 vs 75     34424 vs 33290 +3.4%  3098 vs 1907
+
+v156 (all three) by comp and picks:
+  Normal   104 games  40-61-3  -24.7%     picks 3  24 games  15-9-0   +14.6%
+  Farming   10 games   0-10-0  -71.5%     picks 4  32 games   9-21-2  -33.2%
+  Prism     26 games   9-17-0  -30.9%     picks 5  84 games  25-58-1  -38.7%
+Passive only on the 5 maps v156 scores Farming (v155's rosters): 10-0-0, +119.5%. Small sample, one seed.
+
+Multiclear in 12 debug games: split on 0-22% of rounds (median about 10%). First split round 132-485. Many splits end within two rounds.
