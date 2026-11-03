@@ -39,5 +39,19 @@ v217-off (all off), v217-hyg, v217-pt (all four PT flags), v217-shop, v217-prear
 
 ## Bench
 
-Each variant vs v216-focus-v, all 86 maps x 2 sides (172 games), release, seed 0: results to be added.
+Each variant vs v216-focus-v, all 86 maps x 2 sides (172 games), release, seed 0, `--jobs 2` (2026-11-04).
 One 172-game run is about +-7 wins of noise; confirm anything promising on a second seed / the pool.
+
+| Variant | Record | Banked (ours vs focus-v) | K/D | Fuel mean (focus-v pool s0: 37272) | Out-of-fuel turns |
+| --- | --- | --- | --- | --- | --- |
+| v217-hyg (CAPTURE_HYGIENE) | 78-94 | 115676 vs 129392 (-10.6%) | 1469/1923 | 37104 (-0.4%) | 0.40% |
+| v217-pt (PT_*) | 94-78 | 123387 vs 114033 (+8.2%) | 1674/1817 | 37598 (+0.9%) | 0.41% |
+| v217-shop (SHOP_CADENCE) | 96-76 | 132813 vs 114116 (+16.4%) | 1702/1516 | 37388 (+0.3%) | 0.35% |
+| v217-prearm (PREARM_READ) | 85-87 | 118518 vs 124002 (-4.4%) | 1520/1713 | 37418 (+0.4%) | 0.37% |
+| v217-farm (all four) | 93-79 | 128020 vs 116386 (+10.0%) | 1565/1607 | 37813 (+1.5%) | 0.39% |
+
+Read: SHOP_CADENCE is the clear one (+10 wins over even, fewer deaths). PT_* leans positive. CAPTURE_HYGIENE loses
+(deaths +25% vs focus-v's). PREARM_READ is neutral as expected (focus-v does not pre-arm, so it only moves fuel
+timing locally; it matters against pre-arming ladder teams). All four together is below SHOP alone (hygiene drags).
+Fuel is compared with focus-v's pool seed-0 mean (different opponents), so treat it as approximate.
+Next: SHOP + PT combined, second seed, then the pool.
