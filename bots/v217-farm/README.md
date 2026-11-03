@@ -67,3 +67,6 @@ Next: SHOP + PT combined, second seed, then the pool.
 
 Pool vs focus-v: +39 wins, our banked +6.5%, K/D 7657/5658 (focus-v 7553/6803). Fuel mean 38053 (+2.1% vs 37272),
 out-of-fuel 0.41% (0.37%). v217-sp is the candidate; next: pool seed 1, then ladder.
+
+Pool seed 1 (v217-sp-s1): 421-267 (v210 108, v208 106, v185 104, v206 103), banked 542175 vs 413833 (+31.0%), K/D 7918/5649;
+focus-v seed 1 was 336 wins, 481187 banked: +85 wins, +12.7% banked. Confirmed on both seeds; ready for the ladder.
