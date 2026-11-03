@@ -1,4 +1,7 @@
-# v150
+# v150-jack (was bots/v150 on jack-claude)
+
+Relabelled when jack-claude and vargvale-strikes-back were merged into final-stretches: vargvale's bots/v150 (v149 +
+small-map switches, the parent of v152) kept the name. bots/v155 (was v152-jf) carries these fight numbers.
 
 bots/v149 with Optuna study `fight` trial 43 (score 0.6868):
 
