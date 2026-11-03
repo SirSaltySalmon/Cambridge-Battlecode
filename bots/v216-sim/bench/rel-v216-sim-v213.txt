@@ -1,0 +1,5 @@
+v216-sim: 84-88 of 172 (48.8%), banked 116985 vs 120110 (-2.6%), K/D 1478/1646, faults 0
+  fuel: mean 36993, p99 85441, out-of-fuel turns 3002 of 931657 (0.32%), fuelExhausted events 3384
+  vs v213           84/172
+  maps not won: 00lanes 2, 00stampede 2, 02tangle 2, 03riverbed 2, 00ambush 1, 00anvil 1, 00breadcrumbs 1, 00collision 1, 00contest 1, 00corners 1
+  score 0.4838

@@ -1,0 +1,8 @@
+v216-contract-stack: 340-348 of 688 (49.4%), banked 471682 vs 477570 (-1.2%), K/D 7865/6829, faults 0
+  fuel: mean 38073, p99 90466, out-of-fuel turns 18600 of 3889120 (0.48%), fuelExhausted events 20114
+  vs v185           81/172
+  vs v206           93/172
+  vs v208           84/172
+  vs v210           82/172
+  maps not won: 00stampede 8, 00crater 7, 00great-wall 7, 00the-line 7, 01elk-arena 7, 02geodes 7, 00collision 6, 01boss-battle 6, 01starvation 6, 02arena 6
+  score 0.4920

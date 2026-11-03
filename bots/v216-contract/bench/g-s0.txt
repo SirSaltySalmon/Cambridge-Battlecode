@@ -1,0 +1,6 @@
+v216-contract-g: 162-182 of 344 (47.1%), banked 234935 vs 243351 (-3.5%), K/D 3309/3397, faults 0
+  fuel: mean 37610, p99 88799, out-of-fuel turns 7814 of 1905563 (0.41%), fuelExhausted events 8570
+  vs v210           83/172
+  vs v213           79/172
+  maps not won: 00corners 4, 00fragment 4, 00gemfight 4, 00happy-halloween 4, 00ribs 4, 00rushbait-v2 4, 01shortcut 4, 01yellow-brick-road 4, 02arena 4, 02geodes 4
+  score 0.4648

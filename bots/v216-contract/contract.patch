@@ -1,0 +1,339 @@
+diff -ruN bots/v213/src/bot.h bots/v216-contract/src/bot.h
+--- bots/v213/src/bot.h	2026-11-03 18:42:09
++++ bots/v216-contract/src/bot.h	2026-11-03 21:45:22
+@@ -431,6 +431,13 @@
+     // Round the shared mode last changed, and this champion's own last fight decision.
+     int mode_changed = 0;
+     int local_prev = FARM;
++    // v216 (CONTRACT): score_mode's last score and its bar before any stay-in slack.
++    double last_score = 0;
++    int last_base_bar = 0;
++    // v216 (CONTRACT): this turn's part in the contract (CR_* below), the state we play by, and its anchor slot.
++    int contract_role = 0;
++    int contract_state = 0;
++    int contract_anchor = -1;
+     // Altars a heavy bag may visit alone (far from the centre, on our side) and the escorted rest.
+     std::vector<vec2> solo_altars;
+     // v98 (FIX_ALTAR_GATE): per altar (bc::map::altars() order) the route slot whose spawn tiles are its only
+@@ -847,6 +854,9 @@
+     bool retreat(const bc::champion& me);
+     // v77: reads, ages and sends the support ping; answers it on a fight turn with no enemy in sight.
+     void update_ping(const bc::champion& me);
++    // v216 (CONTRACT): settle or read the engagement contract, after sync_decision (contract.cpp).
++    void contract_turn(const bc::champion& me);
++    bool contract_on() const { return CONTRACT_MODE == 2 && contract_bits; }
+     bool answer_ping(const bc::champion& me);
+     void commit_ping(const bc::champion& me);
+     bool ping_busy(const bc::champion& me);
+diff -ruN bots/v213/src/combat.cpp bots/v216-contract/src/combat.cpp
+--- bots/v213/src/combat.cpp	2026-11-03 16:50:48
++++ bots/v216-contract/src/combat.cpp	2026-11-03 21:46:05
+@@ -2116,8 +2116,11 @@
+         const int age = (now - (value >> 6)) & 3;
+         if (age > PING_FRESH)
+             set_shared_byte(PING_BYTE, 0);
+-        else if ((value & 63) - 1 < static_cast<int>(route.size()))
+-            ping_slot = (value & 63) - 1;
++        else if ((value & 63) - 1 < static_cast<int>(route.size())) {
++            // v216 (CONTRACT): byte 7 is the contract's anchor; a fresh ENGAGE or GATHER is answered like a ping.
++            const int state = contract_on() ? read_contract_state() : C_ENGAGE;
++            if (state == C_ENGAGE || state == C_GATHER) ping_slot = (value & 63) - 1;
++        }
+     }
+     auto dead_enemies = [] {
+         int n = 0;
+@@ -2133,6 +2136,8 @@
+             NOTE(format("our ping at s%d: survived, %d enemies died", ping_mine_slot, dead_enemies() - ping_mine_dead));
+         ping_mine_round = -10;
+     }
++    // v216 (CONTRACT): the settler writes byte 7; nobody pings.
++    if (contract_on()) return;
+     // Send one when an enemy champion is hurting us and nobody has a fresh ping up.
+     const bool own_fresh = PING_REFRESH && ping_mine_round >= now - PING_FRESH;
+     // v119 (PING_GATHER): a near enemy champion in sight after a few rounds without one is a new contact.
+diff -ruN bots/v213/src/constants.h bots/v216-contract/src/constants.h
+--- bots/v213/src/constants.h	2026-11-03 19:09:11
++++ bots/v216-contract/src/constants.h	2026-11-03 21:45:30
+@@ -2031,6 +2031,43 @@
+ inline constexpr int CARRIER_SHIFT = 2;
+ inline constexpr int CARRIER_MASK = 0x3C;
+ 
++// v216 (CONTRACT, fight_coord_plan.md F2): one engagement decision per contact, shared by every champion in it.
++//   In v213 the leader writes the fight mode from its own sight (often no enemy at all), and then each champion near an
++//   enemy re-scores alone from its own tile (turn.cpp step 5), so up to five champions decide one contact.
++//   With the contract, the first champion each round that has a near enemy (the settler) scores the contact from its
++//   tile and writes the state; the contact holders acting after it this round follow it without re-scoring.
++// Layout (the plan's byte-6 bits were not used: byte 6 is rewritten whole by write_shared and four claim writers, and
++//   CAPTURE_NEWS stores a slot index there; the plan's alternative overloads the mode bits, which every farmer reads):
++//   - state: byte 1 (target slot) bits 6-7. Slots fit in 6 bits while the route has at most 63 groups (the ping makes
++//     the same assumption); the slot's only writers are write_shared and share_loot, both keep the bits. With more
++//     than 63 groups the contract stays off for the game (contract_bits).
++//   - anchor + age: byte 7, the ping's format (route slot + 1 in bits 0-5, round & 3 in bits 6-7). The contract
++//     absorbs the ping: nobody sends a ping while it is on, and ping_slot (answer_ping, the score's ping bonus) is the
++//     anchor of a fresh ENGAGE or GATHER.
++// CONTRACT_MODE: 0 off (v213 exactly), 1 written but not acted on (state bits written, byte 7 left to the ping),
++//   2 on.
++inline constexpr int CONTRACT_MODE = 2;
++inline constexpr int C_NONE = 0, C_GATHER = 1, C_ENGAGE = 2, C_DISENGAGE = 3;
++inline constexpr const char* CONTRACT_NAMES[] = {"none", "gather", "engage", "disengage"};
++// A champion's part this turn: no contact (or contract off), the settler, a later holder of the same contact, or a
++// holder of a separate contact (played as v213).
++inline constexpr int CR_NONE = 0, CR_SETTLER = 1, CR_FOLLOW = 2, CR_OWN = 3;
++// Whether byte 1's bits 6-7 hold the contract state (state.cpp; set in setup).
++extern bool contract_bits;
++inline constexpr int CONTRACT_SHIFT = 6, CONTRACT_SLOT_MASK = 0x3F;
++// Rounds a contract stays fresh without a refresh (the ping's PING_FRESH). Byte 7's age holds 0-3.
++inline constexpr int CONTRACT_FRESH = 2;
++// A contact more than CONTRACT_ARRIVE tiles from a contract settled this round is a separate contact: played as v213.
++inline constexpr int CONTRACT_ARRIVE = 12;
++// Back from DISENGAGE to ENGAGE needs the bar + CONTRACT_REENTER (ENGAGE stays at the bar - FIGHT_HYSTERESIS).
++inline constexpr int CONTRACT_REENTER = 5;
++// A later contact holder whose own score is under the stay bar by more than this writes DISENGAGE (0: no veto).
++inline constexpr int CONTRACT_VETO = 0;
++// GATHER (hold out of reach while healthy allies within reach of the anchor come) instead of DISENGAGE.
++inline constexpr bool CONTRACT_GATHER = false;
++// The settler's own emblem gap at OUTCLASS_GAP or worse writes DISENGAGE (OUTCLASS as an input to the settler).
++inline constexpr bool CONTRACT_OUTCLASS = true;
++
+ // Items alternate shard, emblem: every odd item index is an emblem, every even one a shard.
+ inline constexpr int ITEM_COUNT = static_cast<int>(Item::enum_type::count);
+ inline bool is_emblem(int item) { return item % 2 == 1; }
+diff -ruN bots/v213/src/contract.cpp bots/v216-contract/src/contract.cpp
+--- bots/v213/src/contract.cpp	1970-01-01 02:00:00
++++ bots/v216-contract/src/contract.cpp	2026-11-03 21:46:52
+@@ -0,0 +1,90 @@
++// v216 (CONTRACT): one engagement decision per contact (fight_coord_plan.md F2; constants.h has the layout).
++#include "bot.h"
++#include "seen.h"
++#include "state.h"
++
++void Bot::contract_turn(const bc::champion& me) {
++    contract_role = CR_NONE;
++    contract_state = C_NONE;
++    contract_anchor = -1;
++    if (!contract_bits || route.empty()) return;
++    if (!me.is_alive() || channelling(me) || me.is_teleporting()) return;
++    const auto& near = near_enemies();
++    if (near.empty()) return;
++    const int now = static_cast<int>(bc::round_number());
++    const auto position = seen::self_position();
++    // The route slot nearest us: our contact's anchor.
++    int mine = 0;
++    for (int s = 1; s < static_cast<int>(centers.size()); ++s)
++        if (distance(position, centers[s]) < distance(position, centers[mine])) mine = s;
++    if (mine >= 63) return;
++
++    // The contract as the champions before us left it: fresh while its age is at most CONTRACT_FRESH, settled this
++    // round when written this round (update_ping clears byte 7 past PING_FRESH, so age 0 is never 4 rounds old).
++    int anchor = -1, age = 4, state = C_NONE;
++    if (CONTRACT_MODE == 2) {
++        const int value = shared_byte(PING_BYTE);
++        anchor = (value & 63) - 1;
++        age = (now - (value >> 6)) & 3;
++        if (anchor < 0 || anchor >= static_cast<int>(route.size()) || age > CONTRACT_FRESH) anchor = -1;
++        if (anchor >= 0) state = read_contract_state();
++    }
++    const bool same = anchor >= 0 && distance(position, centers[anchor]) <= CONTRACT_ARRIVE;
++    const bool settled = anchor >= 0 && age == 0;
++    if (settled && !same) {
++        contract_role = CR_OWN;
++        NOTE(format("contract: own contact, %d from the anchor s%d (%s): play it alone", distance(position, centers[anchor]),
++                    anchor, CONTRACT_NAMES[state]));
++        return;
++    }
++    if (settled) {
++        contract_role = CR_FOLLOW;
++        contract_state = state;
++        contract_anchor = anchor;
++        // One veto, toward safety only: far under our own stay bar.
++        if (CONTRACT_VETO > 0 && state == C_ENGAGE) {
++            score_mode(position, FIGHT);
++            const double stay = last_base_bar - FIGHT_HYSTERESIS;
++            if (last_score < stay - CONTRACT_VETO) {
++                write_contract_state(C_DISENGAGE);
++                contract_state = C_DISENGAGE;
++                NOTE(format("contract: engage -> disengage, veto at %.1f (stay bar %.0f): ", last_score, stay) + score_why);
++            }
++        }
++        return;
++    }
++
++    // We settle this contact. Hysteresis comes from the contract's state, not our own last decision.
++    const int prev = same ? state : C_NONE;
++    const int choice = score_mode(position, prev == C_ENGAGE ? FIGHT : FARM);
++    bool engage = choice == FIGHT;
++    if (prev == C_DISENGAGE) engage = last_score >= last_base_bar + CONTRACT_REENTER;
++    int next = engage ? C_ENGAGE : C_DISENGAGE;
++    std::string why;
++    LOG(why = score_why;);
++    // OUTCLASS as an input: out-emblemed here, the whole contact leaves.
++    if (next == C_ENGAGE && CONTRACT_OUTCLASS && OUTCLASS && !prism_team() && !win_tribute) {
++        bool close = false, finish = false;
++        const int gap = outclass_gap(me, close, finish);
++        if (close && !finish && gap <= OUTCLASS_GAP) {
++            next = C_DISENGAGE;
++            LOG(why = format("out-emblemed by %d; ", -gap) + why;);
++        }
++    }
++    // A chase the team stopped gaining on ends the contract (TEAM_CHASE, from our last update).
++    if (next == C_ENGAGE && team_chase_off()) {
++        next = C_NONE;
++        LOG(why = "chase dropped; " + why;);
++    }
++    write_contract_state(next);
++    if (CONTRACT_MODE == 2) set_shared_byte(PING_BYTE, (mine + 1) | ((now & 3) << 6));
++    if (CONTRACT_MODE != 2) {
++        NOTE(format("contract (not acted on): %s at s%d: ", CONTRACT_NAMES[next], mine) + why);
++        return;
++    }
++    contract_role = CR_SETTLER;
++    contract_state = next;
++    contract_anchor = mine;
++    if (next != prev)
++        NOTE(format("contract: %s -> %s at s%d: ", CONTRACT_NAMES[prev], CONTRACT_NAMES[next], mine) + why);
++}
+diff -ruN bots/v213/src/route.cpp bots/v216-contract/src/route.cpp
+--- bots/v213/src/route.cpp	2026-11-03 19:09:11
++++ bots/v216-contract/src/route.cpp	2026-11-03 21:45:22
+@@ -227,6 +227,8 @@
+     ally_in_ring = 0;
+     for (const auto tile : ally_spawn_list)
+         if (spawn_zone.is_set(tile)) ++ally_in_ring;
++    // v216 (CONTRACT): the target slot keeps bits 6-7 free only while it fits in 6 bits (byte 7's anchor too).
++    contract_bits = CONTRACT_MODE > 0 && !route.empty() && route.size() <= 63;
+     ready = true;
+ }
+ 
+@@ -1876,7 +1878,7 @@
+     loot_pointed = pick;
+     loot_pointed_round = now_round;
+     slot = pick;
+-    set_shared_byte(SLOT_BYTE, slot);
++    set_shared_byte(SLOT_BYTE, slot_byte_of(slot));
+     hold_slot = slot;
+     hold_since = now_round;
+     NOTE(format("sees loot at s%d on the way: points the team there", slot));
+@@ -2896,6 +2898,9 @@
+     const int base_bar = FIGHT_RECENTRE ? FIGHT_BAR : FIGHT_THRESHOLD;
+     const int bar = slack ? base_bar - (FIGHT_RECENTRE ? FIGHT_STAY_SLACK : FIGHT_HYSTERESIS) : base_bar;
+     const int choice = score >= bar ? FIGHT : RETREAT;
++    // v216 (CONTRACT): the settler's own hysteresis on the contract state needs the number and the bars.
++    last_score = score;
++    last_base_bar = base_bar;
+     LOG({
+         std::string joined = score_base.head_text;
+         auto part = [&](const std::string& text) {
+diff -ruN bots/v213/src/state.cpp bots/v216-contract/src/state.cpp
+--- bots/v213/src/state.cpp	2026-11-03 16:50:48
++++ bots/v216-contract/src/state.cpp	2026-11-03 21:44:51
+@@ -218,6 +218,9 @@
+     return false;
+ }
+ 
++// v216 (CONTRACT): the target slot byte's bits 6-7 carry the contract state (set once the route fits in 6 bits).
++bool contract_bits = false;
++
+ int shared_byte(int offset) {
+     return static_cast<std::uint8_t>(bc::shared_memory[offset]);
+ }
+@@ -233,7 +236,7 @@
+     const int flags = b(0);
+     Shared shared{};
+     shared.mode = flags & MODE_MASK;
+-    shared.slot = b(1);
++    shared.slot = contract_bits ? b(1) & CONTRACT_SLOT_MASK : b(1);
+     shared.capture_slot = b(2);
+     shared.collector = b(3);
+     shared.stamp = b(STAMP_BYTE) & STAMP_MASK;
+@@ -257,10 +260,24 @@
+     // Zeroed memory has no pair target yet: NO_TARGET2 on the first write.
+     const int target2 = (shared_byte(STAMP_BYTE) & STAMP_MASK) == 0 ? NO_TARGET2 : shared_byte(PHASE_BYTE) & TARGET2_MASK;
+     const std::array<std::byte, SHARED_BYTES> data{
+-        std::byte(flags & 0xFF), std::byte(slot & 0xFF), std::byte(capture_slot & 0xFF),
++        std::byte(flags & 0xFF), std::byte(slot_byte_of(slot)), std::byte(capture_slot & 0xFF),
+         std::byte(collector & 0xFF), std::byte(stamp & 0xFF), std::byte((phase << PHASE_SHIFT | target2) & 0xFF),
+         std::byte(claimed & 0xFF)};
+     bc::shared_memory.write(0, std::span<const std::byte>{data});
++}
++
++int slot_byte_of(int slot) {
++    if (!contract_bits) return slot & 0xFF;
++    return (slot & CONTRACT_SLOT_MASK) | (shared_byte(SLOT_BYTE) & ~CONTRACT_SLOT_MASK & 0xFF);
++}
++
++int read_contract_state() {
++    return contract_bits ? shared_byte(SLOT_BYTE) >> CONTRACT_SHIFT : C_NONE;
++}
++
++void write_contract_state(int state) {
++    if (!contract_bits) return;
++    set_shared_byte(SLOT_BYTE, (shared_byte(SLOT_BYTE) & CONTRACT_SLOT_MASK) | (state & 3) << CONTRACT_SHIFT);
+ }
+ 
+ void write_phase(int phase) {
+diff -ruN bots/v213/src/state.h bots/v216-contract/src/state.h
+--- bots/v213/src/state.h	2026-11-03 16:50:48
++++ bots/v216-contract/src/state.h	2026-11-03 21:45:30
+@@ -125,6 +125,11 @@
+ int read_focus();
+ void write_focus(int index);
+ 
++// The target slot byte for a slot, keeping the contract bits; the contract state alone (C_NONE without contract_bits).
++int slot_byte_of(int slot);
++int read_contract_state();
++void write_contract_state(int state);
++
+ // One shared-memory byte.
+ int shared_byte(int offset);
+ void set_shared_byte(int offset, int value);
+diff -ruN bots/v213/src/turn.cpp bots/v216-contract/src/turn.cpp
+--- bots/v213/src/turn.cpp	2026-11-03 18:22:33
++++ bots/v216-contract/src/turn.cpp	2026-11-03 21:46:05
+@@ -81,6 +81,8 @@
+     update_pickers();
+     if (SPREAD) spread_update(me);
+     sync_decision(me);
++    // v216 (CONTRACT): the first of us with a near enemy settles the contact; later ones read it.
++    if (CONTRACT_MODE) contract_turn(me);
+     update_prism_cash(me);
+ 
+     // Dead champions still get a turn to shop.
+@@ -341,7 +343,8 @@
+         // (collect() itself handles camps), and it gives the claim back for someone free to take.
+         // v79 (PING_COLLECTOR): a fight beats a reward; a collector who can answer gives the claim back and goes.
+         // v128 (PING_IDLE_ONLY): a collector is busy and never gives its claim back for a ping.
+-        if (FIX_PING && PING_COLLECTOR && !PING_IDLE_ONLY && is_collector(me) && ping_slot
++        // v216 (CONTRACT): a collector keeps its claim (the contract calls every contact, not only a lone hurt one).
++        if (FIX_PING && PING_COLLECTOR && !PING_IDLE_ONLY && !contract_on() && is_collector(me) && ping_slot
+             && ping_mine_round < static_cast<int>(bc::round_number()) - PING_FRESH && can_answer(me, static_cast<int>(bc::round_number()))) {
+             release_claim("answering a ping");
+             if (answer_ping(me)) return;
+@@ -392,8 +395,17 @@
+     if (spread_out() && (now_mode == FIGHT || now_mode == TRIBUTE) && near_enemies().empty() && !route.empty()
+         && distance(position, centers[slot % static_cast<int>(route.size())]) > SPREAD_HELP)
+         now_mode = FARM;
++    // v216 (CONTRACT): a contact under a contract plays its state, without our own rescore (GATHER: see below).
++    const bool contracted = (contract_role == CR_SETTLER || contract_role == CR_FOLLOW)
++                            && (contract_state == C_ENGAGE || contract_state == C_DISENGAGE);
++    if (contracted) {
++        const int was = now_mode;
++        now_mode = contract_state == C_ENGAGE ? FIGHT : RETREAT;
++        LOG(if (now_mode != was && contract_role == CR_FOLLOW)
++                local_why = std::string("contract ") + CONTRACT_NAMES[contract_state] + " over " + MODE_NAMES[was];);
++    }
+     // Enemies far off are information only, so only the near ones trigger a rescore.
+-    if (!near_enemies().empty() && (now_mode == FARM || now_mode == TRIBUTE)) {
++    if (!contracted && !near_enemies().empty() && (now_mode == FARM || now_mode == TRIBUTE)) {
+         const int personal = local_prev;
+         now_mode = score_mode(position, personal);
+         // v90-log: only a disagreement with the shared mode is worth a line.
+@@ -416,7 +428,8 @@
+     }
+     // v117 (TEAM_CHASE): a dropped chase holds for our own rescore too.
+     update_team_chase(me, now_mode);
+-    if (now_mode == FIGHT && team_chase_off()) now_mode = FARM;
++    // v216 (CONTRACT): under a contract the settler's chase decides (it writes NONE once its chase drops).
++    if (now_mode == FIGHT && team_chase_off() && !contracted) now_mode = FARM;
+     local_prev = now_mode;
+     // v204 (OUTCLASS): out-emblemed here: leave and stay away (not on the Prism team, nor while carrying the win).
+     if (!OUTCLASS_FIRST && OUTCLASS && !prism_team() && !win_tribute && outclass_step(me)) return;

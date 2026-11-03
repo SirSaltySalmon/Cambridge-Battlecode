@@ -1,0 +1,5 @@
+v216-micro-off: 20-20 of 40 (50.0%), banked 28530 vs 28530 (+0.0%), K/D 360/387, faults 0
+  fuel: mean 37178, p99 82147, out-of-fuel turns 1 of 225598 (0.00%), fuelExhausted events 0
+  vs v213           20/40
+  maps not won: 00ambush 1, 00contest 1, 00eight 1, 00galaxy 1, 00happy-halloween 1, 00monolith 1, 00quadrants 1, 00road-of-riches 1, 00stampede 1, 01big-world 1
+  score 0.5000

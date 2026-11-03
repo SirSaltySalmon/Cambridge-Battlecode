@@ -1,0 +1,5 @@
+v216-contract-off: 86-86 of 172 (50.0%), banked 117979 vs 120569 (-2.1%), K/D 1589/1709, faults 0
+  fuel: mean 36681, p99 83684, out-of-fuel turns 1 of 949500 (0.00%), fuelExhausted events 0
+  vs v210           86/172
+  maps not won: 00anvil 2, 00oasis 2, 02cuts 2, 00ambush 1, 00breadcrumbs 1, 00collision 1, 00contest 1, 00corners 1, 00crater 1, 00eight 1
+  score 0.4962

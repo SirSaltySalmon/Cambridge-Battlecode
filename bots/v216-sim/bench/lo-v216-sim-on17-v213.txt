@@ -1,0 +1,5 @@
+v216-sim-on17: 72-100 of 172 (41.9%), banked 107610 vs 126507 (-14.9%), K/D 1342/1773, faults 0
+  fuel: mean 37011, p99 91285, out-of-fuel turns 1 of 940563 (0.00%), fuelExhausted events 0
+  vs v213           72/172
+  maps not won: 00corners 2, 00dunes 2, 00happy-halloween 2, 00interlock 2, 00lanes 2, 00lost-world 2, 00reverse-spiral 2, 00ribs 2, 00split 2, 01broken-curve 2
+  score 0.3911
