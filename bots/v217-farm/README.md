@@ -55,3 +55,15 @@ Read: SHOP_CADENCE is the clear one (+10 wins over even, fewer deaths). PT_* lea
 timing locally; it matters against pre-arming ladder teams). All four together is below SHOP alone (hygiene drags).
 Fuel is compared with focus-v's pool seed-0 mean (different opponents), so treat it as approximate.
 Next: SHOP + PT combined, second seed, then the pool.
+
+## Round 2 (bots/v217-sp = SHOP_CADENCE + PT_*, no hygiene; -s1 = fuel seed 1)
+
+| Run | Record | Banked |
+| --- | --- | --- |
+| v217-shop-s1 vs focus-v | 83-89 | -2.2% (SHOP alone's +16.4% did not hold) |
+| v217-sp vs focus-v, s0 | 96-76 | +13.5% |
+| v217-sp-s1 vs focus-v | 106-66 | +28.1% |
+| v217-sp pool s0 (v210/v206/v208/v185) | 404-284 (v210 106, v206 98, v208 102, v185 98) | 536706 vs 430869; focus-v pool s0 was 365-323, 503847 |
+
+Pool vs focus-v: +39 wins, our banked +6.5%, K/D 7657/5658 (focus-v 7553/6803). Fuel mean 38053 (+2.1% vs 37272),
+out-of-fuel 0.41% (0.37%). v217-sp is the candidate; next: pool seed 1, then ladder.
