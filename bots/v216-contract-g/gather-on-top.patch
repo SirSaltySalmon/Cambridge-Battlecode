@@ -1,0 +1,133 @@
+diff -ruN bots/v216-contract/src/bot.h bots/v216-contract-g/src/bot.h
+--- bots/v216-contract/src/bot.h	2026-11-03 21:45:22
++++ bots/v216-contract-g/src/bot.h	2026-11-03 21:48:19
+@@ -434,6 +434,9 @@
+     // v216 (CONTRACT): score_mode's last score and its bar before any stay-in slack.
+     double last_score = 0;
+     int last_base_bar = 0;
++    double last_body_gap = 0;
++    // v216 (CONTRACT_GATHER): the round the GATHER we see began (bounded by CONTRACT_GATHER_ROUNDS), last seen round.
++    int gather_since = -10, gather_seen = -10;
+     // v216 (CONTRACT): this turn's part in the contract (CR_* below), the state we play by, and its anchor slot.
+     int contract_role = 0;
+     int contract_state = 0;
+@@ -856,6 +859,8 @@
+     void update_ping(const bc::champion& me);
+     // v216 (CONTRACT): settle or read the engagement contract, after sync_decision (contract.cpp).
+     void contract_turn(const bc::champion& me);
++    // v216 (CONTRACT_GATHER): a contact holder's GATHER turn; false when an enemy already reaches us (fight on).
++    bool contract_hold(const bc::champion& me);
+     bool contract_on() const { return CONTRACT_MODE == 2 && contract_bits; }
+     bool answer_ping(const bc::champion& me);
+     void commit_ping(const bc::champion& me);
+diff -ruN bots/v216-contract/src/constants.h bots/v216-contract-g/src/constants.h
+--- bots/v216-contract/src/constants.h	2026-11-03 21:45:30
++++ bots/v216-contract-g/src/constants.h	2026-11-03 21:47:57
+@@ -2064,7 +2064,11 @@
+ // A later contact holder whose own score is under the stay bar by more than this writes DISENGAGE (0: no veto).
+ inline constexpr int CONTRACT_VETO = 0;
+ // GATHER (hold out of reach while healthy allies within reach of the anchor come) instead of DISENGAGE.
+-inline constexpr bool CONTRACT_GATHER = false;
++inline constexpr bool CONTRACT_GATHER = true;
++//   GATHER is written when the score fails but the missing bodies, filled by living allies not in the fight (at most
++//   CONTRACT_GATHER_BODIES), would pass it; it lasts at most CONTRACT_GATHER_ROUNDS, then DISENGAGE.
++//   Allies' positions are not shared, so who comes is up to each ally (can_answer: PING_ARRIVE tiles, health, bag).
++inline constexpr int CONTRACT_GATHER_BODIES = 2, CONTRACT_GATHER_ROUNDS = 4;
+ // The settler's own emblem gap at OUTCLASS_GAP or worse writes DISENGAGE (OUTCLASS as an input to the settler).
+ inline constexpr bool CONTRACT_OUTCLASS = true;
+ 
+diff -ruN bots/v216-contract/src/contract.cpp bots/v216-contract-g/src/contract.cpp
+--- bots/v216-contract/src/contract.cpp	2026-11-03 21:46:52
++++ bots/v216-contract-g/src/contract.cpp	2026-11-03 21:48:19
+@@ -30,6 +30,10 @@
+         if (anchor >= 0) state = read_contract_state();
+     }
+     const bool same = anchor >= 0 && distance(position, centers[anchor]) <= CONTRACT_ARRIVE;
++    if (same && state == C_GATHER) {
++        if (gather_seen < now - 1) gather_since = now;
++        gather_seen = now;
++    }
+     const bool settled = anchor >= 0 && age == 0;
+     if (settled && !same) {
+         contract_role = CR_OWN;
+@@ -62,6 +66,20 @@
+     int next = engage ? C_ENGAGE : C_DISENGAGE;
+     std::string why;
+     LOG(why = score_why;);
++    // GATHER: short of bodies, and living allies outside this fight would make up the score.
++    if (!engage && CONTRACT_GATHER && last_body_gap > 0 && (prev != C_GATHER || now - gather_since < CONTRACT_GATHER_ROUNDS)) {
++        int spare = 0;
++        for (const auto& a : seen::roster(Team::ally))
++            if (a != me && a.is_alive()) ++spare;
++        spare -= static_cast<int>(fight_allies.size()) - 1;
++        const double fill = std::min({static_cast<double>(std::max(spare, 0)), last_body_gap,
++                                      static_cast<double>(CONTRACT_GATHER_BODIES)});
++        const double bar = prev == C_DISENGAGE ? last_base_bar + CONTRACT_REENTER : last_base_bar;
++        if (fill > 0 && last_score + MISSING_BODY_PENALTY * fill >= bar) {
++            next = C_GATHER;
++            LOG(why = format("%.1f allies away would make it; ", fill) + why;);
++        }
++    }
+     // OUTCLASS as an input: out-emblemed here, the whole contact leaves.
+     if (next == C_ENGAGE && CONTRACT_OUTCLASS && OUTCLASS && !prism_team() && !win_tribute) {
+         bool close = false, finish = false;
+@@ -87,4 +105,28 @@
+     contract_anchor = mine;
+     if (next != prev)
+         NOTE(format("contract: %s -> %s at s%d: ", CONTRACT_NAMES[prev], CONTRACT_NAMES[next], mine) + why);
++}
++
++bool Bot::contract_hold(const bc::champion& me) {
++    // GATHER for a contact holder: out of enemy reach, close on the nearest ally, and wait for the rest. Anyone an
++    // enemy can already hit fights on (holding there only takes hits), as in join_first.
++    const auto position = seen::self_position();
++    const auto zone = threat_zone(seen::champions(Team::enemy), false);
++    if (zone.is_set(position)) return false;
++    std::optional<vec2> nearest;
++    int near_d = 1 << 20;
++    const auto& allies = seen::champions(Team::ally);
++    const auto& tiles = seen::positions(Team::ally);
++    for (std::size_t i = 0; i < allies.size() && i < tiles.size(); ++i) {
++        if (allies[i] == me || channelling(allies[i])) continue;
++        const int d = distance(position, tiles[i]);
++        if (d < near_d) near_d = d, nearest = tiles[i];
++    }
++    if (nearest && near_d > 1) {
++        WHY("contract.gather", format("gather: out of reach, to the nearest ally %d away", near_d));
++        if (!move_towards_closest(tiles_around(*nearest, 1), &zone)) NOTE("gather: no step toward the ally");
++    } else {
++        WHY("contract.gather", "gather: out of reach, hold for the allies coming");
++    }
++    return true;
+ }
+diff -ruN bots/v216-contract/src/route.cpp bots/v216-contract-g/src/route.cpp
+--- bots/v216-contract/src/route.cpp	2026-11-03 21:45:22
++++ bots/v216-contract-g/src/route.cpp	2026-11-03 21:47:57
+@@ -2737,6 +2737,8 @@
+         // v133 (FIGHT_SKIP_LEAVERS): of those, the ones leaving the fight.
+         if (FIGHT_SKIP_LEAVERS) LOG(if (leavers_left) part(head_text, format("%d leaving allies not counted", leavers_left)););
+         // v124: weighted heads (FIGHT_ALLY_WEIGH, FIGHT_ENEMY_WEIGH) are logged beside the plain count.
++        // v216 (CONTRACT_GATHER): the weighted body gap, for the settler's gather test.
++        last_body_gap = ne_w - na_w;
+         if (na_w > ne_w) {
+             head += OUTNUMBER_BONUS;
+             LOG(part(head_text, format("bodies +%d %dv%d", OUTNUMBER_BONUS, na, ne)
+diff -ruN bots/v216-contract/src/turn.cpp bots/v216-contract-g/src/turn.cpp
+--- bots/v216-contract/src/turn.cpp	2026-11-03 21:46:05
++++ bots/v216-contract-g/src/turn.cpp	2026-11-03 21:48:19
+@@ -396,8 +396,13 @@
+         && distance(position, centers[slot % static_cast<int>(route.size())]) > SPREAD_HELP)
+         now_mode = FARM;
+     // v216 (CONTRACT): a contact under a contract plays its state, without our own rescore (GATHER: see below).
+-    const bool contracted = (contract_role == CR_SETTLER || contract_role == CR_FOLLOW)
+-                            && (contract_state == C_ENGAGE || contract_state == C_DISENGAGE);
++    bool contracted = (contract_role == CR_SETTLER || contract_role == CR_FOLLOW)
++                      && (contract_state == C_ENGAGE || contract_state == C_DISENGAGE);
++    if ((contract_role == CR_SETTLER || contract_role == CR_FOLLOW) && contract_state == C_GATHER) {
++        if (contract_hold(me)) return;
++        contracted = true;
++        contract_state = C_ENGAGE;
++    }
+     if (contracted) {
+         const int was = now_mode;
+         now_mode = contract_state == C_ENGAGE ? FIGHT : RETREAT;

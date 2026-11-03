@@ -1,0 +1,5 @@
+v216-contract: 83-89 of 172 (48.3%), banked 119078 vs 119010 (+0.1%), K/D 1743/1562, faults 0
+  fuel: mean 38068, p99 89566, out-of-fuel turns 4331 of 967256 (0.45%), fuelExhausted events 4710
+  vs v213           83/172
+  maps not won: 00corners 2, 00gemfight 2, 00great-wall 2, 00rushbait-v2 2, 00split 2, 00stampede 2, 00the-line 2, 00vault 2, 01shortcut 2, 01starfish 2
+  score 0.4827
