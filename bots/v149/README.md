@@ -5,7 +5,7 @@ changed. The fight score and its terms are in `score_mode` (`src/route.cpp`); on
 score falls FIGHT_HYSTERESIS (10) below the threshold, so the retreat bar moves from -5 to -15 as well.
 
 ## Why
-The emblem ratio tests (`bots/v149-ratio`) showed a retreat call is the worst thing the team does: in the 10 rounds after
+The emblem ratio tests (v149-ratio, now in `bots/v151-which-is-v149tuned/README.md`) showed a retreat call is the worst thing the team does: in the 10 rounds after
 one, ~0.04 kills and ~0.44 deaths, against ~0.43 kills and ~0.28 deaths after a fight call (debug logs, every bot,
 v148-normal included). So the user asked for a sweep of the fight-score parameters toward aggression.
 

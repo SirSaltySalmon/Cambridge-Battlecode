@@ -26,3 +26,7 @@ core + 4 team emblems + all alive) best_goal aims only at the altar pocket; any 
 v143 mirror: 85/85. v144v fuel +0.8% a turn; 01boss-battle seat-B trap worse (4159 vs 1656 out-of-fuel turns).
 v144v was submitted (platform v143). Unranked vs the 10 teams we lost to most: 24-26, 16 of 32 same-map losses flipped;
 losses now leak carried gems (lose 194 a game on deaths vs their 62).
+
+## Seed copies (removed in final-stretches)
+
+`bots/v144-s1` and `bots/v144-s2` were fuel-burn seed copies: the same code with `{ volatile int sink = 0; for (int i = 0; i < 300; ++i) sink += i; }` before `cambc::end_turn()` in `src/main.cpp`, so fuel timing (and every timing-dependent outcome) reshuffles. Benches pool seed 0 (this folder) with the two copies; recreate them by adding that line.

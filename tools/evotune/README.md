@@ -21,7 +21,8 @@ inline constexpr int MIN_HOLD = 3;
 ```
 
 Without one: delta = 20% of the value (ints at least 1), range value/4 .. value*4 keeping the sign (at least 4
-deltas wide). `bots/v148-evo` is an EVO COPY of v148-normal with ten fight-score numbers moved out, for testing.
+deltas wide). `bots/v148-evo` was an EVO COPY of v148-normal with ten fight-score numbers moved out, for testing
+(removed in final-stretches; recorded in bots/v148-normal/README.md).
 
 ## What one iteration does
 1. Every parameter moves `c` deltas up or down at random (theta+) and the mirror way (theta-). `c` starts at 1 delta
