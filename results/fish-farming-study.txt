@@ -1,0 +1,154 @@
+FISH vs v170 FARMING STUDY (2026-11-03)
+
+Data: 25 Intercontinental Fish ladder games (16-9 against Mite x10, test4 x5, Univardisty of Shingtonwash x5,
+NEETCoders x5) and v170 in 22 local mirror games on the same 22 maps (44 team-games). Every game was replayed
+through the visualiser's engine for per-round positions, health, gold, gems and camp states; v170's debug decision
+logs show why its champions did what they did.
+Caveat: Fish played top teams on the ladder, v170 played itself locally. Farming-time numbers compare well;
+fighting numbers (deaths, kills) do not.
+
+
+THE SHORT VERSION
+
+Fish does not kill camps faster: both teams get the same gems per farming round (0.81 vs 0.82 captured gems per
+champion-round spent hitting or capturing). Fish spends more of its time farming and turns gold into items sooner.
+Camp damage per alive champion-round is about 40% higher for Fish before round 600.
+
+                                         Fish      v170
+  Standing still near camps              0.9%      9.1%    (share of peaceful champion-rounds)
+  2+ squads farming at once             21.7%      5.8%    (share of rounds with any farming)
+  Own respawned camp, first hit after     10        33     rounds (median)
+  Captures by r300                        13         9
+  Team emblems by r200 / r300 / r400   3 / 7 / 11  1 / 3.5 / 6
+  Trips home per 100 alive rounds        0.81      0.31    (Fish goes with ~90-190 gold)
+
+
+WHAT FISH DOES DIFFERENTLY
+
+1. Split farming
+   Fish opens together on one good group, then splits after ~3 captures (median r66, with 0 emblems). The usual
+   shape is a core of 3 plus 1-2 solo or duo farmers on own-side and middle wolves and elks, ~17 tiles apart and
+   often on the other flank. It regroups for elk packs, golems, monoliths and fights, then splits again. Squad size
+   is "the fewest champions whose expected camp damage stays under ~0.3-0.5 of their health". It never sends a solo
+   or duo to the enemy side.
+   v170 has one team target, chosen by a leader each round, and never splits on normal maps (its split code only
+   runs for Cassi & Issac, whom v170 never drafts). It brings 1.3-1.7 more champions to a camp than it needs.
+
+2. Respawns and waiting
+   Fish almost never waits: while a camp respawns it farms something else and comes back in time. Its waits are a
+   few rounds long, and alone.
+   When v170's team target is respawning and no filler beats it, the whole team walks to it and waits 2 tiles off,
+   with a median 22 rounds left on the timer and a live own or middle camp within 10 steps half the time.
+
+3. Which camps
+   Per decision both teams mostly go to the nearest group where they are the team's closest champion ("nearest"
+   alone predicts ~47% of Fish's choices and ~48% of v170's). The differences:
+   - Fish weighs value early (about +20 walking steps per 100 gold and -27 per 100 camp strength before r150) and
+     fades to nearest-first by about r500. It takes gold-only groups early (2.2 a game before r150 vs 0.9).
+   - Fish avoids groups an ally is already on (it spreads out); v170 drifts to its allies (one shared target).
+   - Opening: ~4 Fish champions take the best group near spawn (an elk group in 48% of games) and capture it around
+     r26 for ~15 gems. v170's first capture is at r27 for 7 gems, often a cluster.
+   - Middle: Fish races only for valuable middle groups (elk, golem, monolith), timed to their respawn, and leaves
+     low-value middle clusters and wolves to the enemy.
+   - Both skip groups the enemy has already damaged.
+
+4. When a camp is allowed (thresholds)
+   Fish goes by damage and health, not item counts. Its implicit rule: send the smallest squad whose expected camp
+   damage taken is at most about half its health. Elk packs with 3+ champions from the first rounds; solo wolves from
+   ~r240 and solo elks from ~r330 (when they happen); golems from ~r110 with 4-6 bare champions; monoliths at ~6
+   emblems per champion with 4 present, or chipped by one champion over several visits. Camps never heal, so Fish
+   hits a strong camp until its weakest member is near 50% health, heals at spawn, and comes back.
+   v170 counts items: an elk group needs (elks - champions present) <= emblems of those present; a golem 4-10
+   emblems among those present; a monolith 15/18/20 team emblems with everyone grouped at 80% health. Its first
+   golem engagement is at r523 (Fish r108) and its first monolith around r1300.
+
+5. Side of the map
+   Fish: 57% of captures on its own side, 41% middle, 3% enemy side, but 63% of its gems come from the middle
+   (bigger groups). It commits to one flank early, usually the one away from the enemy's opening.
+   v170: zones by walking-step ratio (safe / uncertain / unsafe at 1.5x); the middle is open unless 2+ champions
+   down; the enemy side only in raids; a contest bonus of up to 2x pulls the team to middle groups.
+
+6. Items and gold
+   Fish shops on income (recalls with ~90-190 gold at ~50% health, 2.6x as often as v170). Its first emblems are
+   farming emblems: Capture (3-round captures on 44% of its captures in r150-300 vs 4% for v170), Prospector, then
+   Jungle and Monster. Gold is spread over 2-3 frontline farmers.
+   v170 shops after a tribute with an empty bag (150 gold); Vesper batches 450 gold after her first emblem and takes
+   56% of the team's gold. Its first emblems are Treasure (Vesper) and Capture only on Heart of Ruin.
+
+7. Draft
+   Fish always takes a carry + Vendetta + Heart of Ruin + Cassi & Issac (+ Willow, Varg or Ren). Cassi & Issac is
+   one pick but two bodies, so Fish fields 6 champions on 5 picks (23 of 25 games). Carry: Vesper when the spawns
+   are far apart by walking (more than ~62 steps), Marcella when close (fits 17 of 19 maps; possibly over-fitted).
+   v170 drafts Ryth, Heart of Ruin, Willow, Vesper, Marcella (the Prism team on gem-cluster maps) and never Cassi &
+   Issac; two of its picks go to Ryth and Willow, the weakest farmers in either dataset.
+
+8. Map size
+   Fish's lead does not depend on map size or spawn distance (ahead on captures by r300 on 19 of 22 maps). What
+   scales is splitting: Fish's parallel farming grows with the number of own/middle non-cluster camps per champion
+   (rank correlation 0.72). v170's fixed tile constants (8-step loot, 60-tile plan radius) do not scale.
+
+9. Pathing
+   Both spend the same share of peaceful time walking to camps (47-48%). Fish buys Teleport Crystals on maps where
+   one 3-tile jump saves 30+ walking steps (20-36 teleports a game there); v170 never does.
+
+10. Captures
+   v170 leaves cleared clusters uncaptured a mean 20.5 rounds (Fish 7), and a cleared group does not start its
+   respawn until captured. Causes: passing "free hits" with nobody to collect, and the single team claim.
+
+Side finding: pre-armed recalls. Fish, Mite, test4 and Univardisty start a recall at the end of nearly every turn
+and cancel it at their next turn start (87-92% of their off-spawn rows; NEETCoders 1%, v170 0%), so between their
+turns they read as recalling. v170's fight score gave recalling enemies weight 0, and its target pick chased them.
+
+
+WHAT WAS TESTED (locally, against v170, all 86 platform maps x 2 sides)
+
+Noise: local games are deterministic, so any code change reshuffles outcomes through timing. Two behaviour-
+identical copies of v170 went 84-88 (+2.7%) and 74-98 (-8.1%): one 172-game bench swings about +-10% banked.
+Every result below pools 3 timing seeds (516 games), where noise is about +-3.5%.
+
+  Change (each alone on v170)                         Record    Banked   Notes
+  Capture hygiene (CAPTURE_HYGIENE)                   271-245   +3.5%    captures +3%, deaths -5%
+  Shop cadence (SHOP_CADENCE)                         267-249   +4.4%    emblems by r400 +14%
+  Power-to-threat gates (PT_GATE)                     253-263   +1.3%    captures +5%, golems ~2x and earlier
+  Fish-style splitting (BUSY_JOBS), 344 games         158-186   -7.0%    more deaths; Fish-like form 73-99, -23.8%
+  Pre-armed recall reading (PREARM_READ)              279-237   +2.0%    vs a pre-arming test bot: +12.3%
+
+  Merged (bots/v202 builds)
+  hygiene + gates + shop                              264-252   +9.6%    captures +6.5%, emblems r400 8.5 vs 7.1
+  + PREARM_READ                                       280-236   +6.4%    K/D 18.4/15.8 vs 15.3/18.9
+  + review fixes (v202f)                              273-243   +5.4%    captures 53.6 vs 45.3, fuel-cap turns even
+  + tank-step fix = bots/v202                         280-236   +4.1%    K/D 18.8/15.4 vs 15.0/19.2, see below
+
+  bots/v202 in full (per game, vs v170): captures 53.2 vs 45.6, by r300 11.2 vs 9.7; camp gems 744 vs 696; gold
+  7629 vs 6664; team emblems by r200 / r400 3.0 / 8.6 vs 2.7 / 7.2; tributes 15.8 vs 12.5; camp deaths 0.4 both.
+  Fuel: mean +4.0% per turn (partly more turns alive), turns at the 100k cap even (9465 vs 9459), 0 faults.
+  The four merged rows differ from each other by noise; all four are ahead of v170 on every farming number.
+  bots/v202 ships the last one: it adds the review fixes (stale capture records, keepers pulled off rewards, a
+  tank-step error loop) and PREARM_READ, which matters against the pre-arming top teams.
+
+Splitting lost because v170's fights punish spread champions: v170's raids hit the split side when it was down
+in bodies (outnumbered 51% of rounds vs 17%). Fish's splitting works inside Fish's whole system; ours would need
+regroup and fight rules built for it first.
+
+Not tested yet: Fish's draft (Cassi & Issac + Vendetta + Heart of Ruin); pre-arming recalls ourselves (a mimic that
+only pre-armed was even with v170, +0.3%); teleport crystals; fixing the respawn waiting without splitting.
+Local results overstate ladder results, so bots/v202 needs top-50 ladder games before it replaces anything.
+
+
+LADDER TEST (2026-11-03, unranked, 25 games per version: ranks 34 Ding, 42 Zarzorki, 50 The Party of Heroes,
+55 Tokenmaxxing, 60 DOOMSDAY; same maps, sides and frozen opponent bots for all three; medians per game)
+
+                               v209 (live entry)   v202 (platform v210)   v203 = v202 + multiclear (v211)
+  Record                       2-23                4-21                   3-22
+  Banked                       9466                9805                   9285
+  Kills / deaths               146 / 233           125 / 332              146 / 373
+  Gold per 100 rounds          356                 320                    370
+  Camp gems per 100 rounds     43.0                39.3                   36.8
+  Captures by r300             8                   11                     10
+  Gold by r300                 807                 896                    871
+  Camp gems by r600            192                 221                    245
+  Team emblems by r600         9                   11                     11
+
+v202 and v203 farm faster early, but die 13-15 times a game against v209's 9, which gives the whole-game farming
+rate back. Multiclear (v203) adds deaths, as it did locally. Next lever: survival (v209's lineage dies far less).
+v209 was restored as live, selected and the tournament entry afterwards.
