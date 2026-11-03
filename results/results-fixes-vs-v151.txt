@@ -1,0 +1,77 @@
+Small-map fixes vs v151 (opponent copy bots/v151-bench), 2026-10-29
+140 games per run: all 70 maps x both sides, release. Seeds s1/s2 = fuel-burn copies (main.cpp sink loop).
+Manifests bf1.txt, bf2a.txt, bf2b.txt, bf2b1.txt, bf2b2.txt, bf3.txt; replays replays/bf*/.
+
+Why: ladder one-altar maps (last ~800 ranked games) 19-46, but crater/eight/guardians 15-8. The losses are
+00anvil 1-14, 00breadcrumbs 0-13, 01hooks 3-11:
+  breadcrumbs: in 10 of 13 games our team does nothing for 240-760 rounds (spawn.leave freeze, below).
+  anvil:  deaths 24 vs 7 a game (HoR 10.2), gems collected 376 vs 1004, bags 40 vs 22, tributes 6 vs 45.
+  hooks:  deaths 26 vs 13 a game (HoR 9.9), gems collected 417 vs 858, tributes 11 vs 34.
+
+run                    record     banked   collected  gold     fuel/turn
+f1  spawn play-on      67-69-4    -1.4%    +0.3%      -0.6%    -0.1%
+f2a HoR dive-follow    58-76-6   -11.0%    -6.8%      -5.9%    -1.5%
+f2b chase leash        65-69-6    -0.9%    +0.0%      -2.3%    -0.0%
+f2b-s1                 66-69-5    -0.3%    +1.2%      -1.9%    (sink loop)
+f2b-s2                 71-64-5    +7.0%    +5.1%      +4.6%    (sink loop)
+f2b 3 seeds           202-202-16  +1.9%    +2.1%      +0.1%
+f3  altar-farm bags    69-67-4    +1.4%    +0.4%      -1.3%    -0.1%
+
+By team size (banked):        3 champs   4 champs   5 champs (rule inactive for f2b)
+f1                            +0.2%      -12.4%     +2.9%
+f2a                           +3.5%      -26.0%     -8.1%
+f2b / s1 / s2                 +6.0/-10.0/+12.3   +0.7/+7.8/+3.4   -3.2/-0.5/+7.0
+f3                            -3.4%      -0.8%      +3.7%
+
+Anvil/breadcrumbs/hooks are snowballs in mirror games (side A wins ~1000-20), so local benches barely see f1/f3:
+- f1: v151 freezes on breadcrumbs (829 idle rounds as the bench opponent); f1 never does. Debug breadcrumbs as
+  side B: v151 42 gems, f1 363.
+- f2b: wins anvil from side B on every seed (1016-350, 1016-212, 1016-212); v151 as side B loses 21-1017.
+- f3: bank.quick rarely fires in mirrors (the losing side seldom holds 10+ gems beside the altar).
+- 01boss-battle: both sides idle ~1700 rounds every run (separate stall); in bf3 it also burned 4.5k extra
+  out-of-fuel turns, which is why that run's out-of-fuel totals double.
+
+Verdict: f2a rejected. f1 (bug fix), f2b (+, anvil flip) and f3 (neutral locally) are ladder A/B candidates.
+
+---- f4: 01boss-battle stall (added 2026-10-29) ----
+v151 = bots/v151-which-is-v149tuned (teammate's, committed in ca86501), byte-identical; v151-bench identical too.
+Cause: the only altar's one standable neighbour is under the monolith pair, which is also the only way between the
+halves. (1) The walk fields treat camp tiles as open, so the leader's invasion target lay across the monolith: all
+five idled "boxed in" r300-2000 and earned no gold. (2) Prism (a mage) drafted -> monolith_delegated dropped the
+gate monolith from the team's table, and altar_open forgets a shut gate after 30 unseen rounds. (3) Once the team
+carried 1000+ gems, win_tribute held everyone at a shut altar.
+f4 = SEALED_DROP (groups unreachable with monolith tiles blocked are skipped while it is up) + GATE_TEAM (gate
+monolith is the team goal when no gate is known down, even with a mage; no win_tribute while every altar is shut).
+Affects boss-battle, guardians (gated altar), fracture/shortcut (2 sealed groups each).
+
+f4  boss-battle fix       69-66-5    +2.3%    +5.1%      +10.7%   +0.8%
+boss-battle: f4 wins both (0-0 on gold 31.7k v 4.8k; 533-0), v151 1-1. guardians: f4 wins both on gold, v151 1-1.
+Debug boss-battle: f4 1027-0 and 645-0 (monolith first targeted r986 / r1332).
+Left: the monolith dies late in release (r1533 / r2000) and Vesper ends with a 3,214-gem bag (322-turn tribute).
+
+---- combined: bots/v151-mapfix = f1 + f2b + f3 + f4 (2026-10-29) ----
+v151-mapfix               73-65-2    +8.2%    +9.2%      +14.3%   +1.5%
+by team size: 3 champs 13-11 +9.0%, 4 champs 17-14-1 +15.0%, 5 champs 43-40-1 +5.6%.
+anvil a 1002-46, b 585-758 (v151 as B: 21-1017); boss-battle wins both (48-0, 102-47); guardians 1-1.
+02treasure-box: a 0-0 stall (both spawns 4 apart, both teams contest the reward group s28 between them forever);
+plain v151 vs v151 does it too (debug 0-0) and it shows in the f2b/f3/f4 benches: existing, timing-dependent.
+Submitted to the platform without making it live (v152 stays pinned); ladder A/B vs v152 and v151 not run yet.
+
+---- ladder A/B, unranked, 2026-10-30 ----
+Platform v154 = v151-mapfix (only upload; v153 was a cancelled build). Same 16 opponents (ranks 120-256), same
+opponent bot (--source-group), maps and sides for all three; each group = one of anvil/breadcrumbs/hooks/boss_battle
++ 4 pool maps (64 of the other 66 once), sides alternating. Existing v152 and v151 activated in turn; v152 pinned
+live again at the end. 48 groups, 240 games.
+
+version   record   banked (ours v theirs)   collected        gold earned         deaths
+mapfix    40-40    53,948 v 56,271          72,256 v 73,135  555,181 v 519,128   1,108 v 1,261
+v152      37-43    53,109 v 57,567          69,202 v 81,280  520,939 v 550,496   1,120 v 1,221
+v151      37-43    51,300 v 59,564          71,585 v 83,616  515,295 v 563,855   1,112 v 1,247
+mapfix vs v152: banked +1.6%, collected +4.4%, gold +6.6%; vs v151: banked +5.2%, collected +0.9%, gold +7.7%.
+Same-slot flips: vs v152 12 to mapfix, 9 to v152; vs v151 9 to mapfix, 6 to v151. +3 wins is inside ladder noise.
+Target maps (4 games each)  anvil  breadcrumbs  hooks  boss_battle   banked on them
+  mapfix                     2-2    0-4          1-3    3-1           8,144 v 11,629
+  v152                       1-3    0-4          2-2    2-2           8,163 v 11,581
+  v151                       1-3    0-4          2-2    1-3           5,073 v 12,524
+breadcrumbs longest idle stretch: mapfix 40-55 rounds; v152 632-872; v151 315-699 (freeze fixed on the ladder,
+but breadcrumbs is still lost: opponents out-farm us there).

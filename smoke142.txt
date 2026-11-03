@@ -1,0 +1,4 @@
+bots/v142 bots/v141 maps/00split.map26a replays/s142/00split.repl26a --statistics replays/s142/00split.json --json
+bots/v142 bots/v141 maps/02fields.map26a replays/s142/02fields.repl26a --statistics replays/s142/02fields.json --json
+bots/v142 bots/v141 maps/00contest.map26a replays/s142/00contest.repl26a --statistics replays/s142/00contest.json --json
+bots/v142 bots/v141 maps/02harvest.map26a replays/s142/02harvest.repl26a --statistics replays/s142/02harvest.json --json

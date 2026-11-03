@@ -1,0 +1,74 @@
+Ladder test 2026-11-02, unranked, 20 games per version: 5 fixed maps each vs Fish, Mite, Trzy Kwaterki, HBH (bots frozen by source group).
+Stepwise from v182. Kept: v185 (CAPTURE_RECALL, EARLY_SHOP), v188 (+DUO_3), v189 (+GEM_BANK 22). Dropped: v186 SOLO_CHEAP, v187 BRUISER_SWAP, v190 Jungle first + funnel 4, v191 TOP_ROSTER.
+
+v182: 1-19 of 20 | banked 3299 vs 19587 (-83.2%) | by opp {'HBH': (1, 4), 'Mite': (0, 5), 'Fish': (0, 5), 'Trzy': (0, 5)}
+   per game: caps 22.7, caps<200 5.5, camp gems 249 vs 957, tributes 4.2, emblems<400 4.5, K/D 2.9/19.0, out-of-fuel turns 4.8 vs 9.2, faults 0.0, rounds 877
+   01fracture:L60-1026 03showdown:L0-1065 00fragment:L0-1008 00contest:L0-1000 00anvil:L0-1015 00galaxy:W1007-195 02the_pond:L392-1014 00quarry:L60-1044 03membrane:L98-1016 00corners:L260-1015 00packs:L138-1006 01shortcut:L368-1017 00quadrants:L127-1024 00oasis:L44-1020 02famine:L264-1012 01gold_rush:L11-1005 00pilgrimage:L75-1026 03shrines:L164-1007 00vault:L0-1044 02crossing:L231-1028
+v185: 0-20 of 20 | banked 3402 vs 20372 (-83.3%) | by opp {'Trzy': (0, 5), 'Fish': (0, 5), 'HBH': (0, 5), 'Mite': (0, 5)}
+   per game: caps 23.9, caps<200 5.7, camp gems 276 vs 1010, tributes 6.0, emblems<400 4.4, K/D 3.8/18.8, out-of-fuel turns 5.5 vs 8.8, faults 0.0, rounds 896
+   00contest:L0-1000 03showdown:L0-1160 00anvil:L79-1001 00fragment:L0-1018 01fracture:L0-1012 00quarry:L363-1016 02the_pond:L246-1011 00corners:L404-1021 03membrane:L164-1004 00galaxy:L224-1005 02famine:L274-1003 00packs:L48-1005 00quadrants:L228-1004 01shortcut:L380-1007 00oasis:L44-1005 00pilgrimage:L135-1007 02crossing:L422-1012 03shrines:L380-1032 01gold_rush:L11-1005 00vault:L0-1044
+v186: 0-20 of 20 | banked 2497 vs 20483 (-87.8%) | by opp {'Fish': (0, 5), 'Mite': (0, 5), 'HBH': (0, 5), 'Trzy': (0, 5)}
+   per game: caps 21.3, caps<200 4.8, camp gems 214 vs 1019, tributes 4.0, emblems<400 3.1, K/D 2.8/18.9, out-of-fuel turns 5.2 vs 8.7, faults 0.0, rounds 871
+   01fracture:L101-1036 00contest:L0-1000 03showdown:L0-1117 00anvil:L0-1008 00fragment:L0-1000 03membrane:L82-1007 02the_pond:L246-1011 00quarry:L270-1006 00corners:L495-1014 00galaxy:L224-1005 01shortcut:L303-1035 00packs:L24-1016 00oasis:L0-1003 00quadrants:L228-1004 02famine:L335-1138 00pilgrimage:L128-1017 03shrines:L50-1012 01gold_rush:L0-1005 02crossing:L11-1005 00vault:L0-1044
+v187: 0-20 of 20 | banked 3090 vs 20368 (-84.8%) | by opp {'HBH': (0, 5), 'Mite': (0, 5), 'Fish': (0, 5), 'Trzy': (0, 5)}
+   per game: caps 23.4, caps<200 5.7, camp gems 258 vs 1003, tributes 5.6, emblems<400 4.4, K/D 3.5/18.9, out-of-fuel turns 5.5 vs 8.8, faults 0.0, rounds 890
+   00fragment:L0-1018 01fracture:L0-1012 00contest:L0-1000 03showdown:L0-1160 00anvil:L79-1001 00quarry:L363-1016 00corners:L258-1006 03membrane:L164-1004 02the_pond:L114-1041 00galaxy:L224-1005 00oasis:L44-1005 00packs:L48-1005 00quadrants:L175-1004 01shortcut:L380-1007 02famine:L274-1003 00vault:L0-1044 02crossing:L340-1018 01gold_rush:L11-1005 03shrines:L481-1007 00pilgrimage:L135-1007
+v188: 0-20 of 20 | banked 3655 vs 20376 (-82.1%) | by opp {'Fish': (0, 5), 'Mite': (0, 5), 'Trzy': (0, 5), 'HBH': (0, 5)}
+   per game: caps 25.6, caps<200 5.8, camp gems 293 vs 1006, tributes 6.6, emblems<400 4.6, K/D 3.9/21.0, out-of-fuel turns 5.7 vs 8.9, faults 0.0, rounds 923
+   00anvil:L99-1001 00contest:L0-1000 01fracture:L0-1012 03showdown:L0-1160 00fragment:L0-1008 03membrane:L164-1004 00corners:L404-1021 00quarry:L363-1016 00galaxy:L224-1005 02the_pond:L446-1013 02famine:L274-1003 00oasis:L44-1005 00quadrants:L228-1004 01shortcut:L380-1007 00packs:L48-1017 01gold_rush:L44-1005 00vault:L0-1044 02crossing:L422-1012 00pilgrimage:L135-1007 03shrines:L380-1032
+v189: 1-19 of 20 | banked 4380 vs 20227 (-78.3%) | by opp {'Fish': (0, 5), 'Trzy': (0, 5), 'Mite': (0, 5), 'HBH': (1, 4)}
+   per game: caps 25.9, caps<200 5.7, camp gems 294 vs 1008, tributes 7.0, emblems<400 4.2, K/D 3.8/20.1, out-of-fuel turns 5.3 vs 8.8, faults 0.0, rounds 933
+   03showdown:L0-1160 00anvil:L99-1001 01fracture:L75-1021 00fragment:L0-1008 00contest:L0-1000 00galaxy:W1004-841 00corners:L261-1008 00quarry:L363-1016 02the_pond:L661-1029 03membrane:L164-1012 00packs:L48-1017 02famine:L318-1034 00oasis:L0-1003 01shortcut:L135-1004 00quadrants:L228-1004 03shrines:L316-1020 00pilgrimage:L210-1002 02crossing:L454-1001 01gold_rush:L44-1002 00vault:L0-1044
+v190: 1-19 of 20 | banked 3455 vs 20414 (-83.1%) | by opp {'Mite': (0, 5), 'Fish': (0, 5), 'Trzy': (0, 5), 'HBH': (1, 4)}
+   per game: caps 23.6, caps<200 5.7, camp gems 261 vs 1012, tributes 4.8, emblems<400 4.1, K/D 2.9/20.8, out-of-fuel turns 5.0 vs 8.6, faults 0.0, rounds 897
+   03showdown:L0-1069 00anvil:L78-1163 01fracture:L90-1025 00contest:L0-1000 00fragment:L0-1004 03membrane:L32-1002 00quarry:L212-1017 00galaxy:W1004-841 02the_pond:L378-1020 00corners:L307-1015 02famine:L306-1118 00quadrants:L228-1004 00packs:L124-1003 01shortcut:L123-1023 00oasis:L0-1000 00vault:L0-1044 02crossing:L279-1032 00pilgrimage:L90-1025 01gold_rush:L22-1001 03shrines:L182-1008
+v191: 1-19 of 20 | banked 4581 vs 20175 (-77.3%) | by opp {'Fish': (0, 5), 'Trzy': (0, 5), 'Mite': (0, 5), 'HBH': (1, 4)}
+   per game: caps 25.5, caps<200 5.9, camp gems 311 vs 1017, tributes 6.6, emblems<400 4.7, K/D 3.1/25.1, out-of-fuel turns 6.7 vs 10.4, faults 0.0, rounds 936
+   03showdown:L0-1028 00contest:L0-1000 00fragment:L0-1008 00anvil:L99-1001 01fracture:L222-1040 00corners:L578-1019 03membrane:L38-1001 00quarry:L385-1014 02the_pond:L661-1029 00galaxy:W1004-841 00quadrants:L228-1004 02famine:L423-1022 01shortcut:L210-1015 00oasis:L0-1000 00packs:L48-1017 00pilgrimage:L296-1010 03shrines:L194-1008 02crossing:L151-1072 00vault:L0-1044 01gold_rush:L44-1002
+
+v192 multifarm test (v189 + Vesper satellite after core, our-side line, single camp and single elk bias, DUO_3 off). Not adopted.
+v192: 1-19 of 20 | banked 3729 vs 20189 (-81.5%) | by opp {'Trzy': (0, 5), 'Fish': (0, 5), 'Mite': (0, 5), 'HBH': (1, 4)}
+   per game: caps 24.2, caps<200 6.0, camp gems 262 vs 991, tributes 5.8, emblems<400 4.5, K/D 2.8/17.6, out-of-fuel turns 4.0 vs 9.4, faults 0.0, rounds 880
+   00contest:L0-1000 03showdown:L0-1010 00anvil:L33-1020 01fracture:L131-1003 00fragment:L0-1016 00corners:L259-1004 02the_pond:L382-1022 03membrane:L84-1037 00galaxy:W1004-841 00quarry:L357-1023 01shortcut:L52-1027 02famine:L299-1005 00quadrants:L228-1004 00oasis:L22-1017 00packs:L68-1014 02crossing:L239-1013 03shrines:L419-1021 00vault:L0-1044 00pilgrimage:L75-1066 01gold_rush:L77-1002
+
+v193: v192 + no team-loot claims while split.
+v193: 1-19 of 20 | banked 3930 vs 20276 (-80.6%) | by opp {'Mite': (0, 5), 'Trzy': (0, 5), 'Fish': (0, 5), 'HBH': (1, 4)}
+   per game: caps 24.5, caps<200 6.0, camp gems 267 vs 1011, tributes 5.9, emblems<400 4.4, K/D 3.1/17.7, out-of-fuel turns 4.2 vs 9.4, faults 0.0, rounds 880
+   01fracture:L109-1150 00anvil:L33-1020 00contest:L0-1000 00fragment:L0-1016 03showdown:L0-1010 00corners:L217-1010 02the_pond:L297-1010 00quarry:L502-1011 00galaxy:W1004-841 03membrane:L124-1049 00packs:L68-1014 00quadrants:L228-1004 02famine:L299-1005 01shortcut:L276-1008 00oasis:L0-1003 00vault:L0-1044 00pilgrimage:L75-1066 01gold_rush:L77-1002 03shrines:L382-1000 02crossing:L239-1013
+
+v194: v189 + OUR_SIDE_ONLY.
+v194: 1-19 of 20 | banked 3437 vs 19987 (-82.8%) | by opp {'Trzy': (0, 5), 'Fish': (0, 5), 'HBH': (1, 4), 'Mite': (0, 5)}
+   per game: caps 22.8, caps<200 6.0, camp gems 271 vs 1005, tributes 5.2, emblems<400 4.5, K/D 3.3/19.2, out-of-fuel turns 4.8 vs 9.0, faults 0.0, rounds 881
+   00anvil:L54-1130 00contest:L0-1000 03showdown:L0-1046 00fragment:L0-1008 01fracture:L34-1013 00quarry:L215-1030 00galaxy:W1025-547 03membrane:L256-1008 00corners:L249-1033 02the_pond:L238-1019 02famine:L239-1017 00quadrants:L98-1006 01shortcut:L394-1014 00oasis:L0-1014 00packs:L16-1005 00vault:L0-1006 02crossing:L108-1054 03shrines:L307-1003 01gold_rush:L77-1003 00pilgrimage:L127-1031
+
+v195: v193 + OUR_SIDE_ONLY.
+v195: 1-19 of 20 | banked 3868 vs 19872 (-80.5%) | by opp {'HBH': (1, 4), 'Fish': (0, 5), 'Mite': (0, 5), 'Trzy': (0, 5)}
+   per game: caps 23.9, caps<200 6.0, camp gems 269 vs 971, tributes 6.2, emblems<400 4.8, K/D 2.8/16.6, out-of-fuel turns 4.1 vs 8.7, faults 0.0, rounds 858
+   00contest:L0-1000 00fragment:L0-1016 03showdown:L0-1064 01fracture:L86-1018 00anvil:L45-1010 00quarry:L276-1010 00galaxy:W1025-547 02the_pond:L443-1004 03membrane:L124-1017 00corners:L259-1017 00oasis:L0-1003 01shortcut:L414-1023 00quadrants:L128-1047 02famine:L299-1005 00packs:L12-1014 00vault:L0-1044 02crossing:L197-1022 03shrines:L382-1000 00pilgrimage:L90-1010 01gold_rush:L88-1001
+
+v196: v195 + split cooldown fix, dash-only sides, no early chase past line. v197: v196 + ELK_STEPS.
+v196: 0-20 of 20 | banked 3554 vs 20834 (-82.9%) | by opp {'Mite': (0, 5), 'Fish': (0, 5), 'Trzy': (0, 5), 'HBH': (0, 5)}
+   per game: caps 23.9, caps<200 6.7, camp gems 291 vs 1030, tributes 6.2, emblems<400 5.2, K/D 1.9/16.1, out-of-fuel turns 4.8 vs 9.3, faults 0.0, rounds 877
+   03showdown:L89-1142 00fragment:L0-1000 01fracture:L115-1021 00anvil:L108-1154 00contest:L0-1000 00galaxy:L238-1007 00corners:L678-1017 03membrane:L105-1042 02the_pond:L351-1121 00quarry:L294-1000 02famine:L340-1015 01shortcut:L202-1008 00quadrants:L63-1056 00oasis:L44-1007 00packs:L94-1007 03shrines:L260-1002 02crossing:L420-1004 00pilgrimage:L98-1015 00vault:L0-1211 01gold_rush:L55-1005
+v197: 0-20 of 20 | banked 3663 vs 20563 (-82.2%) | by opp {'Trzy': (0, 5), 'HBH': (0, 5), 'Mite': (0, 5), 'Fish': (0, 5)}
+   per game: caps 23.6, caps<200 6.7, camp gems 305 vs 1026, tributes 6.2, emblems<400 5.0, K/D 1.7/15.6, out-of-fuel turns 5.0 vs 9.3, faults 0.0, rounds 868
+   00anvil:L108-1154 01fracture:L115-1021 00fragment:L0-1000 03showdown:L89-1142 00contest:L0-1000 00quarry:L294-1000 02the_pond:L318-1013 00galaxy:L238-1007 03membrane:L81-1013 00corners:L678-1017 01shortcut:L202-1008 00quadrants:L63-1056 00packs:L110-1026 00oasis:L44-1007 02famine:L311-1015 03shrines:L260-1002 01gold_rush:L55-1005 02crossing:L402-1002 00pilgrimage:L67-1002 00vault:L228-1073
+
+v198: v197 + SQUADS.
+v198: 0-20 of 20 | banked 3381 vs 20709 (-83.7%) | by opp {'HBH': (0, 5), 'Trzy': (0, 5), 'Fish': (0, 5), 'Mite': (0, 5)}
+   per game: caps 24.9, caps<200 7.2, camp gems 311 vs 1007, tributes 6.5, emblems<400 4.4, K/D 2.8/16.4, out-of-fuel turns 5.2 vs 8.5, faults 0.0, rounds 915
+   00anvil:L94-1017 01fracture:L44-1077 00contest:L0-1000 03showdown:L34-1011 00fragment:L0-1000 00corners:L230-1247 00galaxy:L238-1007 02the_pond:L716-1024 00quarry:L292-1033 03membrane:L138-1007 00quadrants:L63-1056 00packs:L88-1005 00oasis:L26-1010 02famine:L340-1015 01shortcut:L156-1067 03shrines:L128-1001 00pilgrimage:L178-1014 01gold_rush:L88-1002 00vault:L228-1073 02crossing:L300-1043
+
+v199: v198 + far territories, Vesper solo. v200: same, Vesper + partner.
+v199: 0-20 of 20 | banked 2899 vs 20706 (-86.0%) | by opp {'Fish': (0, 5), 'HBH': (0, 5), 'Trzy': (0, 5), 'Mite': (0, 5)}
+   per game: caps 23.9, caps<200 6.4, camp gems 283 vs 1004, tributes 4.8, emblems<400 4.3, K/D 1.7/15.4, out-of-fuel turns 5.6 vs 9.8, faults 0.0, rounds 854
+   03showdown:L71-1162 00fragment:L0-1000 01fracture:L44-1008 00contest:L0-1000 00anvil:L0-1003 02the_pond:L353-1022 00quarry:L102-1014 00galaxy:L238-1007 00corners:L664-1018 03membrane:L125-1023 02famine:L311-1066 00quadrants:L63-1056 01shortcut:L138-1009 00oasis:L22-1017 00packs:L32-1008 00vault:L228-1073 01gold_rush:L88-1156 03shrines:L216-1029 02crossing:L115-1024 00pilgrimage:L89-1011
+v199: 0-20 of 20 | banked 2899 vs 20706 (-86.0%) | by opp {'Fish': (0, 5), 'HBH': (0, 5), 'Trzy': (0, 5), 'Mite': (0, 5)}
+   per game: caps 23.9, caps<200 6.4, camp gems 283 vs 1004, tributes 4.8, emblems<400 4.3, K/D 1.7/15.4, out-of-fuel turns 5.6 vs 9.8, faults 0.0, rounds 854
+   03showdown:L71-1162 00fragment:L0-1000 01fracture:L44-1008 00contest:L0-1000 00anvil:L0-1003 02the_pond:L353-1022 00quarry:L102-1014 00galaxy:L238-1007 00corners:L664-1018 03membrane:L125-1023 02famine:L311-1066 00quadrants:L63-1056 01shortcut:L138-1009 00oasis:L22-1017 00packs:L32-1008 00vault:L228-1073 01gold_rush:L88-1156 03shrines:L216-1029 02crossing:L115-1024 00pilgrimage:L89-1011
+v200: 0-20 of 20 | banked 3470 vs 20446 (-83.0%) | by opp {'Mite': (0, 5), 'Trzy': (0, 5), 'Fish': (0, 5), 'HBH': (0, 5)}
+   per game: caps 23.9, caps<200 6.5, camp gems 279 vs 1019, tributes 5.2, emblems<400 4.3, K/D 2.2/16.3, out-of-fuel turns 5.6 vs 8.5, faults 0.0, rounds 887
+   03showdown:L34-1014 00anvil:L0-1003 00fragment:L0-1000 00contest:L0-1000 01fracture:L74-1024 03membrane:L317-1007 00quarry:L165-1023 00corners:L388-1008 00galaxy:L238-1007 02the_pond:L353-1022 00packs:L32-1008 01shortcut:L325-1009 00oasis:L22-1004 00quadrants:L63-1056 02famine:L187-1015 01gold_rush:L88-1156 03shrines:L220-1000 02crossing:L433-1001 00pilgrimage:L303-1016 00vault:L228-1073
+v201: 0-20 of 20 | banked 3381 vs 20468 (-83.5%) | by opp {'Trzy': (0, 5), 'Mite': (0, 5), 'Fish': (0, 5), 'HBH': (0, 5)}
+   per game: caps 24.4, caps<200 7.0, camp gems 286 vs 1021, tributes 5.5, emblems<400 4.5, K/D 2.6/15.8, out-of-fuel turns 5.8 vs 9.4, faults 0.0, rounds 895
+   00contest:L0-1000 03showdown:L300-1011 01fracture:L22-1029 00anvil:L0-1003 00fragment:L0-1000 03membrane:L201-1002 00corners:L383-1013 00quarry:L230-1007 00galaxy:L238-1007 02the_pond:L353-1022 01shortcut:L174-1022 02famine:L169-1005 00oasis:L22-1003 00packs:L32-1008 00quadrants:L63-1056 02crossing:L462-1018 03shrines:L106-1001 00pilgrimage:L310-1032 00vault:L228-1073 01gold_rush:L88-1156

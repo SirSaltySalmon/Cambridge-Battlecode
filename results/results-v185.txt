@@ -1,0 +1,49 @@
+v185 = v182 + KILL_TIME off + v170's Prism cash-in (PRISM_STRICT, PRISM_CASH_ANY_MODE off; PRISM_GUARD kept) + v170's
+v156-v157 economy settings + FOCUS + JOIN_GAP + DRAFT_MAP. See bots/v185/README.md.
+Local release runs, cambc 4.0.0. "3 seeds" = the bot and two copies burning 300 / 600 fuel a turn, each on all 70 maps
+from both sides (420 games). Banked = our tributed gems vs theirs in the same games. Control (v182 seed copy vs v182,
+one seed): 69-71, banked -4.5%.
+
+MAIN RESULTS
+matchup                         record   banked   gold    fuel mean   turns >= 100k
+v185 vs v170                    242-178  +20.0%   +13.3%  36.3k       5405
+v185 vs v182                    222-198  +15.8%    +5.0%  36.5k       5120
+v182 vs v170                    194-226   -8.4%    -4.4%  36.2k       5678
+
+WHY v170 BEAT v182 (all vs v170, 3 seeds)
+v182                                         194-226   -8.4%
+v182, KILL_TIME off ("nokt")                 222-198   +2.8%
+nokt + PRISM_STRICT off                      223-197   +6.0%
+nokt + v170 Prism (STRICT, GUARD, CASH off)  225-195   +7.3%
+nokt + v156-v157 economy reverted            227-193   +8.4%   gold +11.0%
+nokt + every as_v170() change reverted       212-208   +3.2%
+nokt + SATELLITE off                         212-208   -3.3%
+nokt + ECON_PHASES / CLOSE_OUT off           198-222   -7.2%
+nokt + Prism v170 + economy (+ INVADE)       228-192  +15.0%   gold +11.6%, turns >= 100k 7101
+same without INVADE                          229-191  +15.1%   gold +5.7%,  turns >= 100k 5724
+  + JOIN_GAP                                 230-190  +17.1%
+  + JOIN_GAP + FOCUS                         241-179  +21.3%
+  + JOIN_GAP + DRAFT_MAP                     228-192  +16.6%
+  + JOIN_GAP + FOCUS + DRAFT_MAP             244-176  +19.7%   (= v185 with PRISM_GUARD off)
+v185 (PRISM_GUARD on)                        242-178  +20.0%
+
+Ladder (ranked games in each live window, rating fitted to the opponents' current ratings, Elo model):
+v170 1838 (1801-1875, 90 games), v176-v179 ~1804-1812, v180 1857 (1836-1879, 255 games), v182 1789 (1753-1823, 100).
+
+SINGLE CHANGES ON v182 (vs v182, 3 seeds)
+FOCUS          227-193  +8.6%     kept
+JOIN_GAP       216-204  +2.4%     kept
+DRAFT_MAP      225-195  +7.4%     kept (decisions identical at unlimited fuel; setup fuel -8.4%)
+ESCAPE_ALL     207-213  -0.7%     dropped; dash-ready only 205-215 -3.3%
+REGROUP        191-229  -3.9%     dropped; retreat part only 197-223 -4.2%
+DASH_DRAFT     222-198  +4.5% (on DRAFT_MAP) but 43-35 vs 46-32 on its 11 maps: dropped
+WAIT_TRIP      229-191  +6.4% (on DRAFT_MAP, +7.4% alone): dropped
+FIGHT_GATE     222-198  +3.8% (on DRAFT_MAP): dropped
+WILLOW_HIT     210-210  identical games: never fires, dropped
+
+IDLE TURNS (debug, 140 games vs v182, our side)
+v182 17.7% (farm.wait 189/game, fight.join 17); v185 18.1% (farm.wait 202, fight.join gone, prism.guard.hold 15).
+v185 with PRISM_GUARD off had guard.hold 1,386 idle turns in the two adgato-gemcombat4 games (v170's freeze).
+
+LADDER BASELINE (unranked, live v182, 11 teams rated 1851-1953, one group of 5 maps each)
+v182 16-39, gems -27.4%.
