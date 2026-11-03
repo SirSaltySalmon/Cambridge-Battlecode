@@ -11,7 +11,11 @@ tuner/*.sqlite-journal
 tuner/*.sqlite-wal
 tuner/*.sqlite-shm
 __pycache__/
+<<<<<<< Updated upstream
 
 # evotune runs (tools/evotune)
 evo_runs/
 .gstack/
+=======
+/evo_runs
+>>>>>>> Stashed changes
