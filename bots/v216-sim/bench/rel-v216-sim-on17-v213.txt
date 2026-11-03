@@ -1,0 +1,5 @@
+v216-sim-on17: 60-112 of 172 (34.9%), banked 101590 vs 135813 (-25.2%), K/D 1057/2013, faults 0
+  fuel: mean 37247, p99 100000, out-of-fuel turns 13708 of 949243 (1.44%), fuelExhausted events 14088
+  vs v213           60/172
+  maps not won: 00breadcrumbs 2, 00crater 2, 00galaxy 2, 00gem-fields 2, 00happy-halloween 2, 00lost-world 2, 00oasis 2, 00road-of-riches 2, 00stampede 2, 00the-line 2
+  score 0.2991

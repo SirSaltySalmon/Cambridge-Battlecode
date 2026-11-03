@@ -1,0 +1,5 @@
+v216-sim-on: 47-125 of 172 (27.3%), banked 91004 vs 145075 (-37.3%), K/D 965/1932, faults 0
+  fuel: mean 37761, p99 100000, out-of-fuel turns 15016 of 947628 (1.58%), fuelExhausted events 15395
+  vs v213           47/172
+  maps not won: 00ambush 2, 00corners 2, 00dunes 2, 00expanse 2, 00fragment 2, 00galaxy 2, 00gem-fields 2, 00gemfight 2, 00happy-halloween 2, 00lost-world 2
+  score 0.1947

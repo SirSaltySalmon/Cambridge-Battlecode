@@ -1,0 +1,5 @@
+v216-sim-g4: 65-107 of 172 (37.8%), banked 105229 vs 133717 (-21.3%), K/D 1221/1847, faults 0
+  fuel: mean 37861, p99 100000, out-of-fuel turns 15268 of 934343 (1.63%), fuelExhausted events 15648
+  vs v213           65/172
+  maps not won: 00contest 2, 00elkring 2, 00expanse 2, 00galaxy 2, 00gemfight 2, 00happy-halloween 2, 00lanes 2, 00pilgrimage 2, 00rushbait-v2 2, 00split 2
+  score 0.3365
