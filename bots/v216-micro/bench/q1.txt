@@ -1,0 +1,4 @@
+bots/v216-micro bots/v213 rel-micro-v213 --keep
+bots/v216-micro bots/v210 rel-micro-v210 --keep
+bots/v216-micro-off bots/v213 lo-off-v213 --fuel-quantum 100000000 --maps 00ambush 00contest 00eight 00galaxy 00happy-halloween 00monolith 00quadrants 00road-of-riches 00stampede 01big-world 01corridors 01hooks 01starvation 02crossing 02geodes 02stalactites 02treasure-box 03contours 03membrane 03showdown 
+bots/v216-micro-na bots/v213 rel-na-v213

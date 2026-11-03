@@ -1,0 +1,5 @@
+v216-micro-na: 86-86 of 172 (50.0%), banked 116843 vs 123319 (-5.3%), K/D 1494/1723, faults 0
+  fuel: mean 37170, p99 86527, out-of-fuel turns 3424 of 960025 (0.36%), fuelExhausted events 3801
+  vs v213           86/172
+  maps not won: 00anvil 2, 00breadcrumbs 2, 00collision 2, 00corners 2, 00oasis 2, 00pilgrimage 2, 00ribs 2, 00road-of-riches 2, 02guardians 2, 02the-pond 2
+  score 0.4906

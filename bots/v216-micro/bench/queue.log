@@ -1,0 +1,8 @@
+Tue Nov  3 23:29:39 EET 2026 start rel-micro-v213
+Tue Nov  3 23:32:14 EET 2026 done rel-micro-v213 v216-micro: 83-89 of 172 (48.3%), banked 116568 vs 122690 (-5.0%), K/D 1508/1718, faults 0
+Tue Nov  3 23:32:14 EET 2026 start rel-micro-v210
+Tue Nov  3 23:34:37 EET 2026 done rel-micro-v210 v216-micro: 85-87 of 172 (49.4%), banked 119251 vs 119238 (+0.0%), K/D 1573/1703, faults 0
+Tue Nov  3 23:34:37 EET 2026 start lo-off-v213
+Tue Nov  3 23:35:18 EET 2026 done lo-off-v213 v216-micro-off: 20-20 of 40 (50.0%), banked 28530 vs 28530 (+0.0%), K/D 360/387, faults 0
+Tue Nov  3 23:35:18 EET 2026 start rel-na-v213
+Tue Nov  3 23:37:46 EET 2026 done rel-na-v213 v216-micro-na: 86-86 of 172 (50.0%), banked 116843 vs 123319 (-5.3%), K/D 1494/1723, faults 0

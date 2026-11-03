@@ -1,0 +1,5 @@
+v216-micro: 85-87 of 172 (49.4%), banked 119251 vs 119238 (+0.0%), K/D 1573/1703, faults 0
+  fuel: mean 37265, p99 87265, out-of-fuel turns 3643 of 960265 (0.38%), fuelExhausted events 4021
+  vs v210           85/172
+  maps not won: 00breadcrumbs 2, 00lanes 2, 01starvation 2, 02crossing 2, 02cuts 2, 02fields 2, 02geodes 2, 02gift-wrapping 2, 02tangle 2, 03colosseum 2
+  score 0.4942
