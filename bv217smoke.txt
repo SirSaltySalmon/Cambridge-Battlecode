@@ -1,0 +1,2 @@
+bots/v217 bots/v213 maps/02treasure-box.map26a replays/v217smoke/tb-a.repl26a --statistics replays/v217smoke/tb-a.json --json
+bots/v213 bots/v217 maps/02treasure-box.map26a replays/v217smoke/tb-b.repl26a --statistics replays/v217smoke/tb-b.json --json

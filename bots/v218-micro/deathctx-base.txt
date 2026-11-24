@@ -1,0 +1,116 @@
+Vesper Vale deaths to champions: 219 in 172 games (tuner/replays/chatA-dbg-s0-v210)
+branch family at death-1:
+  leave                                     187    85%
+  none                                       17     8%
+  engage                                      9     4%
+  busy                                        5     2%
+  farm                                        1     0%
+branch at death-1 (top):
+  hurt.dodge                                160    73%
+  none                                       17     8%
+  outclass.leave                             14     6%
+  fight.hit                                   9     4%
+  ping.retreat                                5     2%
+  hidden.dodge                                4     2%
+  hurt.exit                                   3     1%
+  collect.loot                                2     1%
+  channel.recall                              2     1%
+  bank.walk                                   1     0%
+  hurt.recall                                 1     0%
+  channel.tribute                             1     0%
+any engage family in last 5 rounds -> last family:
+  never engaged / leave                      98    45%
+  engaged / leave                            89    41%
+  never engaged / none                       14     6%
+  engaged / engage                            9     4%
+  never engaged / busy                        5     2%
+  engaged / none                              3     1%
+  never engaged / farm                        1     0%
+health at death-5:
+  >=80%                                      71    32%
+  60-80%                                     57    26%
+  35-60%                                     50    23%
+  <35%                                       41    19%
+health at death-3:
+  35-60%                                     78    36%
+  <35%                                       69    32%
+  >=80%                                      40    18%
+  60-80%                                     32    15%
+nearest enemy melee at death-1 (tiles):
+  2                                          57    26%
+  1                                          47    21%
+  9                                          37    17%
+  4                                          27    12%
+  3                                          18     8%
+  5                                           8     4%
+  none                                        7     3%
+  7                                           7     3%
+  6                                           6     3%
+  8                                           5     2%
+nearest enemy at death-1:
+  2                                          92    42%
+  1                                          53    24%
+  4                                          34    16%
+  3                                          27    12%
+  5                                           8     4%
+  6                                           4     2%
+  7                                           1     0%
+enemies within 4 at death-1:
+  2                                          82    37%
+  1                                          74    34%
+  3                                          34    16%
+  0                                          13     6%
+  4                                          13     6%
+  5                                           3     1%
+allies within 3 at death-1:
+  0                                         170    78%
+  1                                          39    18%
+  2                                           8     4%
+  3                                           2     1%
+shot in last 3 rounds / moved in last 3:
+  shot=False moved=True                     100    46%
+  shot=True moved=True                       84    38%
+  shot=True moved=False                      18     8%
+  shot=False moved=False                     17     8%
+from >=60% health at death-5 with an enemy melee <=2 at death-1: 68 (31%), of them allies within 3 = 0: 59
+examples (game r branches hp5/hp1 melee foes4 pals3):
+  v210-00ambush-b r880 hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.17/0.05 m45 f1 a0
+  v210-00anvil-b r190 fight.hit|fight.hit|hurt.dodge|hurt.dodge|hurt.dodge 0.69/0.15 m2 f1 a0
+  v210-00anvil-b r366 fight.hit|fight.hit|hurt.dodge|hurt.dodge|hurt.dodge 1.00/0.08 m1 f2 a0
+  v210-00anvil-b r574 hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.39/0.15 mNone f1 a0
+  v210-00breadcrumbs-a r412 fight.hit|fight.hit|hurt.dodge|hurt.dodge|hurt.dodge 0.64/0.17 m2 f1 a0
+  v210-00breadcrumbs-a r1006 fight.hit|fight.hit|fight.hit|hurt.dodge|hurt.dodge 0.39/0.15 mNone f1 a0
+  v210-00breadcrumbs-b r699 channel.recall|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.30/0.30 m17 f0 a1
+  v210-00collision-b r215 bank.walk|bank.near.walk|bank.near.walk|bank.near.walk|fight.hit 0.44/0.44 m16 f1 a0
+  v210-00collision-b r860 hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.40/0.11 m11 f1 a0
+  v210-00contest-a r341 fight.hit|fight.hit|fight.hit|hurt.dodge|hurt.dodge 0.90/0.32 m1 f3 a0
+  v210-00contest-b r67 hurt.recall|channel.recall|channel.recall|hurt.dodge|hurt.dodge 0.18/0.09 m1 f1 a0
+  v210-00contest-b r184 fight.hit|fight.hit|fight.hit|fight.hit|hurt.dodge 0.76/0.35 m1 f4 a1
+  v210-00contest-b r323 retreat.out|retreat.out|hurt.dodge|hurt.dodge|hurt.dodge 0.61/0.21 m1 f2 a0
+  v210-00contest-b r461 outclass.leave|outclass.leave|outclass.leave|outclass.leave|hurt.dodge 0.66/0.66 m3 f2 a0
+  v210-00contest-b r543 fight.hit.step|outclass.leave|outclass.leave|ping.retreat|hurt.dodge 1.00/0.46 m1 f3 a0
+  v210-00contest-b r682 fight.hit|retreat.out|ping.retreat|ping.retreat|hurt.dodge 0.82/0.39 m2 f2 a0
+  v210-00contest-b r807 farm.walk|farm.walk|farm.walk|farm.walk|ping.retreat 1.00/0.82 m3 f2 a0
+  v210-00contest-b r897 hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.30/0.04 m2 f1 a0
+  v210-00contest-b r1157 fight.hit|outclass.leave|outclass.leave|hurt.dodge|hurt.dodge 0.86/0.23 m2 f3 a0
+  v210-00contest-b r1247 outclass.leave|outclass.leave|outclass.leave|outclass.leave|outclass.leave 1.00/1.00 m4 f1 a1
+  v210-00corners-a r319 fight.hit|fight.hit|hurt.dodge|retreat.out|hurt.dodge 0.98/0.45 m4 f1 a1
+  v210-00corners-a r434 ping.retreat|ping.retreat|fight.hit|hurt.dodge|hurt.dodge 0.73/0.14 m4 f2 a0
+  v210-00crater-a r236 hurt.dodge|ping.retreat|ping.retreat|hurt.dodge|hurt.dodge 0.21/0.34 m2 f3 a0
+  v210-00crater-b r505 hurt.dodge|hurt.recall|channel.recall|hurt.dodge|hurt.dodge 0.10/0.10 m4 f1 a1
+  v210-00crater-b r831 hurt.dodge|hurt.dodge|hurt.recall|hurt.dodge|hurt.dodge 0.11/0.11 m5 f1 a0
+  v210-00crater-b r1148 fight.hit.step|fight.hit|hurt.dodge|hurt.dodge|hurt.dodge 0.56/0.15 m2 f1 a0
+  v210-00crater-b r1807 fight.hit|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.64/0.10 m11 f0 a0
+  v210-00crater-b r1935 outclass.leave|outclass.leave|outclass.leave|ping.retreat|ping.retreat 0.98/0.41 m2 f2 a0
+  v210-00dunes-a r210 fight.hit|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.24/0.19 m1 f4 a1
+  v210-00eight-a r147 hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.12/0.12 m3 f2 a1
+  v210-00eight-b r165 fight.hit|fight.hit|fight.hit|retreat.out|hurt.dodge 0.55/0.42 m1 f2 a1
+  v210-00eight-b r366 fight.hit|fight.hit|fight.hit|hurt.dodge|hurt.dodge 1.00/0.30 m2 f2 a0
+  v210-00eight-b r458 farm.camp|fight.hit.step|fight.hit|hurt.dodge|hurt.dodge 1.00/0.35 m2 f3 a1
+  v210-00eight-b r587 outclass.leave|outclass.leave|outclass.leave|outclass.leave|outclass.leave 0.97/0.43 m3 f2 a0
+  v210-00eight-b r991 collect.loot|collect.loot|bank.walk|bank.walk|bank.walk 0.70/0.70 m9 f0 a0
+  v210-00elkring-b r149 -|-|-|-|- 0.79/0.13 m4 f4 a0
+  v210-00elkring-b r316 bank.walk|bank.walk|bank.walk|bank.walk|hurt.dodge 0.92/0.48 m3 f3 a0
+  v210-00elkring-b r670 fight.hit|fight.hit|hurt.dodge|hurt.dodge|hurt.dodge 0.51/0.25 m2 f1 a0
+  v210-00expanse-b r150 fight.hit|hurt.dodge|hurt.dodge|hurt.dodge|hurt.dodge 0.66/0.11 m1 f3 a0
+  v210-00expanse-b r594 outclass.leave|outclass.leave|hurt.dodge|hurt.dodge|hurt.dodge 1.00/0.27 m27 f1 a0

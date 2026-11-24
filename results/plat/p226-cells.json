@@ -1,0 +1,1170 @@
+{
+ "DIET CODE|04gem_rush|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-6456-7c45-b02a-d8bd1ecff46c",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DIET CODE|04atoll|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-6456-7d1b-8ac3-0b80259a5e83",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DIET CODE|04gem_caverns|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-6456-7ab9-991a-2a3533021aa4",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DIET CODE|00gem_fields|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-6456-745d-80f2-4a32964dafb1",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DIET CODE|04tidepools|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-6456-7ae0-bbf7-689f042c6a56",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tzunami|adgato_gemcombat4|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7306-79f7-b138-2d028a5576ab",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tzunami|adgato_gemcombat5|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7306-7a72-98b1-21d70af6c3fd",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tzunami|00galaxy|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-7306-7016-ab0d-e5a6a3d5f6aa",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tzunami|00quadrants|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7306-7179-9e9d-ca670a548238",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tzunami|00vault|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-7306-7a32-9593-f009a0f670bf",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Kingstonks|adgato_gemcombat1|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-74d5-729a-9c37-d07179994d7d",
+  "draft": [
+   5,
+   11,
+   6
+  ]
+ },
+ "Kingstonks|adgato_gemcombat2|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-74d5-7aa7-be15-35b741180640",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Kingstonks|adgato_gemcombat3|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-74d5-7c4f-809f-8c69d6684f8e",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Kingstonks|03contours|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-74d5-7186-b4c7-3252250f2c8c",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Kingstonks|02tangle|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-74d5-7e86-9311-d7c696766f10",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Oogway|00reverse_spiral|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7649-761b-9ac9-b5d6aa5f5590",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Oogway|03membrane|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7649-72a3-8a64-bf991e25df05",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Oogway|04yin_yang|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7649-7533-b568-19b84a8dde3a",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Oogway|04gap|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7649-7783-b0e1-56cd1e74840e",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Oogway|00the_line|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-7649-762a-88eb-f66a8330d0f4",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "POFPOF|01big_world|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-832c-7ae0-93af-f6da66071526",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "POFPOF|01hooks|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-832c-7af9-8f75-0a33318712e4",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "POFPOF|03shrines|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-832c-7771-be05-fa42efa39b96",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "POFPOF|00breadcrumbs|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-832c-79e3-8c44-b20257a87091",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "POFPOF|01yellow_brick_road|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-832c-7a28-90db-48e0f52fba46",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "ClosedAI|00rushbait_v2|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-9009-75ba-b6eb-513df7998032",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "ClosedAI|04plaza|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-9009-79fc-a8a4-9f10302f2e99",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "ClosedAI|04terraces|b": {
+  "win": true,
+  "end": "tiebreak_gems",
+  "id": "01a1c3b7-9009-78c5-9aa7-32e8559d423a",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "ClosedAI|02famine|a": {
+  "win": true,
+  "end": "tiebreak_gems",
+  "id": "01a1c3b7-9009-7ab7-bf74-96a1d02155b0",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "ClosedAI|00road_of_riches|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9009-750f-a76b-f52c6477142d",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Stranger Danger|03colosseum|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-908d-7a3a-87fa-3e5a678a36ac",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "Stranger Danger|00ambush|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-908d-78a6-8683-c9099ee44fed",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Stranger Danger|00monolith|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-908d-7538-9f1a-804987f6055a",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "Stranger Danger|00corners|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-908d-7795-872c-bd24901db035",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Stranger Danger|04keyhole|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-908d-7d45-9a49-663fddb30780",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "The Onkeys|00split|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9d14-7fc2-aa6d-cb45d7bd4ca5",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "The Onkeys|04hollows|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9d14-77be-939a-51b05d8edfd4",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "The Onkeys|00expanse|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9d14-7018-86af-9926803f958a",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "The Onkeys|01islands|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-9d14-7c69-9d9f-03b94b70eb68",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "The Onkeys|04dunes|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-9d14-774d-b0ed-fc4fdfe512e0",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Live Love Larp|03reef|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9dab-783c-8cbc-06d0587fea07",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Live Love Larp|04bridges|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-9dab-7869-a59f-e60248b17ac8",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "Live Love Larp|00eight|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9dab-7380-a81c-a4be1d40dde3",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Live Love Larp|02fields|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-9dab-7f24-a364-610e43bfc7de",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Live Love Larp|04wilds|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-9dab-7999-95f1-4ffb28b18883",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Serious-Wyso|01fracture|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-aa73-7a69-a6ef-c4d0db9f193c",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Serious-Wyso|00great_wall|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-aa73-7bea-97d1-90592704e66d",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Serious-Wyso|04comb|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-aa73-72ac-a474-1d6895071a6e",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Serious-Wyso|02cuts|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-aa73-7437-84b1-b48cf43788e7",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Serious-Wyso|00lanes|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-aa73-77c6-8294-562d3df51998",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "DLLM|04gem_rush|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b6ff-7810-8756-cc47f4a47e13",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DLLM|04atoll|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b6ff-701e-8f4d-98d2a267a68d",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DLLM|04gem_caverns|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b6ff-7b5f-8d44-a86ca2c48497",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DLLM|00gem_fields|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b6ff-7c1e-8131-39de5551ff4a",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "DLLM|04tidepools|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b6ff-7c32-b852-7ed64ee49dcb",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tubingen Quants|adgato_gemcombat4|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-b7b1-705f-b6d9-c4450c055f78",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tubingen Quants|adgato_gemcombat5|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b7b1-7433-89d8-ca6b3d50a346",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tubingen Quants|00galaxy|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-b7b1-79b6-bf16-9f9b9ba5ba09",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tubingen Quants|00quadrants|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-b7b1-71bd-98a9-a543476a9ef5",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Tubingen Quants|00vault|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-b7b1-7653-8c57-9972b4106f07",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Mouth Breathers|adgato_gemcombat1|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-c462-7cfa-b059-1629c21e5f24",
+  "draft": [
+   5,
+   11,
+   6
+  ]
+ },
+ "Mouth Breathers|adgato_gemcombat2|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c462-7ea0-bb87-b302e70ec81c",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Mouth Breathers|adgato_gemcombat3|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c462-7830-8deb-080cfe8bdd5d",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Mouth Breathers|03contours|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c462-7afa-a08b-483f452ae9e2",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Mouth Breathers|02tangle|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c462-7dd1-856e-b05f601c0695",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Rhodes Island|00reverse_spiral|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-c53e-7cdd-9a61-ded4d8477ba5",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Rhodes Island|03membrane|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c53e-7b2e-825b-224df5504e53",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Rhodes Island|04yin_yang|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c53e-77e6-87ad-f1138715b4ef",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Rhodes Island|04gap|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c53e-717b-9106-95a8d4fbcd95",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Rhodes Island|00the_line|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-c53e-7e49-9ec8-e9dbf2f0a955",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "TTS|01big_world|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-d269-7cd5-a1af-f2a30d523875",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "TTS|01hooks|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-d269-799c-b50a-c0821947b5d8",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "TTS|03shrines|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-d269-760b-a4d1-ba237a15073c",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "TTS|00breadcrumbs|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-d269-7bc0-aaf1-896ffa12af19",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "TTS|01yellow_brick_road|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-d269-767f-ab62-c40004c0214f",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "E=mc^2+AI^3|00rushbait_v2|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-d34a-737e-be4a-681961176500",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "E=mc^2+AI^3|04plaza|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c3b7-d34a-7fa0-8d67-a7a13ce3437b",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "E=mc^2+AI^3|04terraces|b": {
+  "win": true,
+  "end": "tiebreak_gems",
+  "id": "01a1c3b7-d34a-7b3f-8ced-1c3437361b22",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "E=mc^2+AI^3|02famine|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-d34b-7560-a21b-8c04fa8b5b7d",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "E=mc^2+AI^3|00road_of_riches|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-d34b-7813-9383-56ca8fab8664",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "test4|03colosseum|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-e0e7-7d4a-966a-471493d046f4",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "test4|00ambush|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-e0e7-7a8e-99a7-69a23859ffaf",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "test4|00monolith|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-e0e7-75f1-9c39-0a979de4faf1",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "test4|00corners|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-e0e7-74d0-a415-0465b8c39e6b",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "test4|04keyhole|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-e0e7-752b-93e3-d109f8eab933",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Trzy Kwaterki|00split|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-ed4c-7016-99a5-1e21b3f62425",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Trzy Kwaterki|04hollows|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-ed4c-7b83-87b6-f42b17adbae1",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Trzy Kwaterki|00expanse|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-ed4c-7561-b28f-aebb1526c5f8",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Trzy Kwaterki|01islands|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-ed4c-7437-97a2-1a1b5724c536",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Trzy Kwaterki|04dunes|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-ed4c-7724-9d6d-63ee6d375689",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Nyx|03reef|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-edd6-715a-8345-4e5fb4cf094d",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Nyx|04bridges|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-edd6-7787-9a11-462ac85ec24c",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "Nyx|00eight|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-edd6-725b-9150-f70f617c68b6",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Nyx|02fields|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-edd6-7fd2-a416-90c5ca0ed7c4",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Nyx|04wilds|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-edd6-703c-a008-3ad44d5db6fb",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "conqueror_of_openai|01fracture|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-fa74-7358-aa97-7924bfe4952c",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "conqueror_of_openai|00great_wall|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-fa74-7c40-b26e-dbe8611d5c43",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "conqueror_of_openai|04comb|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-fa74-796a-bba9-857e18ca0236",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "conqueror_of_openai|02cuts|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-fa74-7927-a6af-422bfbaabcb6",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "conqueror_of_openai|00lanes|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c3b7-fa74-70d1-b524-651b177245f8",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ }
+}

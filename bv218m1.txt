@@ -1,0 +1,2 @@
+bots/v210 bots/v218-micro maps/00gemfight.map26a replays/v218m/00gemfight-b.repl26a --statistics replays/v218m/00gemfight-b.json --json
+bots/v218-micro bots/v210 maps/01starvation.map26a replays/v218m/01starvation-a.repl26a --statistics replays/v218m/01starvation-a.json --json

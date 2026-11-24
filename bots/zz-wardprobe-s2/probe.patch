@@ -1,0 +1,219 @@
+diff --git a/v213/src/actions.cpp b/zz-wardprobe/src/actions.cpp
+index f5e6803..df53b6f 100644
+--- a/v213/src/actions.cpp
++++ b/zz-wardprobe/src/actions.cpp
+@@ -3,6 +3,7 @@
+ #include "seen.h"
+ #include "state.h"
+ #include "trace.h"
++#include "probe.h"
+ #include <algorithm>
+ #include <array>
+ #include <set>
+@@ -546,7 +547,10 @@ bool attack_if_in_range(const bc::unit& target) {
+             LOG(trace::attack_failed("out of attack tiles"););
+             return false;
+         }
++        bool wp_enemy = false, wp_only = false;
++        LOG({ const auto p = target.position(); wp_enemy = probe::is_enemy_tile(p); if (wp_enemy) wp_only = probe::ward_only(p); });
+         me.attack(target);
++        LOG(if (wp_enemy) probe::ev(std::string("hit atk wardonly=") + (wp_only ? "1" : "0")););
+         trace::act("attack");
+         return true;
+     } catch (const bc::error& error) {
+@@ -641,11 +645,19 @@ bool cast(const std::optional<bc::ability>& ability) {
+ }
+ 
+ bool cast(const std::optional<bc::ability>& ability, vec2 target) {
+-    return cast_with(ability, [&](const bc::ability& a) { return a.use(target); });
++    int wp_hit = 0, wp_only = 0;
++    LOG({ for (const auto p : seen::positions(Team::enemy)) if (distance(p, target) <= 1) { ++wp_hit; if (probe::ward_only(p)) ++wp_only; } });
++    const bool used = cast_with(ability, [&](const bc::ability& a) { return a.use(target); });
++    LOG(if (used && wp_hit) probe::ev(format("hit area wardonly=%d", wp_only > 0 ? 1 : 0)););
++    return used;
+ }
+ 
+ bool cast(const std::optional<bc::ability>& ability, const bc::champion& target) {
+-    return cast_with(ability, [&](const bc::ability& a) { return a.use(target); });
++    bool wp_enemy = false, wp_only = false;
++    LOG({ const auto p = target.position(); wp_enemy = probe::is_enemy_tile(p); if (wp_enemy) wp_only = probe::ward_only(p); });
++    const bool used = cast_with(ability, [&](const bc::ability& a) { return a.use(target); });
++    LOG(if (used && wp_enemy) probe::ev(std::string("hit cast wardonly=") + (wp_only ? "1" : "0")););
++    return used;
+ }
+ 
+ bool cast(const std::optional<bc::ability>& ability, const bc::camp& target) {
+diff --git a/v213/src/combat.cpp b/zz-wardprobe/src/combat.cpp
+index 59a7c1f..2eeb93b 100644
+--- a/v213/src/combat.cpp
++++ b/zz-wardprobe/src/combat.cpp
+@@ -3,6 +3,7 @@
+ #include "seen.h"
+ #include "state.h"
+ #include "trace.h"
++#include "probe.h"
+ #include <algorithm>
+ #include <cmath>
+ 
+@@ -1925,7 +1926,15 @@ bool Bot::ghost_where(const bc::champion& me, vec2& aim) {
+ bool Bot::ghost_ward(const bc::champion& me) {
+     if (!GHOST || !GHOST_WARD || ghost_k < 0) return false;
+     try {
+-        if (me.ward_cooldown() > 0) return false;
++        if (me.ward_cooldown() > 0) {
++            LOG({
++                const int now = static_cast<int>(bc::round_number());
++                const int last = enemy_at_round[static_cast<std::size_t>(ghost_k)];
++                if (last != now && now - last <= GHOST_ROUNDS && ghost_round >= last - 1)
++                    probe::ev(format("blocked ghost cd=%d gone=%d", me.ward_cooldown(), now - last));
++            });
++            return false;
++        }
+     } catch (const bc::error&) {
+         return false;
+     }
+@@ -1940,6 +1949,8 @@ bool Bot::ghost_ward(const bc::champion& me) {
+     for (std::size_t i = 1; i < n; ++i)
+         if (distance(spots[i], aim) < distance(spots[best], aim)) best = i;
+     bool placed;
++    int wp_before = 0, wp_gain = 0;
++    LOG(wp_before = probe::enemies_in_sight(); wp_gain = probe::gain(spots[best]););
+     try {
+         placed = me.place_ward(spots[best]);
+     } catch (const bc::error&) {
+@@ -1948,6 +1959,7 @@ bool Bot::ghost_ward(const bc::champion& me) {
+     // Refused: something hidden stands there, now revealed. Either way the vision lists are stale.
+     seen::reset();
+     NOTE(std::string(placed ? "ghost ward at " : "ghost ward refused at ") + at(spots[best]) + ", its guess " + at(aim));
++    LOG(probe::ev(format("place ghost ok=%d gain=%d rev=%d", placed ? 1 : 0, wp_gain, probe::enemies_in_sight() - wp_before)););
+     if (!placed) return false;
+     trace::act("ward");
+     if (ward_slot) {
+@@ -2062,6 +2074,7 @@ bool Bot::answer_hidden(const bc::champion& me) {
+         cooled = me.ward_cooldown() == 0;
+     } catch (const bc::error&) {
+     }
++    LOG(if (!cooled) probe::ev("blocked hidden"););
+     if (cooled) {
+         auto options = me.ward_placement_tiles();
+         options &= hidden_spots;
+@@ -2079,6 +2092,7 @@ bool Bot::answer_hidden(const bc::champion& me) {
+             // refusal keeps the ward, so the next tile is tried unless the attacker has shown up.
+             seen::reset();
+             NOTE(std::string(placed ? "ward into bush " : "ward refused at ") + at(tile) + " to find the hidden attacker");
++            LOG(probe::ev(format("place hidden ok=%d rev=%d", placed ? 1 : 0, probe::enemies_in_sight())););
+             if (!placed) {
+                 if (!seen::champions(Team::enemy).empty()) break;
+                 continue;
+diff --git a/zz-wardprobe/src/probe.h b/zz-wardprobe/src/probe.h
+new file mode 100644
+index 0000000..40cb103
+--- /dev/null
++++ b/zz-wardprobe/src/probe.h
+@@ -0,0 +1,28 @@
++// Ward probe: log-only measurements (inside LOG, so free in debug builds and absent in release).
++#pragma once
++#include "board.h"
++#include "seen.h"
++#include <cambc.h>
++namespace probe {
++inline bool ward_only(vec2 tile) {
++    bc::bitboard own{bc::uninitialized};
++    bc::self().visible_tiles_from_into(bc::self().position(), own);
++    return !own.is_set(tile);
++}
++inline bool is_enemy_tile(vec2 tile) {
++    for (const auto p : seen::positions(Team::enemy))
++        if (p == tile) return true;
++    return false;
++}
++inline int enemies_in_sight() { return static_cast<int>(seen::champions(Team::enemy).size()); }
++inline int gain(vec2 ward) {
++    bc::bitboard own{bc::uninitialized};
++    bc::self().visible_tiles_from_into(bc::self().position(), own);
++    auto w = bc::ward::visible_tiles_from(ward);
++    w &= ~own;
++    return static_cast<int>(w.count());
++}
++inline void ev(const std::string& text) {
++    say(format("WP r%u c%d ", bc::round_number(), static_cast<int>(bc::self().champion_name())) + text);
++}
++}  // namespace probe
+diff --git a/v213/src/turn.cpp b/zz-wardprobe/src/turn.cpp
+index 8345084..42b9a57 100644
+--- a/v213/src/turn.cpp
++++ b/zz-wardprobe/src/turn.cpp
+@@ -3,11 +3,31 @@
+ #include "seen.h"
+ #include "state.h"
+ #include "trace.h"
++#include "probe.h"
+ #include <exception>
+ 
+ void Bot::play_turn() {
+     auto& me = bc::self();
+     begin_trace();
++    LOG({
++        static int turns = 0, ready = 0, wonly_turns = 0, near_turns = 0;
++        if (me.is_alive()) {
++            ++turns;
++            if (me.ward_cooldown() == 0) ++ready;
++            const auto here = me.position();
++            int wonly = 0, near = 0;
++            for (const auto p : seen::positions(Team::enemy)) {
++                if (distance(p, here) > 10) continue;
++                ++near;
++                if (probe::ward_only(p)) ++wonly;
++            }
++            if (near) ++near_turns;
++            if (wonly) ++wonly_turns;
++            if (wonly) probe::ev(format("wonly n=%d of %d", wonly, near));
++        }
++        if (bc::round_number() % 50 == 0)
++            probe::ev(format("stat turns=%d ready=%d near=%d wonly=%d", turns, ready, near_turns, wonly_turns));
++    });
+     std::exception_ptr failure;
+     const auto start_round = bc::round_number();
+     try {
+@@ -36,7 +56,7 @@ void Bot::play_turn() {
+         say(std::string("ally memory error: ") + error_text(error));
+     }
+     // v81: the decision log costs ~9k fuel a turn; inside debug_block it costs none (v90-log: all of it, see LOG).
+-    LOG(log_turn(me););
++
+     try {
+         build_fields();
+     } catch (const std::exception& error) {
+diff --git a/v213/src/warding.cpp b/zz-wardprobe/src/warding.cpp
+index 4b452d4..bed7d07 100644
+--- a/v213/src/warding.cpp
++++ b/zz-wardprobe/src/warding.cpp
+@@ -3,6 +3,7 @@
+ #include "seen.h"
+ #include "state.h"
+ #include "trace.h"
++#include "probe.h"
+ #include <algorithm>
+ #include <array>
+ #include <cstdlib>
+@@ -351,8 +352,11 @@ bool Bot::scout_ward(const bc::champion& me) {
+         }
+     }
+     if (!best || std::find(own.begin(), own.end(), *best) != own.end()) return false;
++    int wp_before = 0, wp_gain = 0;
++    LOG(wp_before = probe::enemies_in_sight(); wp_gain = probe::gain(*best););
+     try {
+         if (!me.place_ward(*best)) {
++            LOG(probe::ev(format("scout refused %d %d", best->x, best->y)););
+             // Something hidden stands there, and is now revealed.
+             seen::reset();
+             return false;
+@@ -361,6 +365,8 @@ bool Bot::scout_ward(const bc::champion& me) {
+         return false;
+     }
+     trace::act("ward");
++    LOG(probe::ev(format("place scout-%s gain=%d dist=%d rev=%d", hidden.is_set(*best) ? "bush" : behind ? "catch" : "other", wp_gain,
++                         distance(position, *best), probe::enemies_in_sight() - wp_before)););
+     // v90-log: the ward follows us every round (the "ward" act shows it); only a look into a hidden bush is worth a line.
+     if (hidden.is_set(*best)) NOTE("scout ward into a hidden bush " + at(*best));
+     return true;

@@ -1,0 +1,4 @@
+bots/v218-micro bots/v210 maps/01shortcut.map26a replays/v218m/01shortcut-a.repl26a --statistics replays/v218m/01shortcut-a.json --json
+bots/v210 bots/v218-micro maps/01shortcut.map26a replays/v218m/01shortcut-b.repl26a --statistics replays/v218m/01shortcut-b.json --json
+bots/v210 bots/v218-micro maps/02arena.map26a replays/v218m/02arena-b.repl26a --statistics replays/v218m/02arena-b.json --json
+bots/v210 bots/v218-micro maps/02the-pond.map26a replays/v218m/02the-pond-b.repl26a --statistics replays/v218m/02the-pond-b.json --json

@@ -1,0 +1,384 @@
+{
+ "groups": [
+  {
+   "opponent": "DIET CODE",
+   "team": "bee75a64-fae5-48aa-8751-73d4e78ebfb5",
+   "maps": [
+    "04gem_rush",
+    "04atoll",
+    "04gem_caverns",
+    "00gem_fields",
+    "04tidepools"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-8796-7afd-aa8d-8de85aaf5c0d"
+  },
+  {
+   "opponent": "Tzunami",
+   "team": "9a848453-f90f-4e97-988f-367378a79d1b",
+   "maps": [
+    "adgato_gemcombat4",
+    "adgato_gemcombat5",
+    "00galaxy",
+    "00quadrants",
+    "00vault"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-884e-7888-ab86-f43101e0647c"
+  },
+  {
+   "opponent": "Kingstonks",
+   "team": "b50b3aa9-a0fb-4388-93d2-3459e1a350a9",
+   "maps": [
+    "adgato_gemcombat1",
+    "adgato_gemcombat2",
+    "adgato_gemcombat3",
+    "03contours",
+    "02tangle"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-88e8-7e8d-bffb-90c617ec7589"
+  },
+  {
+   "opponent": "Oogway",
+   "team": "7a21fed9-4c5c-419c-8a31-ba3177b5edb0",
+   "maps": [
+    "00reverse_spiral",
+    "03membrane",
+    "04yin_yang",
+    "04gap",
+    "00the_line"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-89a5-7aeb-abe6-31f599166f90"
+  },
+  {
+   "opponent": "POFPOF",
+   "team": "3a198334-2725-4d97-99cd-d285932cdf80",
+   "maps": [
+    "01big_world",
+    "01hooks",
+    "03shrines",
+    "00breadcrumbs",
+    "01yellow_brick_road"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-8a42-73cd-a254-a86c934d378d"
+  },
+  {
+   "opponent": "ClosedAI",
+   "team": "b9b2f439-fc05-437f-907e-e8380921f9a4",
+   "maps": [
+    "00rushbait_v2",
+    "04plaza",
+    "04terraces",
+    "02famine",
+    "00road_of_riches"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-8ade-7f19-bfff-2d8e6a8ec2f8"
+  },
+  {
+   "opponent": "Stranger Danger",
+   "team": "d61e374a-4f07-4bca-a3a8-fe7b77089dbd",
+   "maps": [
+    "03colosseum",
+    "00ambush",
+    "00monolith",
+    "00corners",
+    "04keyhole"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-8b7f-76e5-82a0-5e0fcfcaf437"
+  },
+  {
+   "opponent": "The Onkeys",
+   "team": "aa795cbd-97f0-489d-868b-2988d7b2e394",
+   "maps": [
+    "00split",
+    "04hollows",
+    "00expanse",
+    "01islands",
+    "04dunes"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-8c35-79d7-9b83-42cf1c736a83"
+  },
+  {
+   "opponent": "Live Love Larp",
+   "team": "292625c5-0f3a-49f0-a08a-9757b8f58658",
+   "maps": [
+    "03reef",
+    "04bridges",
+    "00eight",
+    "02fields",
+    "04wilds"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-8cea-78eb-9246-9f74749d6856"
+  },
+  {
+   "opponent": "Serious-Wyso",
+   "team": "0c75a4f1-2e92-48e4-b1c1-384ddad80450",
+   "maps": [
+    "01fracture",
+    "00great_wall",
+    "04comb",
+    "02cuts",
+    "00lanes"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-8dbc-7db2-b182-53346db77cc4"
+  },
+  {
+   "opponent": "DLLM",
+   "team": "4620d7df-a9ac-4747-aa77-dce12395dc0c",
+   "maps": [
+    "04gem_rush",
+    "04atoll",
+    "04gem_caverns",
+    "00gem_fields",
+    "04tidepools"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-8e4c-74ec-a3b5-167891ead0e4"
+  },
+  {
+   "opponent": "Tubingen Quants",
+   "team": "91b991b0-c974-4ffe-a1f8-4c83c171e9f4",
+   "maps": [
+    "adgato_gemcombat4",
+    "adgato_gemcombat5",
+    "00galaxy",
+    "00quadrants",
+    "00vault"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-8ef7-76c5-9329-d5d94d693893"
+  },
+  {
+   "opponent": "Mouth Breathers",
+   "team": "dd747c09-0574-4689-808a-1d475026a252",
+   "maps": [
+    "adgato_gemcombat1",
+    "adgato_gemcombat2",
+    "adgato_gemcombat3",
+    "03contours",
+    "02tangle"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-8fc2-795e-803b-bf4b9dc8ad86"
+  },
+  {
+   "opponent": "Rhodes Island",
+   "team": "192c0f8e-3816-4c24-ade1-379c20f2843a",
+   "maps": [
+    "00reverse_spiral",
+    "03membrane",
+    "04yin_yang",
+    "04gap",
+    "00the_line"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-9078-7b93-911e-4aa32b832cdf"
+  },
+  {
+   "opponent": "TTS",
+   "team": "13ab0d63-ddfe-45c6-ac7a-22cf0bda68f7",
+   "maps": [
+    "01big_world",
+    "01hooks",
+    "03shrines",
+    "00breadcrumbs",
+    "01yellow_brick_road"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-9108-706f-bf95-dc516ebb56e0"
+  },
+  {
+   "opponent": "E=mc^2+AI^3",
+   "team": "21b63196-9d0e-436f-bf5d-25c55bdc4eaf",
+   "maps": [
+    "00rushbait_v2",
+    "04plaza",
+    "04terraces",
+    "02famine",
+    "00road_of_riches"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-91a4-7262-97e9-63bcb7f93013"
+  },
+  {
+   "opponent": "test4",
+   "team": "c00b682e-e45a-476b-96ca-470205e9dd44",
+   "maps": [
+    "03colosseum",
+    "00ambush",
+    "00monolith",
+    "00corners",
+    "04keyhole"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-925c-780f-8e54-35cbaa9998c8"
+  },
+  {
+   "opponent": "Trzy Kwaterki",
+   "team": "36258abf-3fd0-4827-8fa5-2a217438cf6f",
+   "maps": [
+    "00split",
+    "04hollows",
+    "00expanse",
+    "01islands",
+    "04dunes"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-92e9-7b7b-beaf-1662c252ae34"
+  },
+  {
+   "opponent": "Nyx",
+   "team": "6f7fd199-4115-4fe0-8752-525bd8ccad8d",
+   "maps": [
+    "03reef",
+    "04bridges",
+    "00eight",
+    "02fields",
+    "04wilds"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c3b4-9396-762e-a4e2-18d5165f2fe3"
+  },
+  {
+   "opponent": "conqueror_of_openai",
+   "team": "1570a113-57fd-4f15-84fb-0d764b12799b",
+   "maps": [
+    "01fracture",
+    "00great_wall",
+    "04comb",
+    "02cuts",
+    "00lanes"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c3b4-9445-7c8a-a89e-b67d897228ee"
+  }
+ ]
+}

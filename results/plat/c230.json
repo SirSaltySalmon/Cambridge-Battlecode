@@ -1,0 +1,204 @@
+{
+ "groups": [
+  {
+   "opponent": "Still Testing",
+   "team": "67f45d6d-9cd8-403d-ade2-14aad9202201",
+   "cls": "near",
+   "maps": [
+    "00breadcrumbs",
+    "00crater",
+    "00expanse",
+    "00gem_fields",
+    "00interlock"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c8a4-0058-728e-a892-83b4942c1537"
+  },
+  {
+   "opponent": "The Mania",
+   "team": "2728f025-48ee-4adb-bd24-d7d26878a47e",
+   "cls": "near",
+   "maps": [
+    "00monolith",
+    "00pilgrimage",
+    "00ribs",
+    "00rushbait_v2",
+    "00swirl"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c8a4-00f2-75b4-a202-64fef80b47e3"
+  },
+  {
+   "opponent": "Sauron",
+   "team": "a4431057-ba98-473a-8f7c-20b41b603d6b",
+   "cls": "near",
+   "maps": [
+    "01big_world",
+    "01corridors",
+    "01gold_rush",
+    "01starfish",
+    "01yellow_brick_road"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c8a4-018d-7207-b2fb-580bc1e6fc55"
+  },
+  {
+   "opponent": "Hesitation is Defeat",
+   "team": "81857de3-44fc-4a81-ae7c-f0cecf522d11",
+   "cls": "near",
+   "maps": [
+    "02famine",
+    "02gift_wrapping",
+    "02tangle",
+    "02uncharted_lands",
+    "03contours"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c8a4-0235-792f-b6c0-3cebe00dbf15"
+  },
+  {
+   "opponent": "jeanne d'arc",
+   "team": "953e5c18-ec79-4305-bdb9-b6d27060ea51",
+   "cls": "near",
+   "maps": [
+    "03membrane",
+    "03riverbed",
+    "04atoll",
+    "04bullseye",
+    "04crossroads"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c8a4-02ea-7ae0-a904-1de378193771"
+  },
+  {
+   "opponent": "stellar best girl",
+   "team": "547efb5b-57e5-4355-8501-3b331f506d62",
+   "cls": "top",
+   "maps": [
+    "00breadcrumbs",
+    "00crater",
+    "00expanse",
+    "00gem_fields",
+    "00interlock"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c8a4-0387-78cf-beda-cf0675666a29"
+  },
+  {
+   "opponent": "Mite",
+   "team": "ee83f5e5-bcad-4923-86b4-b79ea6083d2e",
+   "cls": "top",
+   "maps": [
+    "00monolith",
+    "00pilgrimage",
+    "00ribs",
+    "00rushbait_v2",
+    "00swirl"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c8a4-0426-77a8-b7a8-714f21a39a17"
+  },
+  {
+   "opponent": "Intercontinental Fish",
+   "team": "1890540d-1ffc-4847-adbf-d0d08772f268",
+   "cls": "top",
+   "maps": [
+    "01big_world",
+    "01corridors",
+    "01gold_rush",
+    "01starfish",
+    "01yellow_brick_road"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c8a4-04d3-783d-ad62-9270f97cbd61"
+  },
+  {
+   "opponent": "BattleCats",
+   "team": "285f4eb5-e97f-4ea4-93c5-19e1590a1e5a",
+   "cls": "top",
+   "maps": [
+    "02famine",
+    "02gift_wrapping",
+    "02tangle",
+    "02uncharted_lands",
+    "03contours"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "groupId": "01a1c8a4-0599-78a4-be7c-80f4365c4f12"
+  },
+  {
+   "opponent": "Ad Astra",
+   "team": "de0b1e3c-39fb-473c-8244-61c1133ad612",
+   "cls": "top",
+   "maps": [
+    "03membrane",
+    "03riverbed",
+    "04atoll",
+    "04bullseye",
+    "04crossroads"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "groupId": "01a1c8a4-0650-7424-9455-f2adf6aca52b"
+  }
+ ]
+}

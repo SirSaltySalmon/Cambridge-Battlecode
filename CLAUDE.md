@@ -1,4 +1,106 @@
-Bot developer note: Fuel is always an important factor to consider. When implementing new features, make use of available prebuilt functions, and adhere to best C++ standards to optimize for instructions. Benchmarking a version against another should factor in and report back changes in fuel usage.
+# Working in this repo
+
+These rules set how bot code is laid out and changed, so each session can find, change and check one thing without
+reading 19,000 lines. The fuel and feature notes and the game rules follow below. Sizes quoted are from v221
+(2026-11-10).
+
+## Where things are
+
+- `bots/<version>/` holds one bot version, copied forward whole. Its `README.md` records what the version adds, what it
+  was benched against, the results and the fuel. To find the current base, check the version table in the root
+  `README.md` and the newest main folder's README.
+- `src/bot.h` declares the single `Bot` class, and each `.cpp` implements one part of it: `route.cpp` farming targets
+  and travel, `combat.cpp` fights, `kits.cpp` champion abilities, `turn.cpp` the turn order, `shop.cpp`, `tribute.cpp`,
+  `warding.cpp` and so on. `draft::`, `seen::` and the crystal code are namespaces with their own headers.
+- `src/constants.h` holds switches and tunables. `src/evo_constants.h` holds the fight-score numbers that
+  `tools/evotune` tunes.
+- `results/` holds bench notes, `tools/` the bench, tuning and replay tools, and `maps/` the map pool.
+- Bench output (`b*.txt`, `hc_*.txt`, JSON summaries) goes in `results/<version>/` or a scratch folder, not the repo
+  root.
+
+## Versions
+
+- Start new work in a new folder: copy the newest main version to `bots/v<next>` and delete the copy's `.cambc/`. Don't
+  edit a folder once it has been benched or submitted, or while someone uses it as a baseline.
+- Don't refactor a folder while one-off patch scripts (`tools/hc/p*.py`) target it, because they match exact text.
+- The version README is the record, so write it as you go. Include the change, its switches and their defaults, the
+  bench (opponents, maps, seeds, record, banked, K/D) and the fuel (mean, p95, out-of-fuel turns) against the parent.
+- Test variants such as `-s1`/`-s2` seed copies, switch sweeps and probes are temporary. Once their results are in the
+  main version's README, list the folders for deletion and ask the user. Git history keeps the code.
+
+## File size
+
+- Keep one subsystem per file and each `.cpp` under about 1,000 lines. Split any file over 1,500 lines the next time a
+  change touches it, in a separate refactor commit (see Refactors). Files over the limit now: `route.cpp` (3.6k),
+  `combat.cpp` (2.7k), `constants.h` (2.4k), `kits.cpp` (1.2k) and `bot.h` (1.1k).
+- Split by the decision the code makes, not by line count. For example, `route.cpp` could become target picking,
+  captures and claims, and travel. Keep the functions as `Bot::` members, and in `bot.h` group each file's declarations
+  under a comment that names the file.
+- The build globs `src/*.cpp`, so a new file needs no CMake change.
+- **The build has no LTO, so a call into another `.cpp` is never inlined.** Helpers called in hot loops (per tile, per
+  camp, per enemy pair) stay in the same file as `static` or anonymous-namespace functions, or become `inline` in a
+  header. Moving code that runs once a turn to another file costs nothing.
+
+## Function size
+
+- Give each function one decision. Aim for under 80 lines, and split any function over 150 lines when you change it.
+  The longest functions now run 250-290 lines, in `route.cpp` and `combat.cpp`.
+- `Bot::play_turn` in `turn.cpp` should read as a list of named steps. A new feature adds a step, or a function called
+  from one, rather than another block inside an existing function.
+- Split functions without adding fuel:
+  - Pass values you have already read in as arguments. `position()`, `health()` and `is_recalling()` each cost about
+    100 fuel as an engine read, so never re-read them inside a helper called in a loop. Use `seen::positions(team)` and
+    `seen::self_position()`.
+  - Reuse scratch boards and fields (the `*_into` calls) rather than allocating on each call. A new bitboard costs about
+    250 fuel and a new distance_field about 1,550.
+  - Return a small struct or enum rather than filling many out-parameters.
+- Build all log text inside `LOG` / `WHY` / `NOTE` / `SUB`, which only run in `debug_block`. A helper must never build a
+  string outside them.
+- Use SDK calls (movement masks, distance fields, `cambc::constants`) rather than your own versions. See `BotAPICpp.md`.
+
+## Constants
+
+- `constants.h` is currently a version log: 29 sections in no fixed order, with v135 next to v215. Group it by subsystem
+  instead: fight, farming and targets, captures, tribute and banking, shop and items, draft, vision and wards, crystals,
+  and the Prism team. When you split it, put each group in `src/constants/<subsystem>.h` and have `constants.h` include
+  them all, so no other include changes.
+- Write each switch as one `inline constexpr bool NAME`, followed by its parameters. Its comment is at most three lines:
+  what it does, its units (tiles, rounds, share of health, gems) and the README that benched it (`bench: v220 README`).
+  Ladder stories, older values and reasoning go in the README.
+- Keep tunable numbers out of `.cpp` files: a number that could be tuned gets a named constant. Engine facts come from
+  `cambc::constants`, or from a comment that cites `GameRules.md`.
+- Leave `evo_constants.h` where it is, in its current format. `tools/evotune` parses its `inline constexpr` lines and
+  `// evo:` tags.
+
+## Dead code
+
+- A switch that lost its bench stays compiled in and off only while the merge it came in is benched; the next version
+  deletes it. Before deleting it, read the logs, because a loss can come from a bug in the feature rather than a bad
+  idea.
+- To delete a switch, collapse `if (SWITCH)` to the branch that stays, remove the constant, and record in the README
+  the switch, its result and the last commit that has it. Don't leave commented-out code, because git is the archive.
+- 70 of the 267 switches are `false` now. Before adding a switch, check whether an old one already covers the idea.
+
+## Refactors
+
+- A refactor commit changes no behaviour and adds no feature. Keep refactors and behaviour changes in separate commits.
+- Games are deterministic, so you can prove a refactor changes nothing. Build debug and release, play the old and new
+  folders against the same opponent on at least 5 maps (both sides), and compare the results and decision logs. Any
+  difference must trace back to an out-of-fuel turn, where the bot resumes mid-decision next round. Report the fuel
+  mean, p95 and out-of-fuel turns whether or not anything differs.
+- Keep source files in CRLF. Patch tools have written some as LF, for example `bots/v221/src/constants.h`.
+- Keep exactly one `cambc::end_turn();` in `src/main.cpp`, because seed copies and evotune both rely on it.
+
+## Before you change anything
+
+- Read the folder's README and `bot.h`. Grep a switch or member across `src/` before changing it, because most are read
+  in several files.
+- Check the version READMEs and `results/` for earlier benches of the same idea, since many ideas have already been
+  tried and lost.
+
+# Bot developer notes
+
+Fuel is always an important factor to consider. When implementing new features, make use of available prebuilt functions, and adhere to best C++ standards to optimize for instructions. Benchmarking a version against another should factor in and report back changes in fuel usage.
 
 When building a new feature, make sure you understand the entire codebase - everything is in place for a reason, so that we can get an edge from our opponent and exploit what we know. So you must make sure implementations does not clash or break with older features. On games, investigate logs and make sure your feature works, but isn't causing any behavioral freezes, loops, combat failures, or bot errors.
 

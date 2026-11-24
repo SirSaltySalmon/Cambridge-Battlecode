@@ -1,0 +1,214 @@
+{
+ "groups": [
+  {
+   "opponent": "Still Testing",
+   "team": "67f45d6d-9cd8-403d-ade2-14aad9202201",
+   "cls": "near",
+   "maps": [
+    "00anvil",
+    "00dunes",
+    "00galaxy",
+    "00lanes",
+    "00quadrants"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "source": "01a1c8c8-4b78-7c50-8779-077c4729a1df",
+   "groupId": "01a1c8d5-3001-7591-868f-f1316a6c6103"
+  },
+  {
+   "opponent": "The Mania",
+   "team": "2728f025-48ee-4adb-bd24-d7d26878a47e",
+   "cls": "near",
+   "maps": [
+    "00rows",
+    "00vault",
+    "01elk_arena",
+    "01shortcut",
+    "02crossing"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "source": "01a1c8c8-4c5d-703e-bc3e-50b2c8bb738b",
+   "groupId": "01a1c8d5-3096-7196-a629-715045dd9132"
+  },
+  {
+   "opponent": "Sauron",
+   "team": "a4431057-ba98-473a-8f7c-20b41b603d6b",
+   "cls": "near",
+   "maps": [
+    "02guardians",
+    "02the_pond",
+    "03fan",
+    "03reef",
+    "03twisty"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "source": "01a1c8c8-4d49-74ca-be74-ecb217a2e7c4",
+   "groupId": "01a1c8d5-3127-780a-bfb7-b2d215d348ce"
+  },
+  {
+   "opponent": "Hesitation is Defeat",
+   "team": "81857de3-44fc-4a81-ae7c-f0cecf522d11",
+   "cls": "near",
+   "maps": [
+    "04braided_river",
+    "04comb",
+    "04dunes",
+    "04gem_rush",
+    "04keyhole"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "source": "01a1c8c8-4e0d-70ec-a1fc-143f735dda5c",
+   "groupId": "01a1c8d5-31ac-73d4-8608-54d1dfab938f"
+  },
+  {
+   "opponent": "jeanne d'arc",
+   "team": "953e5c18-ec79-4305-bdb9-b6d27060ea51",
+   "cls": "near",
+   "maps": [
+    "04mountain_pass",
+    "04plaza",
+    "04standing_stones",
+    "04two_kingdoms",
+    "04yin_yang"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "source": "01a1c8c8-4ed6-7093-be59-778fb6014c56",
+   "groupId": "01a1c8d5-3245-7ed2-9b6e-9c198b05d8a0"
+  },
+  {
+   "opponent": "stellar best girl",
+   "team": "547efb5b-57e5-4355-8501-3b331f506d62",
+   "cls": "top",
+   "maps": [
+    "00anvil",
+    "00dunes",
+    "00galaxy",
+    "00lanes",
+    "00quadrants"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "source": "01a1c8c8-4fcd-71ec-93f2-dceff2e73c53",
+   "groupId": "01a1c8d5-32e0-7a52-9a12-388d67544b2b"
+  },
+  {
+   "opponent": "Mite",
+   "team": "ee83f5e5-bcad-4923-86b4-b79ea6083d2e",
+   "cls": "top",
+   "maps": [
+    "00rows",
+    "00vault",
+    "01elk_arena",
+    "01shortcut",
+    "02crossing"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "source": "01a1c8c8-5073-749e-97b8-82a5ffa5d25c",
+   "groupId": "01a1c8d5-337f-7eff-8eeb-18db82711056"
+  },
+  {
+   "opponent": "Intercontinental Fish",
+   "team": "1890540d-1ffc-4847-adbf-d0d08772f268",
+   "cls": "top",
+   "maps": [
+    "02guardians",
+    "02the_pond",
+    "03fan",
+    "03reef",
+    "03twisty"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "source": "01a1c8c8-510a-7132-bbd6-14d9da1d836c",
+   "groupId": "01a1c8d5-3400-71f5-828c-2baf9cc47f29"
+  },
+  {
+   "opponent": "BattleCats",
+   "team": "285f4eb5-e97f-4ea4-93c5-19e1590a1e5a",
+   "cls": "top",
+   "maps": [
+    "04braided_river",
+    "04comb",
+    "04dunes",
+    "04gem_rush",
+    "04keyhole"
+   ],
+   "sides": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a"
+   ],
+   "source": "01a1c8c8-5222-76ab-86e2-766c21c61ea5",
+   "groupId": "01a1c8d5-34a7-7670-9642-71a8ad2ea989"
+  },
+  {
+   "opponent": "Ad Astra",
+   "team": "de0b1e3c-39fb-473c-8244-61c1133ad612",
+   "cls": "top",
+   "maps": [
+    "04mountain_pass",
+    "04plaza",
+    "04standing_stones",
+    "04two_kingdoms",
+    "04yin_yang"
+   ],
+   "sides": [
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+   ],
+   "source": "01a1c8c8-53e2-7edc-a1ae-76e94e32cc72",
+   "groupId": "01a1c8d5-3551-78f2-93cc-226a14bee79b"
+  }
+ ]
+}

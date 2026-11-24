@@ -1,0 +1,1 @@
+bots/v213 bots/v213 maps/02treasure-box.map26a replays/v217smoke/mirror.repl26a --statistics replays/v217smoke/mirror.json --json

@@ -42,6 +42,10 @@ Merges jack-claude (Jack's v150-v213 work) and vargvale-strikes-back (v138-v203)
 | v208 | Jack: v206 + Mike's v185, 3-way merge over v182. v210 builds on it as "v209" (v210 differs only by OUTCLASS_FIRST) | |
 | v210 | v209 + OUTCLASS_FIRST. **Platform v212** | |
 | v213 | v210 + FILL_WIDE. **Platform v213** | |
+| v220 | v213 + wards, teleport crystals, focus by value, shop and gate changes. **Platform v219** | |
+| v230 | v220 + survival and cluster-map fixes (2026-11-10 hill climb). **Platform v230, live on 2026-11-11** | |
+| v231 | v230 + RALLY + WILLOW_SHOOT (2026-11-11 fight-plan re-test). Platform v231: level with v230 | |
+| v235 | v231 + RALLY_HIT. Platform v233: level with v230 (25-75 against 24-76), best locally. Newest candidate | |
 
 Tools: `bots/zz-facts` dumps map facts (champions, altars, spawn-to-spawn steps) used by `bots/v150/analyze_maps.py`;
 `bots/mapdump` is the older map dumper.

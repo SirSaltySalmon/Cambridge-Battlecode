@@ -1,0 +1,5 @@
+bots/v215-tp bots/v213 maps/00road-of-riches.map26a replays/tpsmoke2/00road-of-riches-a.repl26a --statistics replays/tpsmoke2/00road-of-riches-a.json --json
+bots/v215-tp bots/v213 maps/01shortcut.map26a replays/tpsmoke2/01shortcut-a.repl26a --statistics replays/tpsmoke2/01shortcut-a.json --json
+bots/v215-tp bots/v213 maps/02the-pond.map26a replays/tpsmoke2/02the-pond-a.repl26a --statistics replays/tpsmoke2/02the-pond-a.json --json
+bots/v215-tp bots/v213 maps/00rows.map26a replays/tpsmoke2/00rows-a.repl26a --statistics replays/tpsmoke2/00rows-a.json --json
+bots/v215-tp bots/v213 maps/00swirl.map26a replays/tpsmoke2/00swirl-a.repl26a --statistics replays/tpsmoke2/00swirl-a.json --json

@@ -1,0 +1,574 @@
+{
+ "Still Testing|00anvil|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3002-704b-849f-522762f2b50b",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "Still Testing|00dunes|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3002-7b71-bc88-8ccb708bfb6d",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Still Testing|00galaxy|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3002-74aa-a1fd-d1c2f79fbc3e",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Still Testing|00lanes|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3002-7de0-baff-43877ae8e9e0",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "Still Testing|00quadrants|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3002-7bf1-bda3-4180cff933b2",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "The Mania|00rows|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3099-70a2-bde1-88f8b617fbbf",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "The Mania|00vault|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3099-763d-821d-71a31c879ba4",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "The Mania|01elk_arena|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3099-7583-b325-918d8e2f6121",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "The Mania|01shortcut|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3099-7819-9948-e72395d4df31",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "The Mania|02crossing|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-3099-70a0-ad08-64030d5f82c6",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Sauron|02guardians|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-312b-74ca-80ca-fffb72ca5c27",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Sauron|02the_pond|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-312b-71ba-b281-b291594abbbe",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "Sauron|03fan|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-312b-78d1-90c4-0410fa160e22",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Sauron|03reef|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-312b-7f02-9e52-d8b909f11ca0",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Sauron|03twisty|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-312b-73a6-ac30-bd1fb82c4de8",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Hesitation is Defeat|04braided_river|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-31af-7ee0-8eb5-6d89282a1167",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "Hesitation is Defeat|04comb|a": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-31af-7817-bf83-fb931ebce0a6",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Hesitation is Defeat|04dunes|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-31af-7118-a721-3ba3e99b6167",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Hesitation is Defeat|04gem_rush|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-31af-74fe-bce7-1523bcc5910b",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Hesitation is Defeat|04keyhole|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-31af-7d63-83bc-153d945ad70c",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "jeanne d'arc|04mountain_pass|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3248-7937-88b9-85b812830eab",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "jeanne d'arc|04plaza|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3248-7e03-b9da-b06925a29913",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "jeanne d'arc|04standing_stones|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3248-7dd9-9ed3-dff84be0c7ed",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "jeanne d'arc|04two_kingdoms|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3248-76f8-9623-189a99b6b6e1",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "jeanne d'arc|04yin_yang|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3248-736f-bf15-0ec645f4b72b",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "stellar best girl|00anvil|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-32e3-72bf-8b71-425ca1b4548e",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "stellar best girl|00dunes|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-32e3-72cb-9c22-3c2587970007",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "stellar best girl|00galaxy|b": {
+  "win": true,
+  "end": "gems",
+  "id": "01a1c8d5-32e3-71f0-a74b-95ef4129682b",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "stellar best girl|00lanes|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-32e3-716c-9c5c-a776e1ec51c3",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "stellar best girl|00quadrants|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-32e3-7154-a762-b467ed2325f5",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "Mite|00rows|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3382-7d86-8bae-6a74f4aca1b8",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Mite|00vault|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3382-736a-b3a3-fbb10ea04c9b",
+  "draft": [
+   5,
+   11,
+   6,
+   7
+  ]
+ },
+ "Mite|01elk_arena|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3382-76ce-b7f4-cbee05fd6390",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Mite|01shortcut|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3382-7133-96ca-cd51d5406a8b",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Mite|02crossing|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3382-76c0-b02d-86410e7753dc",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Intercontinental Fish|02guardians|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3401-7a4b-8b18-0871660dddea",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "Intercontinental Fish|02the_pond|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3401-73b0-8935-c19afbd8aaa1",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "Intercontinental Fish|03fan|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3401-7116-aa83-5fb104a43607",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Intercontinental Fish|03reef|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3401-7ee8-8a9d-b3bc76b2557f",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Intercontinental Fish|03twisty|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3401-7c43-a1e5-bcb2e8b09894",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "BattleCats|04braided_river|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-34aa-7268-a38b-ac89679e6c0f",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   9
+  ]
+ },
+ "BattleCats|04comb|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-34aa-73d3-a29e-87507181b270",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ },
+ "BattleCats|04dunes|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-34aa-7241-a1b0-3451e1763485",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "BattleCats|04gem_rush|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-34aa-7a19-8698-5769da33c741",
+  "draft": [
+   5,
+   11,
+   6,
+   0,
+   7
+  ]
+ },
+ "BattleCats|04keyhole|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-34aa-7af5-ad4f-26faf6341a7f",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Ad Astra|04mountain_pass|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3554-7ad7-b2bc-a3cbde629296",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   5
+  ]
+ },
+ "Ad Astra|04plaza|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3554-79c7-930e-a36cad9647e1",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "Ad Astra|04standing_stones|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3554-7134-9017-d548cfc20486",
+  "draft": [
+   11,
+   2,
+   1
+  ]
+ },
+ "Ad Astra|04two_kingdoms|a": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3554-70c7-acc5-ee88343fc6bc",
+  "draft": [
+   0,
+   11,
+   7,
+   1,
+   6
+  ]
+ },
+ "Ad Astra|04yin_yang|b": {
+  "win": false,
+  "end": "gems",
+  "id": "01a1c8d5-3554-7785-893d-cf58c690a5bd",
+  "draft": [
+   11,
+   1,
+   7,
+   0
+  ]
+ }
+}

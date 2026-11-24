@@ -1,0 +1,8 @@
+v216-contract-s1: 339-349 of 688 (49.3%), banked 471452 vs 480260 (-1.8%), K/D 7776/6646, faults 0
+  fuel: mean 40417, p99 90721, out-of-fuel turns 18166 of 3886210 (0.47%), fuelExhausted events 19729
+  vs v185           77/172
+  vs v206           92/172
+  vs v208           83/172
+  vs v210           87/172
+  maps not won: 00gem-fields 8, 03shrines 8, adgato-gemcombat1 8, 00corners 7, 01islands 7, 01starvation 7, 02fields 7, 02geodes 7, 00lanes 6, 00pilgrimage 6
+  score 0.4895

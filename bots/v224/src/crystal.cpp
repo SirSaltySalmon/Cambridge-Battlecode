@@ -1,0 +1,534 @@
+// v215 (TP): teleport crystals. The draft finds where a crystal beats walking; travel moves launch from there.
+#include "crystal.h"
+#include "actions.h"
+#include "board.h"
+#include "draft.h"
+#include "seen.h"
+#include "trace.h"
+#include <algorithm>
+#include <array>
+#include <utility>
+
+namespace crystal {
+
+bool carrying = false;
+bool gate = false;
+
+namespace {
+
+std::vector<Jump> stored;
+int map_value = 0;
+// v216: the jump ends on one board, and per tile a list of codes (jump * 2 + dir: dir 0 launches from a, 1 from b),
+// so planning finds the ends near us with board ops instead of a guest loop over every jump (~80 fuel a jump end).
+bc::bitboard end_board;
+std::vector<int> end_head, end_next;
+
+// ---- Draft: bitboard wavefronts (host board ops cost the same on any map size; guest loops over tiles cost ~300
+// fuel a tile a pass, too dear on 100x100 maps). ----
+
+// 8-neighbour dilation (radius 1) of in, into out.
+void dilate1(const bc::bitboard& in, bc::bitboard& tmp, bc::bitboard& h, bc::bitboard& out) {
+    fast::copy_into(in, h);
+    in.shift_right_into(1, tmp);
+    h |= tmp;
+    in.shift_right_into(-1, tmp);
+    h |= tmp;
+    fast::copy_into(h, out);
+    h.shift_up_into(1, tmp);
+    out |= tmp;
+    h.shift_up_into(-1, tmp);
+    out |= tmp;
+}
+
+// Chebyshev dilation by REACH (3): radius 1, then 2 more, along x, then along y.
+void dilate3(const bc::bitboard& in, bc::bitboard& tmp, bc::bitboard& h, bc::bitboard& out) {
+    fast::copy_into(in, h);
+    in.shift_right_into(1, tmp);
+    h |= tmp;
+    in.shift_right_into(-1, tmp);
+    h |= tmp;
+    fast::copy_into(h, out);
+    h.shift_right_into(2, tmp);
+    out |= tmp;
+    h.shift_right_into(-2, tmp);
+    out |= tmp;
+    fast::copy_into(out, h);
+    out.shift_up_into(1, tmp);
+    h |= tmp;
+    out.shift_up_into(-1, tmp);
+    h |= tmp;
+    fast::copy_into(h, out);
+    h.shift_up_into(2, tmp);
+    out |= tmp;
+    h.shift_up_into(-2, tmp);
+    out |= tmp;
+}
+
+struct Cand {
+    vec2 t;
+    int k = 0;     // steps to the goals with the crystal launched here
+    int save = 0;  // walking steps minus k
+    int cls = 0;
+};
+
+constexpr int FAR = 200;     // walking steps counted for tiles walking never reaches (pockets)
+constexpr int KMAX = 400;    // wavefront layers at most
+constexpr std::size_t CAND_CAP = 3000;
+
+struct Wave {
+    bc::bitboard tmp, h, step, F, nF, O, nO, pads, newq, done;
+    std::array<bc::bitboard, 4> D;
+};
+
+// One goal class: walking layers F_k (steps <= k) and one-crystal layers O_k = walk(O_{k-1}) | F_k | D_{k-3}, where D_j
+// (the Chebyshev-3 dilation of F_j) holds the tiles a crystal lands from within j steps of the goals. A tile first
+// reached through D (not by walking, nor by walking to a launch tile) is a launch tile: candidates with their saving.
+// Query tiles get their one-crystal steps in one_at (by tile index), for the map's value. False if fuel ran low.
+bool wave(const bc::bitboard& goals, int cls, const bc::distance_field& walk, const bc::bitboard& walk_reached,
+          const bc::bitboard& queries, std::vector<int>& one_at, std::vector<Cand>& out, Wave& w) {
+    static const bc::bitboard open = ~seen::fixed_blocks();
+    const int width = bc::map::width();
+    fast::and_into(goals, open, w.F);
+    fast::copy_into(w.F, w.O);
+    dilate3(w.F, w.tmp, w.h, w.D[0]);
+    w.D[0] &= open;
+    fast::and_into(w.O, queries, w.done);
+    for (const auto t : w.done.positions()) one_at[t.y * width + t.x] = 0;
+    int stable = 0;
+    for (int k = 1; k <= KMAX; ++k) {
+        if (bc::fuel_remaining() < TP_DRAFT_RESERVE) return false;
+        dilate1(w.F, w.tmp, w.h, w.nF);
+        w.nF &= open;
+        dilate1(w.O, w.tmp, w.h, w.step);
+        w.step &= open;
+        fast::copy_into(w.step, w.nO);
+        w.nO |= w.nF;
+        if (k >= 3) {
+            const auto& launch = w.D[(k - 3) % 4];
+            w.nO |= launch;
+            fast::not_into(w.step, w.tmp);
+            fast::and_into(launch, w.tmp, w.pads);
+            fast::not_into(w.nF, w.tmp);
+            w.pads &= w.tmp;
+            if (!w.pads.is_empty() && out.size() < CAND_CAP)
+                for (const auto t : w.pads.positions()) {
+                    const int f = walk_reached.is_set(t) ? static_cast<int>(walk.get(t)) : FAR;
+                    const int save = std::min(f, FAR) - k;
+                    if (save >= TP_KEEP_SAVE && out.size() < CAND_CAP) out.push_back({t, k, save, cls});
+                }
+        }
+        fast::and_into(w.nO, queries, w.newq);
+        fast::not_into(w.done, w.tmp);
+        w.newq &= w.tmp;
+        if (!w.newq.is_empty()) {
+            for (const auto t : w.newq.positions()) one_at[t.y * width + t.x] = k;
+            w.done |= w.newq;
+        }
+        dilate3(w.nF, w.tmp, w.h, w.D[k % 4]);
+        w.D[k % 4] &= open;
+        const bool same = w.nO == w.O && w.nF == w.F;
+        std::swap(w.F, w.nF);
+        std::swap(w.O, w.nO);
+        if (same) {
+            if (++stable >= 4) break;
+        } else {
+            stable = 0;
+        }
+    }
+    return true;
+}
+
+// The best landing for a launch tile: the legal tile within REACH nearest the goals by walking.
+std::optional<vec2> best_landing(vec2 t, const bc::distance_field& walk, const bc::bitboard& walk_reached) {
+    static const bc::bitboard open = ~seen::fixed_blocks();
+    static bc::bitboard around{bc::uninitialized};
+    fast::around_into(t, static_cast<float>(REACH), around);
+    around &= open;
+    around &= walk_reached;
+    std::array<vec2, 64> tiles;
+    const auto n = std::min<std::size_t>(around.positions_into(tiles), tiles.size());
+    std::optional<vec2> best;
+    std::uint16_t value = bc::distance_field::unreachable;
+    for (std::size_t i = 0; i < n; ++i) {
+        const auto v = walk.get(tiles[i]);
+        if (v < value) value = v, best = tiles[i];
+    }
+    return best;
+}
+
+}  // namespace
+
+std::vector<std::uint8_t> encode(int room) {
+    std::vector<std::uint8_t> out;
+    if (!TP || room < 6 || bc::fuel_remaining() < TP_DRAFT_RESERVE + 500000) return out;
+    const auto fuel_in = bc::fuel_remaining();
+    const auto& data = draft::group_data();
+    const int width = bc::map::width();
+    const auto& ours = bc::map::spawn_region(Team::ally);
+    // Goal classes: the altars' tribute rings, our spawn, every camp tile.
+    bc::bitboard ring, camps;
+    for (const auto a : bc::map::altars().positions()) ring.draw_chebyshev(a, 1.0f);
+    bc::bitboard queries = ours;
+    for (std::size_t i = 0; i < data.groups.size(); ++i)
+        for (const auto t : data.spawn_lists[i]) {
+            camps.set(t);
+            if (data.groups[i].gem_value() > 0) queries.set(t);
+        }
+    const bc::bitboard* goals[3] = {&ring, &ours, &camps};
+    std::array<bc::distance_field, 3> walk;
+    std::array<bc::bitboard, 3> walk_reached;
+    std::vector<int> one_alt(static_cast<std::size_t>(width) * bc::map::height(), -1), one_home(one_alt.size(), -1), unused;
+    std::vector<Cand> cands;
+    Wave w;
+    bool full = true;
+    for (int c = 0; c < 3 && full; ++c) {
+        fast::and_into(*goals[c], ~seen::fixed_blocks(), w.tmp);
+        walk[c].compute(seen::fixed_blocks(), w.tmp, walk_reached[c]);
+        if (c == 2) unused.assign(one_alt.size(), -1);
+        full = wave(*goals[c], c, walk[c], walk_reached[c], queries, c == 0 ? one_alt : c == 1 ? one_home : unused, cands, w);
+    }
+    const auto fuel_waves = bc::fuel_remaining();
+    // The map's value: gem-weighted turns saved per trip, group to altar plus spawn to group.
+    auto at = [&](vec2 t) { return static_cast<std::size_t>(t.y) * width + t.x; };
+    double weight = 0, save_alt = 0, save_home = 0;
+    for (std::size_t i = 0; i < data.groups.size(); ++i) {
+        const double gems = data.groups[i].gem_value();
+        if (gems <= 0 || data.spawn_lists[i].empty()) continue;
+        int wa = FAR, oa = FAR, wh = FAR, oh = FAR;
+        for (const auto t : data.spawn_lists[i]) {
+            if (walk_reached[0].is_set(t)) wa = std::min<int>(wa, walk[0].get(t));
+            if (walk_reached[1].is_set(t)) wh = std::min<int>(wh, walk[1].get(t));
+            if (one_alt[at(t)] >= 0) oa = std::min(oa, one_alt[at(t)]);
+            if (one_home[at(t)] >= 0) oh = std::min(oh, one_home[at(t)]);
+        }
+        if (oa >= FAR && oh >= FAR) continue;
+        weight += gems;
+        save_alt += gems * std::max(0, std::min(wa, oa + 60) - std::min(oa, wa));
+        save_home += gems * std::max(0, std::min(wh, oh + 60) - std::min(oh, wh));
+    }
+    const double per_trip = weight > 0 ? (save_alt + save_home) / weight : 0.0;
+    map_value = std::clamp(static_cast<int>(per_trip + 0.5), 0, 255);
+    // Keep the jumps: biggest saving first (altar class first on ties), none beside a kept one going the same way.
+    std::stable_sort(cands.begin(), cands.end(), [](const Cand& x, const Cand& y) {
+        return x.save != y.save ? x.save > y.save : x.cls < y.cls;
+    });
+    const int most = std::min<int>(TP_MAX_JUMPS, (room - 3) / 3);
+    std::vector<Jump> kept;
+    for (const auto& c : cands) {
+        if (static_cast<int>(kept.size()) >= most || bc::fuel_remaining() < TP_DRAFT_RESERVE) break;
+        bool near = false;
+        for (const auto& j : kept)
+            if (distance(j.a, c.t) <= 1 || distance(j.b, c.t) <= 1) near = true;
+        if (near) continue;
+        const auto land = best_landing(c.t, walk[c.cls], walk_reached[c.cls]);
+        if (!land) continue;
+        bool same = false;
+        for (const auto& j : kept)
+            if ((distance(j.a, c.t) <= 2 && distance(j.b, *land) <= 2) || (distance(j.b, c.t) <= 2 && distance(j.a, *land) <= 2))
+                same = true;
+        if (!same) kept.push_back({c.t, *land});
+    }
+    for (const auto& j : kept) {
+        out.push_back(static_cast<std::uint8_t>(j.a.x));
+        out.push_back(static_cast<std::uint8_t>(j.a.y));
+        out.push_back(static_cast<std::uint8_t>((j.b.x - j.a.x + REACH) * 7 + (j.b.y - j.a.y + REACH)));
+    }
+    out.push_back(static_cast<std::uint8_t>(kept.size()));
+    out.push_back(static_cast<std::uint8_t>(map_value));
+    out.push_back(MAGIC);
+    LOG(say(format("draft tp: value %d (alt %.1f home %.1f per trip), %zu candidates, %zu jumps, %s; fuel waves %llu, keep %llu, left %llu",
+                   map_value, weight > 0 ? save_alt / weight : 0.0, weight > 0 ? save_home / weight : 0.0, cands.size(), kept.size(),
+                   full ? "full" : "cut short", static_cast<unsigned long long>(fuel_in - fuel_waves),
+                   static_cast<unsigned long long>(fuel_waves - bc::fuel_remaining()),
+                   static_cast<unsigned long long>(bc::fuel_remaining())));
+        for (const auto& j : kept) say(format("draft tp jump (%d,%d)->(%d,%d)", j.a.x, j.a.y, j.b.x, j.b.y)););
+    return out;
+}
+
+void decode(const std::vector<std::uint8_t>& memory) {
+    stored.clear();
+    map_value = 0;
+    const std::size_t size = memory.size();
+    if (size < 3 || memory[size - 1] != MAGIC) return;
+    const std::size_t n = memory[size - 3];
+    if (size < 3 + 3 * n) return;
+    map_value = memory[size - 2];
+    const int width = bc::map::width(), height = bc::map::height();
+    for (std::size_t i = 0, at = size - 3 - 3 * n; i < n; ++i, at += 3) {
+        const vec2 a{memory[at], memory[at + 1]};
+        const int off = memory[at + 2];
+        const vec2 b{a.x + off / 7 - REACH, a.y + off % 7 - REACH};
+        if (a.x >= width || a.y >= height || b.x < 0 || b.y < 0 || b.x >= width || b.y >= height) continue;
+        stored.push_back({a, b});
+    }
+    end_board.clear();
+    end_head.assign(static_cast<std::size_t>(width) * height, -1);
+    end_next.assign(2 * stored.size(), -1);
+    for (std::size_t j = 0; j < stored.size(); ++j)
+        for (int dir = 0; dir < 2; ++dir) {
+            const vec2 t = dir ? stored[j].b : stored[j].a;
+            const auto cell = static_cast<std::size_t>(t.y) * width + t.x;
+            const int code = static_cast<int>(2 * j) + dir;
+            end_next[code] = end_head[cell];
+            end_head[cell] = code;
+            end_board.set(t);
+        }
+}
+
+const std::vector<Jump>& jumps() { return stored; }
+int value() { return map_value; }
+bool map_on() { return TP && !stored.empty() && map_value >= TP_BUY_VALUE; }
+
+namespace {
+
+struct Scratch {
+    bc::distance_field me;
+    bc::bitboard land{bc::uninitialized}, part{bc::uninitialized}, visited{bc::uninitialized}, root{bc::uninitialized};
+};
+Scratch& scratch() {
+    static Scratch s;
+    return s;
+}
+
+// Start the channel toward `land`, else the other landings in order (a hidden unit refuses one and is revealed).
+bool launch(const bc::champion& me, vec2 land, const std::array<std::pair<int, vec2>, 64>& order, std::size_t n, int limit) {
+    auto try_one = [&](vec2 tile) {
+        try {
+            if (me.consumables()[bc::consumable_type::tp_crystal].use(tile)) {
+                carrying = false;
+                seen::reset();
+                trace::act("crystal");
+                LOG(trace::audit.push_back(format("crystal: launch to %s", at(tile).c_str())););
+                return true;
+            }
+        } catch (const bc::error& error) {
+            LOG(trace::audit.push_back("crystal refused: " + error_text(error)););
+            if (error.code() == bc::error_code::invalid_action_use_consumable_not_owned) carrying = false;
+        }
+        return false;
+    };
+    if (try_one(land)) return true;
+    if (!carrying) return false;
+    // A refusal (a hidden unit on the tile): the other landings, nearest the goals first (sorted only now).
+    auto sorted = order;
+    std::sort(sorted.begin(), sorted.begin() + static_cast<std::ptrdiff_t>(n),
+              [](const auto& x, const auto& y) { return x.first < y.first; });
+    const auto& order_by = sorted;
+    for (std::size_t i = 0; i < n; ++i) {
+        if (order_by[i].first > limit) break;
+        if (order_by[i].second != land && try_one(order_by[i].second)) return true;
+        if (!carrying) return false;
+    }
+    return false;
+}
+
+}  // namespace
+
+namespace {
+
+// v216 (TP_REPLAN): the last plan for a goal board (by tile count and first tile), kept TP_REPLAN rounds: walking to
+// a launch tile re-reads nothing until we stand on it, and "no plan" skips the jump scan (180 checks a turn on maps
+// with 90 jumps ran big maps out of fuel).
+struct Plan {
+    int round = -1000;
+    std::uint32_t count = 0;
+    vec2 first{-1, -1};
+    bool has = false;
+    vec2 pad{};
+};
+Plan plan;
+
+int plan_travel(const bc::champion& me, vec2 origin, const bc::distance_field& field, const bc::bitboard& reached,
+                const bc::bitboard& blocked, const bc::bitboard& goals, bool owns_dash, vec2& pad);
+
+}  // namespace
+
+namespace {
+
+// The plan's key for a goal board: its tile count and first tile.
+std::pair<std::uint32_t, vec2> goal_key(const bc::bitboard& goals) {
+    std::array<vec2, 1> first{vec2{-1, -1}};
+    (void)goals.positions_into(first);
+    return {goals.count(), first[0]};
+}
+
+}  // namespace
+
+bool cached_pad(const bc::bitboard& goals, vec2 origin, const bc::bitboard& blocked, vec2& pad) {
+    if (!armed() || (walk_guard && walk_guard->is_set(origin))) return false;
+    const auto [count, first] = goal_key(goals);
+    if (!plan.has || plan.count != count || plan.first != first) return false;
+    if (static_cast<int>(bc::round_number()) - plan.round >= TP_PAD_KEEP) return false;
+    if (origin == plan.pad || blocked.is_set(plan.pad)) return false;
+    pad = plan.pad;
+    return true;
+}
+
+int travel(const bc::champion& me, vec2 origin, const bc::distance_field& field, const bc::bitboard& reached,
+           const bc::bitboard& blocked, const bc::bitboard& goals, bool owns_dash, vec2& pad) {
+    if (!armed()) return 0;
+    if (walk_guard && walk_guard->is_set(origin)) return 0;
+    const auto [count, first_tile] = goal_key(goals);
+    const std::array<vec2, 1> first{first_tile};
+    const int round = static_cast<int>(bc::round_number());
+    if (plan.count == count && plan.first == first[0] && round - plan.round < (plan.has ? TP_PAD_KEEP : TP_REPLAN)) {
+        if (!plan.has) return 0;
+        if (origin != plan.pad && !blocked.is_set(plan.pad)) {
+            pad = plan.pad;
+            return 2;
+        }
+    }
+    const int result = plan_travel(me, origin, field, reached, blocked, goals, owns_dash, pad);
+    if (result < 0) return 0;
+    plan = {round, count, first[0], result == 2, pad};
+    return result;
+}
+
+namespace {
+
+int plan_travel(const bc::champion& me, vec2 origin, const bc::distance_field& field, const bc::bitboard& reached,
+                const bc::bitboard& blocked, const bc::bitboard& goals, bool owns_dash, vec2& pad) {
+    // v216: too little of the turn left to plan safely: skip (not cached, so the next turn plans).
+    if (bc::fuel_remaining() < TP_PLAN_FUEL) return -1;
+    const int far_steps = 1000;
+    const bool walkable = reached.is_set(origin);
+    const int here = walkable ? static_cast<int>(field.get(origin)) : far_steps;
+    if (here < CHANNEL + TP_SAVE + 1) return 0;
+    int limit = here - TP_SAVE;
+    // 1. The jump ends near us, by board ops: rings of growing radius until TP_JUMP_READS ends or the limit.
+    struct Option {
+        vec2 a, b;
+        int lower = 0, fb = 0;
+    };
+    std::array<Option, TP_JUMP_READS> options;
+    std::size_t m = 0;
+    bool near_end = false;
+    auto& s = scratch();
+    const int width = bc::map::width();
+    const int most = limit - CHANNEL;
+    if (most >= 0 && !end_head.empty()) {
+        // The widest useful radius first; shrink it only while it holds more ends than we read.
+        int radius = most;
+        for (const int r : {most, 20, 10, TP_NOW_NEAR}) {
+            if (r > most) continue;
+            radius = r;
+            fast::around_into(origin, static_cast<float>(radius), s.part);
+            s.part &= end_board;
+            if (s.part.count() <= options.size()) break;
+        }
+        std::array<vec2, 64> found;
+        const auto k = std::min<std::size_t>(s.part.positions_into(found), found.size());
+        for (std::size_t i = 0; i < k && m < options.size(); ++i) {
+            if (distance(origin, found[i]) <= TP_NOW_NEAR) near_end = true;
+            for (int code = end_head[static_cast<std::size_t>(found[i].y) * width + found[i].x]; code >= 0 && m < options.size();
+                 code = end_next[code]) {
+                const auto& j = stored[code / 2];
+                options[m++] = code % 2 ? Option{j.b, j.a, distance(origin, j.b) + CHANNEL, 0}
+                                        : Option{j.a, j.b, distance(origin, j.a) + CHANNEL, 0};
+            }
+        }
+    }
+    // 2. Launching from here pays only beside a barrier (a known jump end close by) or off the walking map.
+    const bool try_now = !walkable || near_end;
+    if (m == 0 && !try_now) return 0;
+    std::array<std::pair<int, vec2>, 64> order;
+    std::size_t n = 0;
+    bool now = false;
+    if (try_now) {
+        // Landings two or three tiles off: one step on foot always beats three channel turns.
+        fast::around_into(origin, static_cast<float>(REACH), s.land);
+        fast::around_into(origin, 1.0f, s.part);
+        s.part |= blocked;
+        fast::not_into(s.part, s.visited);
+        s.land &= s.visited;
+        s.land &= reached;
+        if (walk_guard) {
+            fast::not_into(*walk_guard, s.part);
+            s.land &= s.part;
+        }
+        std::array<vec2, 64> tiles;
+        n = std::min<std::size_t>(s.land.positions_into(tiles), tiles.size());
+        std::size_t best = 0;
+        for (std::size_t i = 0; i < n; ++i) {
+            order[i] = {CHANNEL + static_cast<int>(field.get(tiles[i])), tiles[i]};
+            if (order[i].first < order[best].first) best = i;
+        }
+        if (n > 0) std::swap(order[0], order[best]);
+        now = n > 0 && order[0].first <= limit;
+        if (now) limit = order[0].first - 1;  // a launch tile must beat launching here
+    }
+    // 3. Engine reads for the kept ends: steps left from the landing (unreached tiles read unreachable).
+    std::size_t kept = 0;
+    for (std::size_t i = 0; i < m; ++i) {
+        auto o = options[i];
+        if (o.lower > limit) continue;
+        const auto fb = field.get(o.b);
+        if (fb == bc::distance_field::unreachable || o.lower + static_cast<int>(fb) > limit) continue;
+        if (blocked.is_set(o.b) || (walk_guard && walk_guard->is_set(o.b))) continue;
+        o.fb = fb;
+        options[kept++] = o;
+    }
+    std::optional<Option> pick;
+    int pick_cost = limit + 1;
+    if (kept > 0) {
+        // Walking steps from us to the kept ends only: the search stops once they are reached.
+        fast::around_into(origin, 0, s.root);
+        s.land.clear();
+        for (std::size_t i = 0; i < kept; ++i) s.land.set(options[i].a);
+        s.me.compute_to(blocked, s.root, s.land, s.visited, static_cast<std::uint16_t>(std::max(0, limit - CHANNEL)));
+        for (std::size_t i = 0; i < kept; ++i) {
+            const auto& o = options[i];
+            if (!s.visited.is_set(o.a)) continue;
+            const int cost = static_cast<int>(s.me.get(o.a)) + CHANNEL + o.fb;
+            if (cost < pick_cost) pick_cost = cost, pick = o;
+        }
+    }
+    if (!pick && !now) return 0;
+    // 4. A dasher's walk may hop thin holes: one hop search, only once a plan exists.
+    const int cost = pick ? pick_cost : order[0].first;
+    if (owns_dash && !thin_holes().is_empty())
+        if (const auto hop = hop_steps(origin, goals); hop && *hop - TP_SAVE < cost) return 0;
+    if (pick && pick->a != origin) {
+        pad = pick->a;
+        LOG(trace::audit.push_back(format("crystal: walk to launch tile %s for %s (%d steps vs %d walking)", at(pick->a).c_str(),
+                                          at(pick->b).c_str(), pick_cost, here)););
+        return 2;
+    }
+    if (pick) {
+        LOG(trace::audit.push_back(format("crystal: on launch tile, %d steps vs %d walking", pick_cost, here)););
+        return launch(me, pick->b, order, n, pick_cost) ? 1 : 0;
+    }
+    LOG(trace::audit.push_back(format("crystal: launch here, %d steps vs %d walking", order[0].first, here)););
+    return launch(me, order[0].second, order, n, order[0].first) ? 1 : 0;
+}
+
+}  // namespace
+
+bool recall_pays(vec2 origin, const bc::bitboard& target, int recall_time, int margin) {
+    static const bc::bitboard open = ~seen::fixed_blocks();
+    static bc::distance_field home, to;
+    static bc::bitboard home_reached{bc::uninitialized}, reached{bc::uninitialized}, roots{bc::uninitialized};
+    static bool home_ready = false;
+    if (!home_ready) {
+        home.compute(seen::fixed_blocks(), seen::ally_spawn(), home_reached);
+        home_ready = true;
+    }
+    fast::and_into(target, open, roots);
+    if (roots.is_empty()) return false;
+    to.compute(seen::fixed_blocks(), roots, reached);
+    const int far_steps = 1000;
+    const int here = reached.is_set(origin) ? static_cast<int>(to.get(origin)) : far_steps;
+    int out = far_steps;
+    for (const auto t : seen::ally_spawn().positions())
+        if (reached.is_set(t)) out = std::min(out, static_cast<int>(to.get(t)));
+    for (const auto& j : stored)
+        for (int dir = 0; dir < 2; ++dir) {
+            const vec2 a = dir ? j.b : j.a, b = dir ? j.a : j.b;
+            if (!home_reached.is_set(a) || !reached.is_set(b)) continue;
+            out = std::min(out, static_cast<int>(home.get(a)) + CHANNEL + static_cast<int>(to.get(b)));
+        }
+    LOG(trace::audit.push_back(format("crystal recall check: %d on foot vs %d recall + %d from spawn", here, recall_time, out)););
+    return out < far_steps && here > recall_time + 1 + out + margin;
+}
+
+}  // namespace crystal

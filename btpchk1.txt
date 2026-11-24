@@ -1,0 +1,1 @@
+bots/zz-tp215probe bots/zz-tp215probe maps/00stampede.map26a replays/tp215probe/00stampede.repl26a --statistics replays/tp215probe/00stampede.json --json

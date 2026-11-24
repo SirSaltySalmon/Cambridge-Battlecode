@@ -1,0 +1,4 @@
+bots/zz-tp215probe bots/zz-tp215probe maps/00anvil.map26a replays/tp215probe/00anvil.repl26a --statistics replays/tp215probe/00anvil.json --json
+bots/zz-tp215probe bots/zz-tp215probe maps/00road-of-riches.map26a replays/tp215probe/00road-of-riches.repl26a --statistics replays/tp215probe/00road-of-riches.json --json
+bots/zz-tp215probe bots/zz-tp215probe maps/00stampede.map26a replays/tp215probe/00stampede.repl26a --statistics replays/tp215probe/00stampede.json --json
+bots/zz-tp215probe bots/zz-tp215probe maps/01corridors.map26a replays/tp215probe/01corridors.repl26a --statistics replays/tp215probe/01corridors.json --json

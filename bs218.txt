@@ -1,0 +1,5 @@
+bots/v218 bots/v213 maps/02arena.map26a replays/s218b/v218.repl26a
+bots/zz-218-nosim bots/v213 maps/02arena.map26a replays/s218b/zz-218-nosim.repl26a
+bots/zz-218-nomicro bots/v213 maps/02arena.map26a replays/s218b/zz-218-nomicro.repl26a
+bots/zz-218-noct bots/v213 maps/02arena.map26a replays/s218b/zz-218-noct.repl26a
+bots/v213 bots/v213 maps/02arena.map26a replays/s218b/v213.repl26a
