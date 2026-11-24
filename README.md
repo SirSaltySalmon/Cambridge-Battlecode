@@ -3,7 +3,7 @@
 Our code for CAMBC 2026a (Cambridge Battlecode), from team **"opsec level opera gx"**, October to November 2026.
 
 - Platform: <https://2026a.battlecode.co.uk>
-- Organiser: <https://battlecode.co.uk>
+- Team link: [opsec level opera gx](https://2026a.battlecode.co.uk/game/team/7b219a14-b935-46b6-8c2d-ad2aaaf21f25)
 - Rules: [GameRules.md](GameRules.md), also copied into [CLAUDE.md](CLAUDE.md). We used the `cambc` CLI, SDK 5.0.1.
 
 Contributors (GitHub): SirSaltySalmon, Jack, amai-ua, CantCode4Nothin.
