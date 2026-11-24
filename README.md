@@ -27,7 +27,7 @@ final bot is about 18,500 lines of C++ with 270 on/off switches.
 
 - [`bots/v230`](bots/v230/README.md) was our live bot from 11 November. [`bots/v235`](bots/v235/README.md) is the best
   one locally.
-- We peaked at rank 29. On 11 November we were 133rd of 830 (rating 1934), the last rank we wrote down.
+- We peaked at rank 29. At the end of the event, we were rank 121, at rating 1,998.
 
 How the bot works:
 
