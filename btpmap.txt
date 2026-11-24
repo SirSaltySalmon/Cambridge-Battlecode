@@ -1,1 +1,0 @@
-bots/zz-tp215probe bots/zz-tp215probe maps/02treasure-box.map26a replays/tpmap/tb2.repl26a --statistics replays/tpmap/tb2.json --json

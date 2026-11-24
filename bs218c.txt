@@ -1,2 +1,0 @@
-bots/v218b bots/v213 maps/02arena.map26a replays/s218c/arena.repl26a
-bots/v213 bots/v218b maps/01elk-arena.map26a replays/s218c/elk.repl26a

@@ -1,2 +1,0 @@
-bots/zz-tpprobe bots/zz-tpprobe maps/00ambush.map26a replays/tpprobe/00ambush.repl26a --statistics replays/tpprobe/00ambush.json --json
-bots/zz-tpprobe bots/zz-tpprobe maps/00anvil.map26a replays/tpprobe/00anvil.repl26a --statistics replays/tpprobe/00anvil.json --json

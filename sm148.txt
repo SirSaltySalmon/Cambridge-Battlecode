@@ -1,3 +1,0 @@
-bots/v148 bots/v144v maps/00the-line.map26a replays/sm148/00the-line-a.repl26a --statistics replays/sm148/00the-line-a.json --json
-bots/v148 bots/v144v maps/02treasure-box.map26a replays/sm148/02treasure-box-a.repl26a --statistics replays/sm148/02treasure-box-a.json --json
-bots/v148 bots/v144v maps/00quadrants.map26a replays/sm148/00quadrants-a.repl26a --statistics replays/sm148/00quadrants-a.json --json

@@ -1,2 +1,0 @@
-bots/zz-tpfuel bots/v213 maps/00ambush.map26a replays/btp-prof5/00ambush-a.repl26a --statistics replays/btp-prof5/00ambush-a.json --json
-bots/zz-tpfuel bots/v213 maps/01starvation.map26a replays/btp-prof5/01starvation-a.repl26a --statistics replays/btp-prof5/01starvation-a.json --json

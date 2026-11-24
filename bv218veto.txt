@@ -1,4 +1,0 @@
-bots/v218-sim bots/v210 maps/01shortcut.map26a replays/v218s/veto/01shortcut-a.repl26a --statistics replays/v218s/veto/01shortcut-a.json --json
-bots/v210 bots/v218-sim maps/00corners.map26a replays/v218s/veto/00corners-b.repl26a --statistics replays/v218s/veto/00corners-b.json --json
-bots/v218-sim bots/v210 maps/01starvation.map26a replays/v218s/veto/01starvation-a.repl26a --statistics replays/v218s/veto/01starvation-a.json --json
-bots/v210 bots/v218-sim maps/00the-line.map26a replays/v218s/veto/00the-line-b.repl26a --statistics replays/v218s/veto/00the-line-b.json --json

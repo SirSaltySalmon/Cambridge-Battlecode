@@ -1,2 +1,0 @@
-bots/v134 bots/v133t maps/00fragment.map26a replays/frag134/a.repl26a --statistics replays/frag134/a.json --json
-bots/v133t bots/v134 maps/00fragment.map26a replays/frag134/b.repl26a --statistics replays/frag134/b.json --json

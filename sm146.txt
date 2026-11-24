@@ -1,6 +1,0 @@
-bots/v146 bots/v145 maps/00the-line.map26a replays/sm146/00the-line-a.repl26a --statistics replays/sm146/00the-line-a.json --json
-bots/v145 bots/v146 maps/00the-line.map26a replays/sm146/00the-line-b.repl26a --statistics replays/sm146/00the-line-b.json --json
-bots/v146 bots/v145 maps/02treasure-box.map26a replays/sm146/02treasure-box-a.repl26a --statistics replays/sm146/02treasure-box-a.json --json
-bots/v145 bots/v146 maps/02treasure-box.map26a replays/sm146/02treasure-box-b.repl26a --statistics replays/sm146/02treasure-box-b.json --json
-bots/v146 bots/v145 maps/00packs.map26a replays/sm146/00packs-a.repl26a --statistics replays/sm146/00packs-a.json --json
-bots/v145 bots/v146 maps/00packs.map26a replays/sm146/00packs-b.repl26a --statistics replays/sm146/00packs-b.json --json

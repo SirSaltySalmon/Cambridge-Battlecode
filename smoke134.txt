@@ -1,4 +1,0 @@
-bots/v134 bots/v133t maps/00packs.map26a replays/smoke134/00packs.repl26a --statistics replays/smoke134/00packs.json --json
-bots/v134 bots/v133t maps/01boss-battle.map26a replays/smoke134/01boss-battle.repl26a --statistics replays/smoke134/01boss-battle.json --json
-bots/v134 bots/v133t maps/00elkring.map26a replays/smoke134/00elkring.repl26a --statistics replays/smoke134/00elkring.json --json
-bots/v134 bots/v133t maps/00ambush.map26a replays/smoke134/00ambush.repl26a --statistics replays/smoke134/00ambush.json --json

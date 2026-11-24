@@ -1,2 +1,0 @@
-bots/v215-tp bots/v213 maps/02treasure-box.map26a replays/tptb/tb-a.repl26a --statistics replays/tptb/tb-a.json --json
-bots/v213 bots/v215-tp maps/02treasure-box.map26a replays/tptb/tb-b.repl26a --statistics replays/tptb/tb-b.json --json
